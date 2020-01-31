@@ -167,7 +167,7 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
                     plot(coms(1,num_coms),coms(2,num_coms),'.r')
                 end
             end
-            
+             
             
             raw=[];
             inferred=[];

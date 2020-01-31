@@ -77,7 +77,7 @@ for fileNo=1:handles_per_file.no_files
                 decimated_LFP_logPtraces(:,ii_time)=mean(handles_per_file.file(fileNo).log_P_timecourses_per_bw(:,bwii,(LFPtime>dFFtime(ii_time)-(dt_dFF/2))&(LFPtime<=dFFtime(ii_time)+(dt_dFF/2))),3);
             end
         end
-         
+        
         %Save the decimated data
         save([choiceFileName(1:end-19) '_dFF.txt'],'dFFtraces','-ascii')
         save([choiceFileName(1:end-19) '_LFP_' handles.bw_names{bwii} '.txt'],'decimated_LFP_logPtraces','-ascii')
@@ -183,20 +183,20 @@ for fileNo=1:handles_per_file.no_files
 %         
 %         fprintf(1, ['\nFor file No %d ' handles.bw_names{bwii} 'PC1 dFF vs PC1 logP rho= %d, p value= %d\n'],fileNo,rho, pval);
 %         
-        %Now do dFF derivative
-                %Convolve lick_freq using a window of 0.9 sec
-        no_conv_points=5;
-        conv_win=ones(1,no_conv_points);
-        conv_dFFtraces=zeros(handles_per_file.file(fileNo).no_electrodes,no_timepoints_dFF);
-        
-        for trace_no=1:no_traces_dFF
-            conv_dFFtraces(trace_no,:)=conv(dFFtraces(trace_no,:),conv_win,'same')/no_conv_points;
-        end
-        
-        ddFFtraces=zeros(no_traces_dFF,size(dFFtraces,2));
-        ddFFtraces(:,2:end)=(conv_dFFtraces(:,2:end)-conv_dFFtraces(:,1:end-1))/dt_dFF;
-        ddFFtraces(:,1)=ddFFtraces(:,2);
-        pffft=1;
+%         %Now do dFF derivative
+%                 %Convolve lick_freq using a window of 0.9 sec
+%         no_conv_points=5;
+%         conv_win=ones(1,no_conv_points);
+%         conv_dFFtraces=zeros(handles_per_file.file(fileNo).no_electrodes,no_timepoints_dFF);
+%         
+%         for trace_no=1:no_traces_dFF
+%             conv_dFFtraces(trace_no,:)=conv(dFFtraces(trace_no,:),conv_win,'same')/no_conv_points;
+%         end
+%         
+%         ddFFtraces=zeros(no_traces_dFF,size(dFFtraces,2));
+%         ddFFtraces(:,2:end)=(conv_dFFtraces(:,2:end)-conv_dFFtraces(:,1:end-1))/dt_dFF;
+%         ddFFtraces(:,1)=ddFFtraces(:,2);
+%         
 %               %Calculate PCs per timepoint
 %         for ii_time=1:no_timepoints_dFF
 %             
@@ -236,28 +236,28 @@ for fileNo=1:handles_per_file.no_files
 %         
         %Now add all derivatives
         
-%         sumddFFtraces=sum(ddFFtraces,1);
-%          sumddFFtraces=sumddFFtraces(1,PC_mask);
-%          figNo=figNo+1;
-%         try
-%             close(figNo)
-%         catch
-%         end
-%         hFig=figure(figNo);
-%         set(hFig, 'units','normalized','position',[.05 .1 .85 .8])
-%         
-%         hold on
-%         
-%         
-%         plot(sumddFFtraces,PC1_logP,'.k')
-%         xlabel('Sum of derivatives fot dFF')
-%         ylabel('PC1 for logP')
-%         title(['PC1 plot for ' handles.bw_names{bwii}])
-%        
-%         [rho,pval] = corr(sumddFFtraces',PC1_logP);
-%         
-%         fprintf(1, ['\nFor file No %d ' handles.bw_names{bwii} 'sum of dFF derivatives vs PC1 logP rho= %d, p value= %d\n'],fileNo,rho, pval);
-%         
+        sumddFFtraces=sum(ddFFtraces,1);
+         sumddFFtraces=sumddFFtraces(1,PC_mask);
+         figNo=figNo+1;
+        try
+            close(figNo)
+        catch
+        end
+        hFig=figure(figNo);
+        set(hFig, 'units','normalized','position',[.05 .1 .85 .8])
+        
+        hold on
+        
+        
+        plot(sumddFFtraces,PC1_logP,'.k')
+        xlabel('Sum of derivatives fot dFF')
+        ylabel('PC1 for logP')
+        title(['PC1 plot for ' handles.bw_names{bwii}])
+       
+        [rho,pval] = corr(sumddFFtraces',PC1_logP);
+        
+        fprintf(1, ['\nFor file No %d ' handles.bw_names{bwii} 'sum of dFF derivatives vs PC1 logP rho= %d, p value= %d\n'],fileNo,rho, pval);
+        
     end
 end
 

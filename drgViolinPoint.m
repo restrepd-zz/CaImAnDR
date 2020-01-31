@@ -1,5 +1,12 @@
 function [mean_points CI_points] = drgViolinPoint(points,edges,x_val,rand_offset,which_color_mean,point_size)
 %This function plots a violin data point
+% 
+% points has the data to be plotted
+% edges are the edges of a histogram encompassing all data
+% x_val is the x location
+% rand_offset is the width of the violin plot
+% which_color is the color for the points e.g. 'k'
+% point_size is the size of the points i.e. 1
 
 if exist('point_size')==0
     point_size=1;

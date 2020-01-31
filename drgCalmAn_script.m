@@ -32,27 +32,27 @@ d = d1*d2;                                          % total number of pixels
 
 %% Set parameters
 
-%GRINtrode parameters       
-K=150;              % number of components to be found
-fr=1/0.25336;       % Acquisition rate of the microscope in log file (1/seconds)
-p=2;                % order of AR dynamics
-decay_time=1.14;    % GCaMP6f is 0.395 sec, GCaMP6m is 0.868 and GCaMP6s is 1.140 decay time
-                    %Sup Fig 3 Chen et al Nature. 2013 Jul 18; 499(7458): 295?300.
-tau = 10;           % 5 std of gaussian kernel (size of neuron)
-
-options = CNMFSetParms(...   
-    'd1',d1,'d2',d2,...                         % dimensionality of the FOV
-    'p',p,...                                   % order of AR dynamics    
-    'gSig',tau,...                              % half size of neuron
-    'merge_thr',0.80,...                        % merging threshold  
-    'nb',2,...                                  % number of background components    
-    'min_SNR',2.5,...                             % minimum SNR threshold
-    'space_thresh',0.5,...                      % space correlation threshold
-    'cnn_thr',0.2,...                           % threshold for CNN classifier   
-    'fr',fr,...                                 % frame rate acquisition in Hz
-    'decay_time',decay_time, ...
-    'init_method', 'greedy'...              % initialization method ('greedy','greedy_corr','sparse_NMF','HALS') (default: 'greedy')
-    );
+% %GRINtrode parameters       
+% K=150;              % number of components to be found
+% fr=1/0.25336;       % Acquisition rate of the microscope in log file (1/seconds)
+% p=2;                % order of AR dynamics
+% decay_time=1.14;    % GCaMP6f is 0.395 sec, GCaMP6m is 0.868 and GCaMP6s is 1.140 decay time
+%                     %Sup Fig 3 Chen et al Nature. 2013 Jul 18; 499(7458): 295?300.
+% tau = 10;           % 5 std of gaussian kernel (size of neuron)
+% 
+% options = CNMFSetParms(...   
+%     'd1',d1,'d2',d2,...                         % dimensionality of the FOV
+%     'p',p,...                                   % order of AR dynamics    
+%     'gSig',tau,...                              % half size of neuron
+%     'merge_thr',0.80,...                        % merging threshold  
+%     'nb',2,...                                  % number of background components    
+%     'min_SNR',2.5,...                             % minimum SNR threshold
+%     'space_thresh',0.5,...                      % space correlation threshold
+%     'cnn_thr',0.2,...                           % threshold for CNN classifier   
+%     'fr',fr,...                                 % frame rate acquisition in Hz
+%     'decay_time',decay_time, ...
+%     'init_method', 'greedy'...              % initialization method ('greedy','greedy_corr','sparse_NMF','HALS') (default: 'greedy')
+%     );
 
 % %Bootcamp parameters       
 % K=200;              % number of components to be found
@@ -73,29 +73,29 @@ options = CNMFSetParms(...
 %     'fr',fr,...                                  % frame rate acquisition in Hz
 %     'decay_time',decay_time, ...
 %     'init_method', 'greedy'...              % initialization method ('greedy','greedy_corr','sparse_NMF','HALS') (default: 'greedy')
-%     );
+%     ); 
 
-% % Cerebellum parameters       
-% K=200;               % number of components to be found
-% tau = 5;            % 5 std of gaussian kernel (size of neuron) 
-% p = 2;
-% fr=1/0.19003; %Acquisition rate of the microscope in log file (1/seconds)
-% 
-% decay_time=1.8;     %GCaMP6s decay time
-% 
-% options = CNMFSetParms(...   
-%     'd1',d1,'d2',d2,...                         % dimensionality of the FOV
-%     'p',p,...                                   % order of AR dynamics    
-%     'gSig',tau,...                              % half size of neuron
-%     'merge_thr',0.80,...                        % merging threshold  
-%     'nb',2,...                                  % number of background components    
-%     'min_SNR',3,...                             % minimum SNR threshold
-%     'space_thresh',0.5,...                      % space correlation threshold
-%     'cnn_thr',0.2,...                           % threshold for CNN classifier   
-%     'fr',fr,...                                  % frame rate acquisition in Hz
-%     'decay_time',decay_time, ...
-%     'init_method', 'greedy'...              % initialization method ('greedy','greedy_corr','sparse_NMF','HALS') (default: 'greedy')
-%     );
+% Cerebellum parameters       
+K=200;               % number of components to be found
+tau = 5;            % 5 std of gaussian kernel (size of neuron) 
+p = 2;
+fr=1/0.19125; %Acquisition rate of the microscope in log file (1/seconds)
+
+decay_time=1.8;     %GCaMP6s decay time
+
+options = CNMFSetParms(...   
+    'd1',d1,'d2',d2,...                         % dimensionality of the FOV
+    'p',p,...                                   % order of AR dynamics    
+    'gSig',tau,...                              % half size of neuron
+    'merge_thr',0.80,...                        % merging threshold  
+    'nb',2,...                                  % number of background components    
+    'min_SNR',3,...                             % minimum SNR threshold
+    'space_thresh',0.5,...                      % space correlation threshold
+    'cnn_thr',0.2,...                           % threshold for CNN classifier   
+    'fr',fr,...                                  % frame rate acquisition in Hz
+    'decay_time',decay_time, ...
+    'init_method', 'greedy'...              % initialization method ('greedy','greedy_corr','sparse_NMF','HALS') (default: 'greedy')
+    );
  
 % %2P-FCM
 % K = 6;          % number of components to be found
@@ -207,7 +207,7 @@ Pm.p = p;    % restore AR value
 [A2,b2,C2] = update_spatial_components(Yr,Cm,f,[Am,b],Pm,options);
 [C2,f2,P2,S2,YrA2] = update_temporal_components(Yr,A2,b2,C2,f,Pm,options);
 
-
+ 
 %% do some plotting
 
 [A_or,C_or,S_or,P_or] = order_ROIs(A2,C2,S2,P2); % order components
