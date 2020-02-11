@@ -5,15 +5,17 @@
 close all
 clear all
 
+
+
 %Choices
 do_warp=0;     %1=warped components from a reference file
-um_per_pixel=0.489;
+um_per_pixel=1.745;
 
 %Other default variables
 plot_raw=1; %Used plot_raw=1 for Ming's data
 ref_win=[-5 -1.5];
 
-
+ROIs=[];
 % 1 dropc_nsampler_piriform
 
 % 2 dropcspm_hf before 2/23/2018
@@ -42,15 +44,16 @@ addpath(choiceBatchPathName)
 eval(['handles_choice=' choiceFileName(1:end-2) ';'])
 handles_choice.choiceFileName=choiceFileName;
 handles_choice.choiceBatchPathName=choiceBatchPathName;
-  
+
 cd(handles_choice.PathName)
-   
+
 
 for fileNo=handles_choice.first_file:handles_choice.no_files
     
+    figNo=0;
+    
     fprintf(1, ['\nProcessing  ' num2str(fileNo) '\n']);
     
-
     
     Yr=[];
     A_or=[];
@@ -64,9 +67,9 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     else
         load(handles_choice.CaImAn_scriptFileName{fileNo})
     end
-     
+    
     fnameca=handles_choice.CaImAn_scriptFileName{fileNo};
-     
+    
     close all
     
     %Calculate the center of mass (coms) for each component
@@ -77,11 +80,14 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     dt=1/options.fr;
     
     %Draw the components for the first image
+    figNo=figNo+1;
     try
-        close 8
+        close(figNo)
     catch
     end
-    figure(8)
+    
+    hFig = figure(figNo);
+    
     
     cla
     imagesc(2*Cn); axis equal; axis tight; axis off; hold on;
@@ -92,6 +98,8 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     szA_or=size(A_or);
     coms=[];
     num_coms=0;
+    num_diameters=0;
+    diameter=[];
     
     for i=1:szA_or(2)
         A_temp = full(reshape(A_or(:,i),d1,d2));
@@ -107,10 +115,50 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
             coms(1,num_coms)=mean(contour_properties(1,2:end));
             coms(2,num_coms)=mean(contour_properties(2,2:end));
             plot(coms(1,num_coms),coms(2,num_coms),'.r')
+            %Note: we need to calculate the area within the contour
+            szctr=size(contour_properties);
+            lngth=0;
+            for jj=2:szctr(2)-1
+                lngth=lngth+sqrt((contour_properties(1,jj+1)-contour_properties(1,jj))^2 +(contour_properties(2,jj+1)-contour_properties(2,jj))^2);
+            end
+            area=polyarea(contour_properties(1,2:end),contour_properties(2,2:end))-0.5*lngth;
+            
+            if imag(um_per_pixel*sqrt(4*area/pi)) == 0
+                %This is here because some contours have a point WAY off
+                num_diameters=num_diameters+1;
+                diameter(num_diameters)=um_per_pixel*sqrt(4*area/pi);
+            end
         end
     end
     
-   
+    
+    figNo=figNo+1;
+    try
+        close(figNo)
+    catch
+    end
+    
+    hFig = figure(figNo);
+    
+    
+    edges=[0:25];
+    histogram(diameter,edges)
+    
+    xlabel('Diameter (um)')
+    ylabel('Counts')
+    
+    ROIs.median(fileNo)=median(diameter);
+    ROIs.mean(fileNo)=mean(diameter);
+    ROIs.std(fileNo)=std(diameter);
+    ROIs.file(fileNo).diameter=diameter;
+    ROIs.num_coms(fileNo)=num_coms;
+
+    
+    fprintf(1, ['\nMedian diameter (um) is %d\n\n'],median(diameter));
+    fprintf(1, ['\nMean diameter (um) is %d\n\n'],mean(diameter));
+    fprintf(1, ['\nStndard deviation (um) is %d\n\n'],std(diameter));
+    
+    
     raw=[];
     inferred=[];
     try
@@ -131,11 +179,11 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     no_images=sz_traces(2);
     
     fprintf(1, ['\ndrgCaImAn_dropc run for ' fnameca '\n\n']);
-     
+    
     %Read the dropc file
     handles=[];
     load(handles_choice.spmFileName{fileNo})
-     
+    
     %Read the rhd file
     adc_in=[];
     digital_in=[];
@@ -153,13 +201,15 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     these_lines{7}='-c';
     these_lines{4}='-k';
     
+    figNo=figNo+1;
     try
-        close 1
+        close(figNo)
     catch
     end
     
-    hFig1 = figure(1);
-    set(hFig1, 'units','normalized','position',[.05 .1 .85 .8])
+    hFig = figure(figNo);
+    
+    set(hFig, 'units','normalized','position',[.05 .1 .85 .8])
     
     
     hold on
@@ -300,17 +350,17 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     
     %Uncomment this to show a subset of traces
     %This code is here to explore the individual traces and licks
-
-%     first_trace=1;
-%     last_trace=2.5;
-%     trialNo_start=1;
-%     trialNo_end=12;
-%     xlim([odor_on_times(trialNo_start)-dt_before odor_on_times(trialNo_end)+dt_after])
-%     ylim([y_shift*(first_trace-1) y_shift*last_trace])
-%     title(['deltaF/f for traces ' num2str(first_trace) ' to ' num2str(last_trace) ])
-    set(hFig1, 'units','normalized','position',[.05 .05 .3 .85])
     
-     
+    %     first_trace=1;
+    %     last_trace=2.5;
+    %     trialNo_start=1;
+    %     trialNo_end=12;
+    %     xlim([odor_on_times(trialNo_start)-dt_before odor_on_times(trialNo_end)+dt_after])
+    %     ylim([y_shift*(first_trace-1) y_shift*last_trace])
+    %     title(['deltaF/f for traces ' num2str(first_trace) ' to ' num2str(last_trace) ])
+    set(hFig, 'units','normalized','position',[.05 .05 .3 .85])
+    
+    
     
     %Plot the responses aligned with the onset of the epochs
     switch dropc_program
@@ -643,9 +693,9 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
                         epoch_per_trial(no_odor_trials)=6;
                         epoch_time(no_odor_trials)=handles.dropcData.epochTime(epoch);
                         lda_event{no_odor_trials}='S+';
-                         
+                        
                         handles_out.epoch_per_trial(no_odor_trials)=6;
-                         
+                        
                         snip_mask=(time>=handles.dropcData.epochTime(epoch)-dt_before+dt_odor_onset)...
                             &(time<=handles.dropcData.epochTime(epoch)+dt_after+dt_odor_onset);
                         ref_mask=(time>=handles.dropcData.epochTime(epoch)+ref_win(1))...
@@ -660,6 +710,7 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
                                 Hitii=Hitii+1;
                                 Hit_traces(Hitii,1:sum(snip_mask))=traces(trNo,snip_mask)-mean(traces(trNo, ref_mask));
                                 handles_out.componentNo(trace_num).trialNo(Hitii_lick+1).hit_traces=Hit_traces(Hitii,1:sum(snip_mask));
+                                handles_out.file(fileNo).trial_this_file(no_odor_trials).componentNo(trace_num).traces=Hit_traces(Hitii,1:sum(snip_mask));
                                 handles_out.trialNo(Hitii_lick+1).trace_numHit=trace_num;
                                 no_Hit_traces=no_Hit_traces+1;
                                 Hit_trials(Hitii)=no_Hit_trials;
@@ -711,6 +762,7 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
                                 Missii=Missii+1;
                                 Miss_traces(Missii,1:sum(snip_mask))=traces(trNo,snip_mask)-mean(traces(trNo, ref_mask));
                                 handles_out.componentNo(trace_num).trialNo(Missii_lick+1).miss_traces=Miss_traces(Missii,1:sum(snip_mask));
+                                handles_out.file(fileNo).trial_this_file(no_odor_trials).componentNo(trace_num).traces=Miss_traces(Missii,1:sum(snip_mask));
                                 handles_out.trialNo(Missii_lick+1).trace_numMiss=trace_num;
                                 no_Miss_traces=no_Miss_traces+1;
                                 which_trace_Miss(Missii)=trNo;
@@ -757,6 +809,7 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
                                 FAii=FAii+1;
                                 FA_traces(FAii,1:sum(snip_mask))=traces(trNo,snip_mask)-mean(traces(trNo, ref_mask));
                                 handles_out.componentNo(trace_num).trialNo(FAii_lick+1).FA_traces=FA_traces(FAii,1:sum(snip_mask));
+                                handles_out.file(fileNo).trial_this_file(no_odor_trials).componentNo(trace_num).traces=FA_traces(FAii,1:sum(snip_mask));
                                 handles_out.trialNo(FAii_lick+1).trace_numFA=trace_num;
                                 no_FA_traces=no_FA_traces+1;
                                 which_trace_FA(FAii)=trNo;
@@ -803,6 +856,7 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
                                 CRii=CRii+1;
                                 CR_traces(CRii,1:sum(snip_mask))=traces(trNo,snip_mask)-mean(traces(trNo, ref_mask));
                                 handles_out.componentNo(trace_num).trialNo(CRii_lick+1).CR_traces=CR_traces(CRii,1:sum(snip_mask));
+                                handles_out.file(fileNo).trial_this_file(no_odor_trials).componentNo(trace_num).traces=CR_traces(CRii,1:sum(snip_mask));
                                 handles_out.trialNo(CRii_lick+1).trace_numCR=trace_num;
                                 no_CR_traces=no_CR_traces+1;
                                 which_trace_CR(CRii)=trNo;
@@ -827,48 +881,49 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
                         
                     end
                     
-%                 else
-%                     %Hit
-%                     if (handles.dropcData.epochEvent(epoch)==6)
-%                         
-%                         no_odor_trials=no_odor_trials+1;
-%                         epoch_per_trial(no_odor_trials)=6;
-%                         epoch_time(no_odor_trials)=handles.dropcData.epochTime(epoch);
-%                         valid_trace(no_odor_trials)=0;
-%                     end
-%                     
-%                     %Miss
-%                     if (handles.dropcData.epochEvent(epoch)==7)
-%                         
-%                         no_odor_trials=no_odor_trials+1;
-%                         epoch_per_trial(no_odor_trials)=7;
-%                         epoch_time(no_odor_trials)=handles.dropcData.epochTime(epoch);
-%                         valid_trace(no_odor_trials)=0;
-%                     end
-%                     
-%                     %FA
-%                     if (handles.dropcData.epochEvent(epoch)==8)
-%                         
-%                         no_odor_trials=no_odor_trials+1;
-%                         epoch_per_trial(no_odor_trials)=8;
-%                         epoch_time(no_odor_trials)=handles.dropcData.epochTime(epoch);
-%                         valid_trace(no_odor_trials)=0;
-%                     end
-%                     
-%                     %CR
-%                     if (handles.dropcData.epochEvent(epoch)==9)
-%                         
-%                         no_odor_trials=no_odor_trials+1;
-%                         epoch_per_trial(no_odor_trials)=9;
-%                         epoch_time(no_odor_trials)=handles.dropcData.epochTime(epoch);
-%                         valid_trace(no_odor_trials)=0;
-%                     end
-                  pffft=1;
-                  
+                    %                 else
+                    %                     %Hit
+                    %                     if (handles.dropcData.epochEvent(epoch)==6)
+                    %
+                    %                         no_odor_trials=no_odor_trials+1;
+                    %                         epoch_per_trial(no_odor_trials)=6;
+                    %                         epoch_time(no_odor_trials)=handles.dropcData.epochTime(epoch);
+                    %                         valid_trace(no_odor_trials)=0;
+                    %                     end
+                    %
+                    %                     %Miss
+                    %                     if (handles.dropcData.epochEvent(epoch)==7)
+                    %
+                    %                         no_odor_trials=no_odor_trials+1;
+                    %                         epoch_per_trial(no_odor_trials)=7;
+                    %                         epoch_time(no_odor_trials)=handles.dropcData.epochTime(epoch);
+                    %                         valid_trace(no_odor_trials)=0;
+                    %                     end
+                    %
+                    %                     %FA
+                    %                     if (handles.dropcData.epochEvent(epoch)==8)
+                    %
+                    %                         no_odor_trials=no_odor_trials+1;
+                    %                         epoch_per_trial(no_odor_trials)=8;
+                    %                         epoch_time(no_odor_trials)=handles.dropcData.epochTime(epoch);
+                    %                         valid_trace(no_odor_trials)=0;
+                    %                     end
+                    %
+                    %                     %CR
+                    %                     if (handles.dropcData.epochEvent(epoch)==9)
+                    %
+                    %                         no_odor_trials=no_odor_trials+1;
+                    %                         epoch_per_trial(no_odor_trials)=9;
+                    %                         epoch_time(no_odor_trials)=handles.dropcData.epochTime(epoch);
+                    %                         valid_trace(no_odor_trials)=0;
+                    %                     end
+                    pffft=1;
+                    
                 end
             end
     end
     
+    handles_out.file(fileNo).no_odor_trials=no_odor_trials;
     
     %Plot the snips
     szFV=size(fv_traces);
@@ -940,7 +995,14 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     
     
     %FV
-    figure(2)
+    figNo=figNo+1;
+    try
+        close(figNo)
+    catch
+    end
+    
+    hFig = figure(figNo);
+    
     hold on
     CI = bootci(1000, @mean, fv_traces);
     meanfv=mean(fv_traces,1);
@@ -995,7 +1057,14 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     CIsplick(1,:)=meansplick-CIsplick(1,:);
     CIsplick(2,:)=CIsplick(2,:)-meansplick;
     
-    figure(3)
+    figNo=figNo+1;
+    try
+        close(figNo)
+    catch
+    end
+    
+    hFig = figure(figNo);
+    
     hold on
     
     szSp=size(splus_traces);
@@ -1009,12 +1078,12 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     pct1=prctile([mean(sminus_traces,1)'; mean(splus_traces(:,1:szSp(2)),1)'],1);
     pct99=prctile([mean(sminus_traces,1)'; mean(splus_traces(:,1:szSp(2)),1)'],99);
     
-   
+    
     
     [hlsm, hpsm] = boundedline(time_to_eventSm',mean(sminus_traces,1)', CIsm', 'b');
     [hlsp, hpsp] = boundedline(time_to_eventSp',mean(splus_traces,1)', CIsp', 'r');
     
-     %Odor on markers
+    %Odor on markers
     plot([0 0],[pct1-0.1*(pct99-pct1) pct99+0.1*(pct99-pct1)],'-k')
     odorhl=plot([0 mean(delta_odor)],[pct1-0.1*(pct99-pct1) pct1-0.1*(pct99-pct1)],'-k','LineWidth',5);
     plot([mean(delta_odor) mean(delta_odor)],[pct1-0.1*(pct99-pct1) pct99+0.1*(pct99-pct1)],'-k')
@@ -1164,11 +1233,19 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
         'handles','odor_traces','dt','all_lick_traces','acq_rate',...
         'y_shift','traces','time_rhd','adc_in','no_images','handles_out',...
         'lda_input_timecourse','lda_event','time_to_eventLDA','dHit_lick_traces'...
-        ,'dCR_lick_traces','dMiss_lick_traces','dFA_lick_traces','coms','num_coms','um_per_pixel')
+        ,'dCR_lick_traces','dMiss_lick_traces','dFA_lick_traces','coms','num_coms','um_per_pixel'...
+        ,'ROIs')
     
     
     
-    figure(4)
+    figNo=figNo+1;
+    try
+        close(figNo)
+    catch
+    end
+    
+    hFig = figure(figNo);
+    
     hold on
     
     pct1=prctile([mean(CR_traces,1)'; mean(Hit_traces,1)';mean(Miss_traces,1)';mean(FA_traces,1)'],1);
@@ -1225,7 +1302,14 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     end
     
     %Plot the licks
-    figure(5)
+    figNo=figNo+1;
+    try
+        close(figNo)
+    catch
+    end
+    
+    hFig = figure(figNo);
+    
     hold on
     
     for ii=1:allii_lick
@@ -1290,7 +1374,14 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     end
     
     %Plot lick frequency
-    figure(6)
+    figNo=figNo+1;
+    try
+        close(figNo)
+    catch
+    end
+    
+    hFig = figure(figNo);
+    
     hold on
     time_licks=([1:length(Hitlick_freq)]*dt_lick)-dt_before;
     plot(time_licks,Hitlick_freq,'-r')
@@ -1352,7 +1443,14 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
         time_p_lick=[-dt_before+(dt_lick_pval/2):dt_lick_pval:dt_after-(dt_lick_pval)];
         
         
-        figure(7)
+        figNo=figNo+1;
+        try
+            close(figNo)
+        catch
+        end
+        
+        hFig = figure(figNo);
+        
         plot(time_p_lick,log10(p_val_Hit_CR))
         hold on
         plot([time_p_lick(1) time_p_lick(end)],[log10(0.05) log10(0.05)])

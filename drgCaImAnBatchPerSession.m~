@@ -337,7 +337,7 @@ lickspm_freq_per_perCorr=[];
 nospm_per_perCorr=zeros(szwins(1),2,length(unique_perCorr));
 nospm_freqs_per_perCorr=zeros(szwins(1),2,length(unique_perCorr));
 
-perCorrsubsampled=zeros(szwins(1),floor(length(unique_perCorr)),4);
+perCorrsubsampled=zeros(szwins(1),floor(length(unique_perCorr)),4,2);
 minpc=20000;
 maxpc=-20000;
 
@@ -633,7 +633,7 @@ for winNo=1:szwins(1)
                     this_dFF(1,tt)=dFFspm_per_perCorr(winNo,epochs,ii_perCorrs,jj);
                 end
            
-             
+            
             if ~isempty(this_dFF)
                 
                 h=histogram(this_dFF(:),edges,'Visible','off');

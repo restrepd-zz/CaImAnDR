@@ -1,16 +1,19 @@
-function drgCaImAnBatchPerSessionReversalPerTrial
+function drgCaImAnBatchPerSessionPerTrial
 
-% This function calculates the dFF timecourse 
+% This function calculates the per trial dFF timecourse for go-no go sessions
+%
 % The input is a series of CalmAn_batch_pre_per.mat files with the CaImAn
-% data for dFF for each ROI. 
+% data for dFF for each ROI, the data on epochs and licks. 
 % Each training session includes several of these files
-% The name and locaiton of these files and some choice parameters are 
+% The name and location of these files and some choice parameters are 
 % entered in a drgCaImAnChoices file
 % caimanhandles.caimandr_choices.start_reversal is the file number for the 
 % start of a reversal
 % Processing of the data is different if there is a reversal
-% Needs a choices file such as drgCaImAnChoicesDiego20180910_mmPVG04_Cerebellum
-% Needs the output files from drgCaImAn_batch_dropc.m
+%
+%
+% Needs a choices file such as drgCaImAnChoices_20180515_mmPVG02_Cerebellum.m
+% Needs the CalmAn_batch_pre_per.mat files output files from drgCaImAn_batch_dropc.m
 
 %
 warning('off')
@@ -21,7 +24,7 @@ clear all
 tic
  
 [choiceFileName,choiceBatchPathName] = uigetfile({'drgCaImAnChoices*.m'},'Select the .m file with all the choices for analysis');
-fprintf(1, ['\ndrgCaImAnBatchPerSessionReversalPerTrial run for ' choiceFileName '\n\n']);
+fprintf(1, ['\ndrgCaImAnBatchPerSessionPerTrial run for ' choiceFileName '\n\n']);
 
 addpath(choiceBatchPathName)
 eval(['handles=' choiceFileName(1:end-2) ';'])
@@ -34,6 +37,7 @@ caimanhandles=handles;
 num_odor_trials=0;
 epochs_per_trial=[];
 num_odor_trials_dFF=0;
+files_per_trial=[];
 
 all_lda_events=[]; 
 all_lda_input_timecourse=[];
@@ -54,6 +58,7 @@ for filNum=1:caimanhandles.caimandr_choices.no_files
         
         %Save epoch
         num_odor_trials=num_odor_trials+1;
+        files_per_trial(num_odor_trials)=filNum;
         
         %Save lda
 %         all_lda_events{num_odor_trials}=lda_event{trNo};
@@ -271,6 +276,7 @@ for filNum=1:caimanhandles.caimandr_choices.no_files
   
     end
     noROIs(filNum)=szhit(1);
+    
 end
 
 %Calculate percent correct
@@ -317,7 +323,7 @@ jj_mid=find((perCorr<=min_precent_high_beh)&(perCorr>=max_percent_low_beh));
 plot(jj_mid,perCorr(jj_mid),'o','MarkerEdgeColor',[0.7 0.7 0.7],'MarkerFaceColor',[0.7 0.7 0.7])
 hold on
 plot([0 num_odor_trials],[50 50],'-k')
-
+ 
 %Draw the boundaries of each file
 for filNum=2:caimanhandles.caimandr_choices.no_files
 %     plot([first_num_odor_trials(filNum) first_num_odor_trials(filNum)],[0 100],'-k')
@@ -346,8 +352,29 @@ xlabel('Trial number')
 ylabel('Percent correct')
 ylim([0 100])
 
+%Now calculate the per ROI dFFs
+for filNum=1:caimanhandles.caimandr_choices.no_files
+        
+    %Read the file
+    if iscell(caimanhandles.caimandr_choices.PathName)==0
+        load([caimanhandles.caimandr_choices.PathName caimanhandles.caimandr_choices.FileName{filNum}])
+    else
+        load([caimanhandles.caimandr_choices.PathName{filNum} caimanhandles.caimandr_choices.FileName{filNum}])
+    end
+     
+     
+    first_num_odor_trials(filNum)=num_odor_trials+1;
+    
+    for trNo=1:no_odor_trials
+        
+    end
+    
+end
+
+%If no start_reversal file we enter a large file number so that the data
+%are all processed for forward go-no go runs
 if ~isfield(caimanhandles.caimandr_choices,'start_reversal')
-    caimanhandles.caimandr_choices.start_reversal=200;
+    caimanhandles.caimandr_choices.start_reversal=2000;
 end
 
 %For reversals plot violin plot of percent

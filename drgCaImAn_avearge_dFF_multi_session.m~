@@ -1,0 +1,523 @@
+%drgCaImAn_average_dFF_multi_session shows the dFF vs perecent correct 
+%using averages for all ROIs calculated by drgCaImAnBatchPerSession
+%This is used to generate Ma eet al 2020 Fig. 1
+
+close all
+clear all
+
+handles.caimandr_choices.outFileName{1}='20180910_mmPVG04_Cerebellum_bpsout.mat';
+handles.caimandr_choices.outPathName{1}='/Users/restrepd/Documents/Projects/MOM slidebook/mmPVG04/20180910_mmPVG04_Cerebellum_new_analysis/';
+
+handles.caimandr_choices.outFileName{2}='20180515_18_mmPVG02_Cerebellum_out_bpsout.mat';
+handles.caimandr_choices.outPathName{2}='/Users/restrepd/Documents/Projects/MOM slidebook/mmPVG02/20180515_mmPVG02_Cerebellum_new_analysis/';
+
+handles.caimandr_choices.outFileName{3}='20180702_05_mmG7f09-Cerebellum_out_bpsout.mat';
+handles.caimandr_choices.outPathName{3}='/Users/restrepd/Documents/Projects/MOM slidebook/mmG7f09/20180702_mmG7f09-Cerebellum new analysis/';
+
+handles.caimandr_choices.outFileName{4}='20181017_19_mmPVG05_Cerebellum_out_bpsout.mat';
+handles.caimandr_choices.outPathName{4}='/Users/restrepd/Documents/Projects/MOM slidebook/mmPVG05/20181017_mmPVG05_Cerebellum new analysis/';
+
+%Plot dFF vs percent corrrect
+winNo=2;
+perCorr=[45:10:95];
+dFFsp=[];
+norm_dFFsp=[];
+dFFsp_exist=[];
+dFFsm=[];
+dFFsm_exist=[];
+norm_dFFsm=[];
+
+for filNum=1:length(handles.caimandr_choices.outFileName)
+    load([handles.caimandr_choices.outPathName{filNum} handles.caimandr_choices.outFileName{filNum}])
+    this_dFFsp=ones(1,6);
+    this_dFFsp(1,:)=handles_out.mean_dFFspm(winNo,5:10,1);
+    dFFsp(filNum,:)=this_dFFsp(1,:);
+    this_dFFsp_exist=ones(1,6);
+    this_dFFsp_exist(1,:)=handles_out.mean_existsspm(winNo,5:10,1);
+    dFFsp_exist(filNum,:)=this_dFFsp_exist(1,:);
+    
+    this_dFFsm=ones(1,6);
+    this_dFFsm(1,:)=handles_out.mean_dFFspm(winNo,5:10,2);
+    dFFsm(filNum,:)=this_dFFsm(1,:);
+    this_dFFsm_exist=ones(1,6);
+    this_dFFsm_exist(1,:)=handles_out.mean_existsspm(winNo,5:10,2);
+    dFFsm_exist(filNum,:)=this_dFFsm_exist(1,:);
+end
+
+
+for filNum=1:length(handles.caimandr_choices.outFileName)
+    all_sp=[];
+    ii_sp=0;
+    all_sm=[];
+    ii_sm=0;
+    for ii=3:6
+        if dFFsp_exist(filNum,ii)==1
+            ii_sp=ii_sp+1;
+            all_sp(ii_sp)=dFFsp(filNum,ii);
+        end
+    end
+    norm_dFFsp(filNum,:)=dFFsp(filNum,:)/mean(all_sp);
+    norm_dFFsm(filNum,:)=dFFsm(filNum,:)/mean(all_sp);
+end
+        
+
+%Plot dFF for S+ and S-
+figNo=1;
+try
+    close(figNo)
+catch
+end
+figure(figNo)
+hold on
+
+glm_ii=0;
+glm_dFF=[];
+
+dFF_stats=[]
+ii_stats=0;
+
+meandFFsp=[];
+meandFFsm=[];
+
+CIdFFsp=zeros(2,6);
+CIdFFsm=zeros(2,6);
+
+for ii=1:6
+    these_exists=ones(1,length(handles.caimandr_choices.outFileName));
+    these_exists(1,:)=dFFsp_exist(:,ii);
+    meandFFsp(1,ii)=mean(dFFsp(logical(these_exists),ii));
+    these_dFF=ones(1,sum(these_exists));
+    these_dFF(1,:)=dFFsp(logical(these_exists),ii);
+    CIdFFsp(:,ii) = bootci(1000, {@mean, these_dFF})';
+    
+    glm_dFF.data(glm_ii+1:glm_ii+sum(these_exists))=these_dFF;
+    glm_dFF.spm(glm_ii+1:glm_ii+sum(these_exists))=ones(1,sum(these_exists));
+    glm_dFF.perCorr(glm_ii+1:glm_ii+sum(these_exists))=perCorr(ii)*ones(1,sum(these_exists));
+    glm_ii=glm_ii+sum(these_exists);
+    
+    ii_stats=ii_stats+1;
+    dFF_stats(ii_stats).data=these_dFF;
+    dFF_stats(ii_stats).description=[num2str(perCorr(ii)) '%% S+'];
+    
+    these_exists=ones(1,length(handles.caimandr_choices.outFileName));
+    these_exists(1,:)=dFFsm_exist(:,ii);
+    meandFFsm(1,ii)=mean(dFFsm(logical(these_exists),ii));
+     these_dFF=ones(1,sum(these_exists));
+    these_dFF(1,:)=dFFsm(logical(these_exists),ii);
+    CIdFFsm(:,ii) = bootci(1000, {@mean, these_dFF})';
+    
+    glm_dFF.data(glm_ii+1:glm_ii+sum(these_exists))=these_dFF;
+    glm_dFF.spm(glm_ii+1:glm_ii+sum(these_exists))=zeros(1,sum(these_exists));
+    glm_dFF.perCorr(glm_ii+1:glm_ii+sum(these_exists))=perCorr(ii)*ones(1,sum(these_exists));
+    glm_ii=glm_ii+sum(these_exists);
+    
+    ii_stats=ii_stats+1;
+    dFF_stats(ii_stats).data=these_dFF;
+    dFF_stats(ii_stats).description=[num2str(perCorr(ii)) '%% S-'];
+end
+
+%mmPVG04 is GCaMP6f
+plot(perCorr,dFFsp(1,:),'-o','MarkerSize',10,'Color',[1 0.7 0.7])
+plot(perCorr,dFFsm(1,:),'-o','MarkerSize',10,'Color',[0.7 0.7 1])
+
+%mmPVG02 is GCaMP6s
+plot(perCorr,dFFsp(2,:),'-s','MarkerSize',10,'Color',[1 0.7 0.7])
+plot(perCorr,dFFsm(2,:),'-s','MarkerSize',10,'Color',[0.7 0.7 1])
+
+%mmG7f09 is GCaMP7f
+plot(perCorr,dFFsp(3,:),'-x','MarkerSize',10,'Color',[1 0.7 0.7])
+plot(perCorr,dFFsm(3,:),'-x','MarkerSize',10,'Color',[0.7 0.7 1])
+
+%mmPVG05 is GCaMP6f
+plot(perCorr(1:5),dFFsp(4,1:5),'-o','MarkerSize',10,'Color',[1 0.7 0.7])
+plot(perCorr(1:5),dFFsm(4,1:5),'-o','MarkerSize',10,'Color',[0.7 0.7 1])
+
+plot(perCorr,meandFFsp,'-or','LineWidth',2)
+plot(perCorr,meandFFsm,'-ob','LineWidth',2)
+
+for ii=1:6
+     plot([perCorr(ii) perCorr(ii)],CIdFFsp(:,ii),'-r','LineWidth',2,'MarkerSize',10)
+     plot([perCorr(ii) perCorr(ii)],CIdFFsm(:,ii),'-b','LineWidth',2,'MarkerSize',10)
+end
+
+xlim([40 100])
+xlabel('Percent correct')
+ylabel('dFF')
+title('dFF')
+
+
+%Perform the glm for LDA percent correct 
+fprintf(1, ['\n\nglm for dFF for S+ and S-\n'])
+tbl = table(glm_dFF.data',glm_dFF.perCorr',glm_dFF.spm',...
+    'VariableNames',{'dFF','perCorr','spm'});
+mdl = fitglm(tbl,'dFF~perCorr+spm+perCorr*spm'...
+    ,'CategoricalVars',[3])
+
+ 
+% Do ranksum/t test
+fprintf(1, ['\n\nRanksum or t-test p values for dFF\n'])
+try
+    [output_data] = drgMutiRanksumorTtest(dFF_stats);
+    fprintf(1, '\n\n')
+catch
+end
+
+%Plot norm dFF for S+ and S-
+figNo=figNo+1;
+try
+    close(figNo)
+catch
+end
+figure(figNo)
+hold on
+
+glm_ii=0;
+glm_norm_dFF=[];
+
+norm_dFF_stats=[]
+ii_stats=0;
+
+meandFFsp=[];
+meandFFsm=[];
+
+CIdFFsp=zeros(2,6);
+CIdFFsm=zeros(2,6);
+
+for ii=1:6
+
+    these_exists=ones(1,length(handles.caimandr_choices.outFileName));
+    these_exists(1,:)=dFFsp_exist(:,ii);
+    meandFFsp(1,ii)=mean(norm_dFFsp(logical(these_exists),ii));
+    these_dFF=ones(1,sum(these_exists));
+    these_dFF(1,:)=norm_dFFsp(logical(these_exists),ii);
+    CIdFFsp(:,ii) = bootci(1000, {@mean, these_dFF})';
+    
+    glm_norm_dFF.data(glm_ii+1:glm_ii+sum(these_exists))=these_dFF;
+    glm_norm_dFF.spm(glm_ii+1:glm_ii+sum(these_exists))=ones(1,sum(these_exists));
+    glm_norm_dFF.perCorr(glm_ii+1:glm_ii+sum(these_exists))=perCorr(ii)*ones(1,sum(these_exists));
+    glm_ii=glm_ii+sum(these_exists);
+    
+    ii_stats=ii_stats+1;
+    norm_dFF_stats(ii_stats).data=these_dFF;
+    norm_dFF_stats(ii_stats).description=[num2str(perCorr(ii)) '%% S+'];
+    
+    these_exists=ones(1,length(handles.caimandr_choices.outFileName));
+    these_exists(1,:)=dFFsm_exist(:,ii);
+    meandFFsm(1,ii)=mean(norm_dFFsm(logical(these_exists),ii));
+    these_dFF=ones(1,sum(these_exists));
+    these_dFF(1,:)=norm_dFFsm(logical(these_exists),ii);
+    CIdFFsm(:,ii) = bootci(1000, {@mean, these_dFF})';
+    
+    glm_norm_dFF.data(glm_ii+1:glm_ii+sum(these_exists))=these_dFF;
+    glm_norm_dFF.spm(glm_ii+1:glm_ii+sum(these_exists))=zeros(1,sum(these_exists));
+    glm_norm_dFF.perCorr(glm_ii+1:glm_ii+sum(these_exists))=perCorr(ii)*ones(1,sum(these_exists));
+    glm_ii=glm_ii+sum(these_exists);
+    
+    ii_stats=ii_stats+1;
+    norm_dFF_stats(ii_stats).data=these_dFF;
+    norm_dFF_stats(ii_stats).description=[num2str(perCorr(ii)) '%% S-'];
+end
+
+
+
+
+%mmPVG04 is GCaMP6f
+plot(perCorr,norm_dFFsp(1,:),'-o','MarkerSize',10,'Color',[1 0.7 0.7])
+plot(perCorr,norm_dFFsm(1,:),'-o','MarkerSize',10,'Color',[0.7 0.7 1])
+
+%mmPVG02 is GCaMP6s
+plot(perCorr,norm_dFFsp(2,:),'-s','MarkerSize',10,'Color',[1 0.7 0.7])
+plot(perCorr,norm_dFFsm(2,:),'-s','MarkerSize',10,'Color',[0.7 0.7 1])
+
+%mmG7f09 is GCaMP7f
+plot(perCorr(1:5),norm_dFFsp(3,1:5),'-x','MarkerSize',10,'Color',[1 0.7 0.7])
+plot(perCorr,norm_dFFsm(3,:),'-x','MarkerSize',10,'Color',[0.7 0.7 1])
+
+%mmPVG05 is GCaMP6f
+plot(perCorr,norm_dFFsp(4,:),'-o','MarkerSize',10,'Color',[1 0.7 0.7])
+plot(perCorr,norm_dFFsm(4,:),'-o','MarkerSize',10,'Color',[0.7 0.7 1])
+
+
+plot(perCorr,meandFFsp,'-or','LineWidth',2)
+plot(perCorr,meandFFsm,'-ob','LineWidth',2)
+
+for ii=1:6
+     plot([perCorr(ii) perCorr(ii)],CIdFFsp(:,ii),'-r','LineWidth',2,'MarkerSize',10)
+     plot([perCorr(ii) perCorr(ii)],CIdFFsm(:,ii),'-b','LineWidth',2,'MarkerSize',10)
+end
+
+xlim([40 100])
+xlabel('Percent correct')
+ylabel('Normalized dFF')
+title('Normalized dFF')
+
+
+%Perform the glm for LDA percent correct 
+fprintf(1, ['\n\nglm for normalized dFF for S+ and S-\n'])
+tbl = table(glm_norm_dFF.data',glm_norm_dFF.perCorr',glm_norm_dFF.spm',...
+    'VariableNames',{'dFF','perCorr','spm'});
+mdl = fitglm(tbl,'dFF~perCorr+spm+perCorr*spm'...
+    ,'CategoricalVars',[3])
+
+ 
+% Do ranksum/t test
+fprintf(1, ['\n\nRanksum or t-test p values for normalized dFF\n'])
+try
+    [output_data] = drgMutiRanksumorTtest(norm_dFF_stats);
+    fprintf(1, '\n\n')
+catch
+end
+
+
+
+%Plot dFF vs percent corrrect for the first window
+winNo=1;
+dFFspw1=[];
+norm_dFFspw1=[];
+dFFsp_existw1=[];
+dFFsmw1=[];
+dFFsm_existw1=[];
+norm_dFFsmw1=[];
+
+for filNum=1:length(handles.caimandr_choices.outFileName)
+    load([handles.caimandr_choices.outPathName{filNum} handles.caimandr_choices.outFileName{filNum}])
+    this_dFFsp=ones(1,6);
+    this_dFFsp(1,:)=handles_out.mean_dFFspm(winNo,5:10,1);
+    dFFspw1(filNum,:)=this_dFFsp(1,:);
+    this_dFFsp_exist=ones(1,6);
+    this_dFFsp_exist(1,:)=handles_out.mean_existsspm(winNo,5:10,1);
+    dFFsp_existw1(filNum,:)=this_dFFsp_exist(1,:);
+    
+    this_dFFsm=ones(1,6);
+    this_dFFsm(1,:)=handles_out.mean_dFFspm(winNo,5:10,2);
+    dFFsmw1(filNum,:)=this_dFFsm(1,:);
+    this_dFFsm_exist=ones(1,6);
+    this_dFFsm_exist(1,:)=handles_out.mean_existsspm(winNo,5:10,2);
+    dFFsm_existw1(filNum,:)=this_dFFsm_exist(1,:);
+end
+
+
+for filNum=1:length(handles.caimandr_choices.outFileName)
+    all_sp=[];
+    ii_sp=0;
+    all_sm=[];
+    ii_sm=0;
+    for ii=3:6
+        if dFFsp_exist(filNum,ii)==1
+            ii_sp=ii_sp+1;
+            all_sp(ii_sp)=dFFsp(filNum,ii);
+        end
+    end
+    norm_dFFspw1(filNum,:)=dFFspw1(filNum,:)/mean(all_sp);
+    norm_dFFsmw1(filNum,:)=dFFsmw1(filNum,:)/mean(all_sp);
+end
+        
+
+%Plot dFF for S+ and S-
+figNo=1;
+try
+    close(figNo)
+catch
+end
+figure(figNo)
+hold on
+
+glm_ii=0;
+glm_dFF=[];
+
+dFF_stats=[]
+ii_stats=0;
+
+meandFFsp=[];
+meandFFsm=[];
+
+CIdFFsp=zeros(2,6);
+CIdFFsm=zeros(2,6);
+
+for ii=1:6
+    these_exists=ones(1,length(handles.caimandr_choices.outFileName));
+    these_exists(1,:)=dFFsp_exist(:,ii);
+    meandFFsp(1,ii)=mean(dFFsp(logical(these_exists),ii));
+    these_dFF=ones(1,sum(these_exists));
+    these_dFF(1,:)=dFFsp(logical(these_exists),ii);
+    CIdFFsp(:,ii) = bootci(1000, {@mean, these_dFF})';
+    
+    glm_dFF.data(glm_ii+1:glm_ii+sum(these_exists))=these_dFF;
+    glm_dFF.spm(glm_ii+1:glm_ii+sum(these_exists))=ones(1,sum(these_exists));
+    glm_dFF.perCorr(glm_ii+1:glm_ii+sum(these_exists))=perCorr(ii)*ones(1,sum(these_exists));
+    glm_ii=glm_ii+sum(these_exists);
+    
+    ii_stats=ii_stats+1;
+    dFF_stats(ii_stats).data=these_dFF;
+    dFF_stats(ii_stats).description=[num2str(perCorr(ii)) '%% S+'];
+    
+    these_exists=ones(1,length(handles.caimandr_choices.outFileName));
+    these_exists(1,:)=dFFsm_exist(:,ii);
+    meandFFsm(1,ii)=mean(dFFsm(logical(these_exists),ii));
+     these_dFF=ones(1,sum(these_exists));
+    these_dFF(1,:)=dFFsm(logical(these_exists),ii);
+    CIdFFsm(:,ii) = bootci(1000, {@mean, these_dFF})';
+    
+    glm_dFF.data(glm_ii+1:glm_ii+sum(these_exists))=these_dFF;
+    glm_dFF.spm(glm_ii+1:glm_ii+sum(these_exists))=zeros(1,sum(these_exists));
+    glm_dFF.perCorr(glm_ii+1:glm_ii+sum(these_exists))=perCorr(ii)*ones(1,sum(these_exists));
+    glm_ii=glm_ii+sum(these_exists);
+    
+    ii_stats=ii_stats+1;
+    dFF_stats(ii_stats).data=these_dFF;
+    dFF_stats(ii_stats).description=[num2str(perCorr(ii)) '%% S-'];
+end
+
+%mmPVG04 is GCaMP6f
+plot(perCorr,dFFsp(1,:),'-o','MarkerSize',10,'Color',[1 0.7 0.7])
+plot(perCorr,dFFsm(1,:),'-o','MarkerSize',10,'Color',[0.7 0.7 1])
+
+%mmPVG02 is GCaMP6s
+plot(perCorr,dFFsp(2,:),'-s','MarkerSize',10,'Color',[1 0.7 0.7])
+plot(perCorr,dFFsm(2,:),'-s','MarkerSize',10,'Color',[0.7 0.7 1])
+
+%mmG7f09 is GCaMP7f
+plot(perCorr,dFFsp(3,:),'-x','MarkerSize',10,'Color',[1 0.7 0.7])
+plot(perCorr,dFFsm(3,:),'-x','MarkerSize',10,'Color',[0.7 0.7 1])
+
+%mmPVG05 is GCaMP6f
+plot(perCorr(1:5),dFFsp(4,1:5),'-o','MarkerSize',10,'Color',[1 0.7 0.7])
+plot(perCorr(1:5),dFFsm(4,1:5),'-o','MarkerSize',10,'Color',[0.7 0.7 1])
+
+plot(perCorr,meandFFsp,'-or','LineWidth',2)
+plot(perCorr,meandFFsm,'-ob','LineWidth',2)
+
+for ii=1:6
+     plot([perCorr(ii) perCorr(ii)],CIdFFsp(:,ii),'-r','LineWidth',2,'MarkerSize',10)
+     plot([perCorr(ii) perCorr(ii)],CIdFFsm(:,ii),'-b','LineWidth',2,'MarkerSize',10)
+end
+
+xlim([40 100])
+xlabel('Percent correct')
+ylabel('dFF')
+title('dFF')
+
+
+%Perform the glm for LDA percent correct 
+fprintf(1, ['\n\nglm for dFF for S+ and S-\n'])
+tbl = table(glm_dFF.data',glm_dFF.perCorr',glm_dFF.spm',...
+    'VariableNames',{'dFF','perCorr','spm'});
+mdl = fitglm(tbl,'dFF~perCorr+spm+perCorr*spm'...
+    ,'CategoricalVars',[3])
+
+ 
+% Do ranksum/t test
+fprintf(1, ['\n\nRanksum or t-test p values for dFF\n'])
+try
+    [output_data] = drgMutiRanksumorTtest(dFF_stats);
+    fprintf(1, '\n\n')
+catch
+end
+
+%Plot norm dFF for S+ and S-
+figNo=figNo+1;
+try
+    close(figNo)
+catch
+end
+figure(figNo)
+hold on
+
+glm_ii=0;
+glm_norm_dFF=[];
+
+norm_dFF_stats=[]
+ii_stats=0;
+
+meandFFsp=[];
+meandFFsm=[];
+
+CIdFFsp=zeros(2,6);
+CIdFFsm=zeros(2,6);
+
+for ii=1:6
+
+    these_exists=ones(1,length(handles.caimandr_choices.outFileName));
+    these_exists(1,:)=dFFsp_exist(:,ii);
+    meandFFsp(1,ii)=mean(norm_dFFsp(logical(these_exists),ii));
+    these_dFF=ones(1,sum(these_exists));
+    these_dFF(1,:)=norm_dFFsp(logical(these_exists),ii);
+    CIdFFsp(:,ii) = bootci(1000, {@mean, these_dFF})';
+    
+    glm_norm_dFF.data(glm_ii+1:glm_ii+sum(these_exists))=these_dFF;
+    glm_norm_dFF.spm(glm_ii+1:glm_ii+sum(these_exists))=ones(1,sum(these_exists));
+    glm_norm_dFF.perCorr(glm_ii+1:glm_ii+sum(these_exists))=perCorr(ii)*ones(1,sum(these_exists));
+    glm_ii=glm_ii+sum(these_exists);
+    
+    ii_stats=ii_stats+1;
+    norm_dFF_stats(ii_stats).data=these_dFF;
+    norm_dFF_stats(ii_stats).description=[num2str(perCorr(ii)) '%% S+'];
+    
+    these_exists=ones(1,length(handles.caimandr_choices.outFileName));
+    these_exists(1,:)=dFFsm_exist(:,ii);
+    meandFFsm(1,ii)=mean(norm_dFFsm(logical(these_exists),ii));
+    these_dFF=ones(1,sum(these_exists));
+    these_dFF(1,:)=norm_dFFsm(logical(these_exists),ii);
+    CIdFFsm(:,ii) = bootci(1000, {@mean, these_dFF})';
+    
+    glm_norm_dFF.data(glm_ii+1:glm_ii+sum(these_exists))=these_dFF;
+    glm_norm_dFF.spm(glm_ii+1:glm_ii+sum(these_exists))=zeros(1,sum(these_exists));
+    glm_norm_dFF.perCorr(glm_ii+1:glm_ii+sum(these_exists))=perCorr(ii)*ones(1,sum(these_exists));
+    glm_ii=glm_ii+sum(these_exists);
+    
+    ii_stats=ii_stats+1;
+    norm_dFF_stats(ii_stats).data=these_dFF;
+    norm_dFF_stats(ii_stats).description=[num2str(perCorr(ii)) '%% S-'];
+end
+
+
+
+
+%mmPVG04 is GCaMP6f
+plot(perCorr,norm_dFFsp(1,:),'-o','MarkerSize',10,'Color',[1 0.7 0.7])
+plot(perCorr,norm_dFFsm(1,:),'-o','MarkerSize',10,'Color',[0.7 0.7 1])
+
+%mmPVG02 is GCaMP6s
+plot(perCorr,norm_dFFsp(2,:),'-s','MarkerSize',10,'Color',[1 0.7 0.7])
+plot(perCorr,norm_dFFsm(2,:),'-s','MarkerSize',10,'Color',[0.7 0.7 1])
+
+%mmG7f09 is GCaMP7f
+plot(perCorr(1:5),norm_dFFsp(3,1:5),'-x','MarkerSize',10,'Color',[1 0.7 0.7])
+plot(perCorr,norm_dFFsm(3,:),'-x','MarkerSize',10,'Color',[0.7 0.7 1])
+
+%mmPVG05 is GCaMP6f
+plot(perCorr,norm_dFFsp(4,:),'-o','MarkerSize',10,'Color',[1 0.7 0.7])
+plot(perCorr,norm_dFFsm(4,:),'-o','MarkerSize',10,'Color',[0.7 0.7 1])
+
+
+plot(perCorr,meandFFsp,'-or','LineWidth',2)
+plot(perCorr,meandFFsm,'-ob','LineWidth',2)
+
+for ii=1:6
+     plot([perCorr(ii) perCorr(ii)],CIdFFsp(:,ii),'-r','LineWidth',2,'MarkerSize',10)
+     plot([perCorr(ii) perCorr(ii)],CIdFFsm(:,ii),'-b','LineWidth',2,'MarkerSize',10)
+end
+
+xlim([40 100])
+xlabel('Percent correct')
+ylabel('Normalized dFF')
+title('Normalized dFF')
+
+
+%Perform the glm for LDA percent correct 
+fprintf(1, ['\n\nglm for normalized dFF for S+ and S-\n'])
+tbl = table(glm_norm_dFF.data',glm_norm_dFF.perCorr',glm_norm_dFF.spm',...
+    'VariableNames',{'dFF','perCorr','spm'});
+mdl = fitglm(tbl,'dFF~perCorr+spm+perCorr*spm'...
+    ,'CategoricalVars',[3])
+
+ 
+% Do ranksum/t test
+fprintf(1, ['\n\nRanksum or t-test p values for normalized dFF\n'])
+try
+    [output_data] = drgMutiRanksumorTtest(norm_dFF_stats);
+    fprintf(1, '\n\n')
+catch
+end
+
+

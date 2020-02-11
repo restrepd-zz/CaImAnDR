@@ -1,7 +1,7 @@
 function handles_par=drgCaImAnLDAforSubsample(dFF_trial_mask,time_to_eventLDA,...
     all_lda_no_comp,min_trials,handles_par,caimanhandles,no_trial_windows,all_lda_fileNo...
     ,number_of_replicates,first_num_odor_trials,num_odor_trials_dFF,perCorr,all_lda_events,...
-    all_lda_input_timecourse,figNo,supertitle_description,per_file_coms)
+    all_lda_input_timecourse,figNo,supertitle_description,per_file_coms,no_of_components)
 
 
 %Now find out what happens if we choose smaller subsets of components
@@ -14,7 +14,41 @@ all_comps=[];
 szwins=size(caimanhandles.caimandr_choices.wins);
 % handles_par(no_trial_windows).number_of_components=[[1:20] [22:2:30] [35:5:45] [50:10:100] [120:20:160] [190:30:280]];
 
-handles_par(no_trial_windows).number_of_components=[[1:2:16] [19:3:30] [35:5:45] [50:10:100] [120:20:160] [190:30:280]];
+%Note that I am doing this only for percent correct > 80%, no_trial_windows=3
+no_trial_windows=3;
+handles_par(no_trial_windows).time_to_eventLDA=time_to_eventLDA;
+dFF_trial_mask=[];
+jj=0;
+
+
+% if caimanhandles.caimandr_choices.start_reversal>length(first_num_odor_trials)
+
+% fprintf(1, '\n\nLDA processed for dF/F for trials before reversal \n');
+pct_windows=[45 65;65 80;80 100.1];
+
+for ii=1:num_odor_trials_dFF
+    if (perCorr(ii)>=pct_windows(no_trial_windows,1))&(perCorr(ii)<pct_windows(no_trial_windows,2))
+        dFF_trial_mask(ii)=1;
+        jj=jj+1;
+        handles_par(no_trial_windows).perCorr(jj)=perCorr(ii);
+        events{jj,1}=all_lda_events{ii};
+        if strcmp(events{jj,1},'S+')
+            %S+
+            per_targets(1,jj)=1;
+            %S-
+            per_targets(2,jj)=0;
+        else
+            %S+
+            per_targets(1,jj)=0;
+            %S-
+            per_targets(2,jj)=1;
+        end
+    else
+        dFF_trial_mask(ii)=0;
+    end
+end
+
+handles_par(no_trial_windows).number_of_components=no_of_components;
 
 for ii_no_comps=1:length(handles_par(no_trial_windows).number_of_components)+1
     for winNo=1:szwins(1)
@@ -34,7 +68,11 @@ for ii_no_comps=1:length(handles_par(no_trial_windows).number_of_components)+1
         
         %If there are enough trials process the LDA
         ii=find(which_file==fileNo,1,'first');
-        N=sum(which_file(ii)==which_file);
+        if isempty(ii)
+            N=0
+        else
+            N=sum(which_file(ii)==which_file);
+        end
         
         
         if N>=min_trials
@@ -82,93 +120,93 @@ for ii_no_comps=1:length(handles_par(no_trial_windows).number_of_components)+1
     
 end
 
-%Note that I am doing this only for percent correct > 80%, no_trial_windows=3
-no_trial_windows=3;
-handles_par(no_trial_windows).time_to_eventLDA=time_to_eventLDA;
-dFF_trial_mask=[];
-jj=0;
-
-
-if caimanhandles.caimandr_choices.start_reversal>length(first_num_odor_trials)
-    
-    fprintf(1, '\n\nLDA processed for dF/F for trials before reversal \n');
-    pct_windows=[45 65;65 80;80 100.1];
-    
-    for ii=1:num_odor_trials_dFF
-        if (perCorr(ii)>=pct_windows(no_trial_windows,1))&(perCorr(ii)<pct_windows(no_trial_windows,2))
-            dFF_trial_mask(ii)=1;
-            jj=jj+1;
-            handles_par(no_trial_windows).perCorr(jj)=perCorr(ii);
-            events{jj,1}=all_lda_events{ii};
-            if strcmp(events{jj,1},'S+')
-                %S+
-                per_targets(1,jj)=1;
-                %S-
-                per_targets(2,jj)=0;
-            else
-                %S+
-                per_targets(1,jj)=0;
-                %S-
-                per_targets(2,jj)=1;
-            end
-        else
-            dFF_trial_mask(ii)=0;
-        end
-    end
-else
-    if no_trial_windows==1
-        %Forward trials
-        fprintf(1, '\n\nLDA processed for dF/F for trials before reversal \n');
-        
-        for ii=1:num_odor_trials_dFF
-            if (trial_dFF(ii)>=1)&(trial_dFF(ii)<=first_num_odor_trials(caimanhandles.caimandr_choices.start_reversal)-1)
-                dFF_trial_mask(ii)=1;
-                jj=jj+1;
-                handles_par(no_trial_windows).perCorr(jj)=perCorr(ii);
-                events{jj,1}=all_lda_events{ii};
-                if strcmp(events{jj,1},'S+')
-                    %S+
-                    per_targets(1,jj)=1;
-                    %S-
-                    per_targets(2,jj)=0;
-                else
-                    %S+
-                    per_targets(1,jj)=0;
-                    %S-
-                    per_targets(2,jj)=1;
-                end
-            else
-                dFF_trial_mask(ii)=0;
-            end
-        end
-        
-    else
-        %Trials at end of reversal
-        fprintf(1, '\n\nLDA processed for dF/F for trials after reversal \n');
-        for ii=1:num_odor_trials_dFF
-            if (trial_dFF(ii)>=max(trial_dFF)-100)
-                dFF_trial_mask(ii)=1;
-                jj=jj+1;
-                handles_par(no_trial_windows).perCorr(jj)=perCorr(ii);
-                events{jj,1}=all_lda_events{ii};
-                if strcmp(events{jj,1},'S+')
-                    %S+
-                    per_targets(1,jj)=1;
-                    %S-
-                    per_targets(2,jj)=0;
-                else
-                    %S+
-                    per_targets(1,jj)=0;
-                    %S-
-                    per_targets(2,jj)=1;
-                end
-            else
-                dFF_trial_mask(ii)=0;
-            end
-        end
-    end
-    
-end
+% %Note that I am doing this only for percent correct > 80%, no_trial_windows=3
+% no_trial_windows=3;
+% handles_par(no_trial_windows).time_to_eventLDA=time_to_eventLDA;
+% dFF_trial_mask=[];
+% jj=0;
+% 
+% 
+% % if caimanhandles.caimandr_choices.start_reversal>length(first_num_odor_trials)
+% 
+% % fprintf(1, '\n\nLDA processed for dF/F for trials before reversal \n');
+% pct_windows=[45 65;65 80;80 100.1];
+% 
+% for ii=1:num_odor_trials_dFF
+%     if (perCorr(ii)>=pct_windows(no_trial_windows,1))&(perCorr(ii)<pct_windows(no_trial_windows,2))
+%         dFF_trial_mask(ii)=1;
+%         jj=jj+1;
+%         handles_par(no_trial_windows).perCorr(jj)=perCorr(ii);
+%         events{jj,1}=all_lda_events{ii};
+%         if strcmp(events{jj,1},'S+')
+%             %S+
+%             per_targets(1,jj)=1;
+%             %S-
+%             per_targets(2,jj)=0;
+%         else
+%             %S+
+%             per_targets(1,jj)=0;
+%             %S-
+%             per_targets(2,jj)=1;
+%         end
+%     else
+%         dFF_trial_mask(ii)=0;
+%     end
+% end
+% else
+%     if no_trial_windows==1
+%         %Forward trials
+%         fprintf(1, '\n\nLDA processed for dF/F for trials before reversal \n');
+%         
+%         for ii=1:num_odor_trials_dFF
+%             if (trial_dFF(ii)>=1)&(trial_dFF(ii)<=first_num_odor_trials(caimanhandles.caimandr_choices.start_reversal)-1)
+%                 dFF_trial_mask(ii)=1;
+%                 jj=jj+1;
+%                 handles_par(no_trial_windows).perCorr(jj)=perCorr(ii);
+%                 events{jj,1}=all_lda_events{ii};
+%                 if strcmp(events{jj,1},'S+')
+%                     %S+
+%                     per_targets(1,jj)=1;
+%                     %S-
+%                     per_targets(2,jj)=0;
+%                 else
+%                     %S+
+%                     per_targets(1,jj)=0;
+%                     %S-
+%                     per_targets(2,jj)=1;
+%                 end
+%             else
+%                 dFF_trial_mask(ii)=0;
+%             end
+%         end
+%         
+%     else
+%         %Trials at end of reversal
+%         fprintf(1, '\n\nLDA processed for dF/F for trials after reversal \n');
+%         for ii=1:num_odor_trials_dFF
+%             if (trial_dFF(ii)>=max(trial_dFF)-100)
+%                 dFF_trial_mask(ii)=1;
+%                 jj=jj+1;
+%                 handles_par(no_trial_windows).perCorr(jj)=perCorr(ii);
+%                 events{jj,1}=all_lda_events{ii};
+%                 if strcmp(events{jj,1},'S+')
+%                     %S+
+%                     per_targets(1,jj)=1;
+%                     %S-
+%                     per_targets(2,jj)=0;
+%                 else
+%                     %S+
+%                     per_targets(1,jj)=0;
+%                     %S-
+%                     per_targets(2,jj)=1;
+%                 end
+%             else
+%                 dFF_trial_mask(ii)=0;
+%             end
+%         end
+%     end
+%     
+% end
 
 Nall=sum(dFF_trial_mask);
 
@@ -349,7 +387,7 @@ for ii_no_comps=1:length(handles_par(no_trial_windows).number_of_components)+1
                 
                 szcompsub=size(compsubset);
                 this_no_comps=szcompsub(1);
-                fprintf(1, 'LDA percent correct computed in trial window No %d for %d components for window %d\n',no_trial_windows,this_no_comps,winNo);
+                fprintf(1, 'LDA percent correct computed in percent correct window No %d for %d components for window %d\n',no_trial_windows,this_no_comps,winNo);
                 
             end
         end
@@ -406,7 +444,7 @@ for winNo=1:szwins(1)
         
         %Note that the last numcomps uses all components
         num_comps=handles_par(no_trial_windows).number_of_components;
-        num_comps(end+1)=num_comps(find(percent_correct_exists==0,1,'first'));
+        num_comps(end+1)=floor(mean(no_comps)); %This is all the components
         
         handles_par(no_trial_windows).timewin(winNo).percent_correct_exists=percent_correct_exists;
         handles_par(no_trial_windows).timewin(winNo).mean_percent_correct=mean_percent_correct;

@@ -1,5 +1,5 @@
-function [mean_points CI_points] = drgViolinPoint(points,edges,x_val,rand_offset,which_color_mean,point_size)
-%This function plots a violin data point
+function [mean_points CI_points] = drgViolinPoint(points,edges,x_val,rand_offset,which_color_mean,which_color_point,point_size)
+%This function plots a violin data 
 % 
 % points has the data to be plotted
 % edges are the edges of a histogram encompassing all data
@@ -7,10 +7,6 @@ function [mean_points CI_points] = drgViolinPoint(points,edges,x_val,rand_offset
 % rand_offset is the width of the violin plot
 % which_color is the color for the points e.g. 'k'
 % point_size is the size of the points i.e. 1
-
-if exist('point_size')==0
-    point_size=1;
-end
 
 h=histogram(points,edges,'Visible','off');
 normval=h.Values/max(h.Values);
@@ -24,7 +20,7 @@ for ii=1:length(points)
     end
     violin_x_val(ii)=random_offsets(ii)*rand_offset*normval(ii_histo)+x_val;
 end
-plot(violin_x_val,points,'o','MarkerSize',point_size,'MarkerFaceColor',which_color_mean,'MarkerEdgeColor',which_color_mean)
+plot(violin_x_val,points,'o','MarkerSize',point_size,'MarkerFaceColor',which_color_mean,'MarkerEdgeColor',which_color_point)
 
 %Plot the mean
 mean_points=mean(points);
