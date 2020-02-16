@@ -12,7 +12,7 @@ do_warp=0;     %1=warped components from a reference file
 um_per_pixel=1.745;
 
 %Other default variables
-plot_raw=1; %Used plot_raw=1 for Ming's data
+plot_raw=1; %The default is raw
 ref_win=[-5 -1.5];
 
 ROIs=[];
@@ -54,7 +54,7 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     
     fprintf(1, ['\nProcessing  ' num2str(fileNo) '\n']);
     
-    
+     
     Yr=[];
     A_or=[];
     C_or=[];
@@ -158,7 +158,7 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     fprintf(1, ['\nMean diameter (um) is %d\n\n'],mean(diameter));
     fprintf(1, ['\nStndard deviation (um) is %d\n\n'],std(diameter));
     
-    
+     
     raw=[];
     inferred=[];
     try
@@ -168,6 +168,10 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     end
     
     % Should we use raw or inferred?
+    if isfield(handles_choice,'plot_raw')
+        plot_raw=handles_choice.plot_raw;
+    end
+     
     if plot_raw==1
         traces=raw;
     else

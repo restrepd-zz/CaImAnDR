@@ -1,7 +1,9 @@
 function drgCaImAnBatchPerSessionEventsPerTrialLDA(choiceBatchPathName,choiceFileName)
 
-%This code does a linear discriminant analysis for spm data
-% Needs a choices file such as drgCaImAnChoicesDiego20180910_mmPVG04_Cerebellum
+%This code does a linear discriminant analysis for spm data fore each event
+%(Hit, Miss, FA and CR)
+% Needs a choices file such as
+% drgCaImAnChoicesDiego20180917_mmPVG04_Cerebellum_for_LDA.m
 % Needs the output files from drgCaImAn_batch_dropc.m
 warning('off')
 
@@ -48,7 +50,7 @@ all_lda_events_miss_FA=[];
 lick_times=[];
 no_licks=[];
 dLickTraces=[];
-
+ 
 for filNum=1:caimanhandles.caimandr_choices.no_files
         
     %Read the file
@@ -1356,7 +1358,7 @@ event_labels{3}='CR';
 event_labels{4}='FA';
 
 %Report the percent correct for each event
-for winNo=1:3
+for winNo=1:length(handles_events.win)
    for evNo=1:4
        perCorr_out=100*sum(handles_events.win(winNo).correct_predict(handles_events.win(winNo).events_miss_FA==evNo))/sum(handles_events.win(winNo).events_miss_FA==evNo);
       fprintf(1, ['Percent correct for ' event_labels{evNo} ' from ' num2str(caimanhandles.caimandr_choices.wins(winNo,1)) ' to ' num2str(caimanhandles.caimandr_choices.wins(winNo,2)) ' sec = %d, no timepoints= %d\n'],perCorr_out,sum(handles_events.win(winNo).events_miss_FA==evNo));

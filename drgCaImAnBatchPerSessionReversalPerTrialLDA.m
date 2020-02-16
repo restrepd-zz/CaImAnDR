@@ -433,19 +433,19 @@ if caimanhandles.caimandr_choices.start_reversal<caimanhandles.caimandr_choices.
     x_val=1;
     handles_out2.pctPerWin(1).pct=perCorr(1:first_num_odor_trials(caimanhandles.caimandr_choices.start_reversal)-1);
     bar(x_val,mean(handles_out2.pctPerWin(1).pct),'FaceColor',[0.7 0.7 0.7])
-    [handles_out2.pctPerWin(1).pct_mean, handles_out2.pctPerWin(1).pct_CI]=drgViolinPoint(handles_out2.pctPerWin(1).pct,edges,x_val,rand_offset,'k',2);
+    [handles_out2.pctPerWin(1).pct_mean, handles_out2.pctPerWin(1).pct_CI]=drgViolinPoint(handles_out2.pctPerWin(1).pct,edges,x_val,rand_offset,'k','k',2);
     
     %Trials after reversal
     x_val=2;
     handles_out2.pctPerWin(2).pct=perCorr(first_num_odor_trials(caimanhandles.caimandr_choices.start_reversal)+15:first_num_odor_trials(caimanhandles.caimandr_choices.start_reversal)+65);
     bar(x_val,mean(handles_out2.pctPerWin(2).pct),'FaceColor',[0.7 0.7 0.7])
-    [handles_out2.pctPerWin(2).pct_mean, handles_out2.pctPerWin(2).pct_CI]=drgViolinPoint(handles_out2.pctPerWin(2).pct,edges,x_val,rand_offset,'k',2);
+    [handles_out2.pctPerWin(2).pct_mean, handles_out2.pctPerWin(2).pct_CI]=drgViolinPoint(handles_out2.pctPerWin(2).pct,edges,x_val,rand_offset,'k','k',2);
     
     %Trials at end
     x_val=3;
     handles_out2.pctPerWin(3).pct=perCorr(end-100:end);
     bar(x_val,mean(handles_out2.pctPerWin(3).pct),'FaceColor',[0.7 0.7 0.7])
-    [handles_out2.pctPerWin(3).pct_mean, handles_out2.pctPerWin(3).pct_CI]=drgViolinPoint(handles_out2.pctPerWin(3).pct,edges,x_val,rand_offset,'k',2);
+    [handles_out2.pctPerWin(3).pct_mean, handles_out2.pctPerWin(3).pct_CI]=drgViolinPoint(handles_out2.pctPerWin(3).pct,edges,x_val,rand_offset,'k','k',2);
     
     %Draw lines between points
     plot([1 2 3],[mean(handles_out2.pctPerWin(1).pct) mean(handles_out2.pctPerWin(2).pct) mean(handles_out2.pctPerWin(3).pct)],'-k')
@@ -1377,318 +1377,318 @@ pFDRLDA=drsFDRpval(p_vals_LDA);
 fprintf(1, ['\npFDR for significant difference percent correct  = %d\n\n'],pFDRLDA);
 
 save([caimanhandles.caimandr_choices.outPathName caimanhandles.caimandr_choices.outFileName(1:end-4) '_lda.mat'],'handles_par','handles_sig')
-  
-      
-%Now find out what happens if we choose smaller subsets of components
-for no_trial_windows=1:total_trial_windows
-    handles_par(no_trial_windows).time_to_eventLDA=time_to_eventLDA;
-    dFF_trial_mask=[];
-    jj=0;
-    
-    
-    if caimanhandles.caimandr_choices.start_reversal>length(first_num_odor_trials)
-        
-        fprintf(1, '\n\nLDA processed for dF/F for trials before reversal \n');
-        pct_windows=[45 65;65 80;80 100.1];
-        
-        for ii=1:num_odor_trials_dFF
-            if (perCorr(ii)>=pct_windows(no_trial_windows,1))&(perCorr(ii)<pct_windows(no_trial_windows,2))
-                dFF_trial_mask(ii)=1;
-                jj=jj+1;
-                handles_par(no_trial_windows).perCorr(jj)=perCorr(ii);
-                events{jj,1}=all_lda_events{ii};
-                if strcmp(events{jj,1},'S+')
-                    %S+
-                    per_targets(1,jj)=1;
-                    %S-
-                    per_targets(2,jj)=0;
-                else
-                    %S+
-                    per_targets(1,jj)=0;
-                    %S-
-                    per_targets(2,jj)=1;
-                end
-            else
-                dFF_trial_mask(ii)=0;
-            end
-        end
-    else
-        if no_trial_windows==1
-            %Forward trials
-            fprintf(1, '\n\nLDA processed for dF/F for trials before reversal \n');
-            
-            for ii=1:num_odor_trials_dFF
-                if (trial_dFF(ii)>=1)&(trial_dFF(ii)<=first_num_odor_trials(caimanhandles.caimandr_choices.start_reversal)-1)
-                    dFF_trial_mask(ii)=1;
-                    jj=jj+1;
-                    handles_par(no_trial_windows).perCorr(jj)=perCorr(ii);
-                    events{jj,1}=all_lda_events{ii};
-                    if strcmp(events{jj,1},'S+')
-                        %S+
-                        per_targets(1,jj)=1;
-                        %S-
-                        per_targets(2,jj)=0;
-                    else
-                        %S+
-                        per_targets(1,jj)=0;
-                        %S-
-                        per_targets(2,jj)=1;
-                    end
-                else
-                    dFF_trial_mask(ii)=0;
-                end
-            end
-            
-        else
-            %Trials at end of reversal
-            fprintf(1, '\n\nLDA processed for dF/F for trials after reversal \n');
-            for ii=1:num_odor_trials_dFF
-                if (trial_dFF(ii)>=max(trial_dFF)-100)
-                    dFF_trial_mask(ii)=1;
-                    jj=jj+1;
-                    handles_par(no_trial_windows).perCorr(jj)=perCorr(ii);
-                    events{jj,1}=all_lda_events{ii};
-                    if strcmp(events{jj,1},'S+')
-                        %S+
-                        per_targets(1,jj)=1;
-                        %S-
-                        per_targets(2,jj)=0;
-                    else
-                        %S+
-                        per_targets(1,jj)=0;
-                        %S-
-                        per_targets(2,jj)=1;
-                    end
-                else
-                    dFF_trial_mask(ii)=0;
-                end
-            end
-        end
-        
-    end
-    
-    Nall=sum(dFF_trial_mask);
-    
-    
-    fprintf(1,'For S+ vs S-\n')
-    
-    handles_par(no_trial_windows).number_of_components=[1 2 [5:5:30] [40:10:100] [120:20:160] [190:30:280]];
-    
-    for winNo=1:szwins(1)
-        first_timepoint=find(time_to_eventLDA>=caimanhandles.caimandr_choices.wins(winNo,1),1,'first');
-        last_timepoint=find(time_to_eventLDA>=caimanhandles.caimandr_choices.wins(winNo,2),1,'first');
-        no_timepoints=length(time_to_eventLDA(first_timepoint:last_timepoint));
-        for ii_no_comps=1:length(handles_par(no_trial_windows).number_of_components)+1
-            handles_par(no_trial_windows).timewin(winNo).lda_delta_N(ii_no_comps).no_ldas=0;
-            
-            for time_point=first_timepoint:last_timepoint
-                
-                %dFF per trial per component
-                measurements=zeros(Nall,max(all_lda_no_comp(logical(dFF_trial_mask))));
-                this_all_lda_input_timecourse=zeros(Nall,max(all_lda_no_comp(logical(dFF_trial_mask))))';
-                this_all_lda_input_timecourse(:,:)=all_lda_input_timecourse(time_point,1:max(all_lda_no_comp(logical(dFF_trial_mask))),logical(dFF_trial_mask));
-                measurements(:,:)=this_all_lda_input_timecourse';
-                which_file=[];
-                which_file=all_lda_fileNo(logical(dFF_trial_mask));
-                no_comps=[];
-                no_comps=all_lda_no_comp(logical(dFF_trial_mask));
-                
-                ii_predict=0;
-                correct_predict=[];
-                correct_predict_shuffled=[];
-                
-                for ii=1:Nall
-                    
-                    %If there are enough trials process the LDA
-                    N=sum(which_file(ii)==which_file);
-                    
-                    
-                    if N>=min_trials
-                        
-                        if ii_no_comps==length(handles_par(no_trial_windows).number_of_components)+1
-                            %This will use all components
-                            do_lda=1;
-                        else
-                            %This will use a subset of components
-                            if  handles_par(no_trial_windows).number_of_components(ii_no_comps)<no_comps(ii)
-                                do_lda=1;
-                            else
-                                do_lda=0;
-                            end
-                        end
-                        
-                        if do_lda==1
-                            ii_predict=ii_predict+1;
-                            
-                            %Choose unique subsets of components
-                            if ii_no_comps<length(handles_par(no_trial_windows).number_of_components)+1
-                                compsubset=[];
-                                
-                                no_replicates=10;
-             
-                                while(size(compsubset,1)<handles_par(no_trial_windows).number_of_components(ii_no_comps))
-                                    compsubset=[compsubset;randi(no_comps(ii),[handles_par(no_trial_windows).number_of_components(ii_no_comps) no_replicates])];
-                                    compsubset=unique(compsubset,'rows');
-                                end
-                                compsubset=compsubset(1:handles_par(no_trial_windows).number_of_components(ii_no_comps),:);
-                                this_no_comps=handles_par(no_trial_windows).number_of_components(ii_no_comps);
-                                
-                            else
-                                compsubset=[1:no_comps(ii)]';
-                                this_no_comps=no_comps(ii);
-                                no_replicates=1;
-                            end
-                            
-                            
-                            parfor ii_sub=1:no_replicates
-                                %Partition the data into training and test sets.
-                                
-                                %Create input and target vectors leaving one trial out
-                                %For per_input each column has the dF/F for one trial
-                                %each row is a single time point for dF/F for one of the cells
-                                %For per_target the top row is 1 if the odor is S+ and 0 if it is
-                                %S-, and row 2 has 1 for S-
-                                idxTrn=ones(Nall,1)&(which_file==which_file(ii))';
-                                idxTrn(ii)=0;
-                                idxTest=zeros(Nall,1);
-                                idxTest(ii)=1;
-                                
-                                %Store the training data in a table.
-                                tblTrn=[];
-                                tblTrn = array2table(measurements(logical(idxTrn),sort(compsubset(:,ii_sub))));
-                                these_events=[];
-                                all_these_events=[];
-                                noallEvs=0;
-                                noEvs=0;
-                                
-                                for jj=1:Nall
-                                    if (which_file(jj)==which_file(ii))&(jj~=ii)
-                                        noEvs=noEvs+1;
-                                        these_events{noEvs}=events{jj};
-                                    end
-                                    if (which_file(jj)==which_file(ii))
-                                        noallEvs=noallEvs+1;
-                                        all_these_events{noallEvs}=events{jj};
-                                         if jj==ii
-                                            ii_event=noallEvs;
-                                        end
-                                    end
-                                end
-                                tblTrn.Y = these_events';
-                                
-                                %Train a discriminant analysis model using the training set and default options.
-                                %By default this is a regularized linear discriminant analysis (LDA)
-                                Mdl = fitcdiscr(tblTrn,'Y');
-                                
-                                
-                                %Predict labels for the test set. You trained Mdl using a table of data, but you can predict labels using a matrix.
-                                [label,score] = predict(Mdl,measurements(logical(idxTest),sort(compsubset(:,ii_sub))));
-                                
-                                
-                                correct_predict(ii_sub,ii_predict)=strcmp(events{ii},label);
-                                ii_shuffled=randperm(N);
-                                correct_predict_shuffled(ii_sub,ii_predict)=strcmp(all_these_events{ii_shuffled(ii_event)},label);
-                                
-
-                            end
-                        end
-                   
-                    end
-                end
-                
-                if ii_predict>0
-                    handles_par(no_trial_windows).timewin(winNo).lda_delta_N(ii_no_comps).percent_correct...
-                        (handles_par(no_trial_windows).timewin(winNo).lda_delta_N(ii_no_comps).no_ldas+1:...
-                        handles_par(no_trial_windows).timewin(winNo).lda_delta_N(ii_no_comps).no_ldas+no_replicates)=...
-                        100*sum(correct_predict')/ii_predict;
-                    handles_par(no_trial_windows).timewin(winNo).lda_delta_N(ii_no_comps).percent_correct_shuffled...
-                        (handles_par(no_trial_windows).timewin(winNo).lda_delta_N(ii_no_comps).no_ldas+1:...
-                        handles_par(no_trial_windows).timewin(winNo).lda_delta_N(ii_no_comps).no_ldas+no_replicates)=...
-                        100*sum(correct_predict_shuffled')/ii_predict;
-                        
-                    handles_par(no_trial_windows).timewin(winNo).lda_delta_N(ii_no_comps).no_ldas=handles_par(no_trial_windows).timewin(winNo).lda_delta_N(ii_no_comps).no_ldas+no_replicates;
-                    
-                    fprintf(1, 'LDA percent correct computed in trial window No %d for %d components for window %d\n',no_trial_windows,this_no_comps,winNo);
-            
-                end
-            end
-        end
-    end
-    
-    %Calculate the mean and CI for percent correct and plot the percent correct vs number of components
-    for winNo=1:szwins(1)
-        
-        percent_correct_exists=zeros(1,length(handles_par(no_trial_windows).number_of_components)+1);
-        mean_percent_correct=zeros(1,length(handles_par(no_trial_windows).number_of_components)+1);
-        CI_percent_correct=zeros(2,length(handles_par(no_trial_windows).number_of_components)+1);
-        mean_percent_correct_shuffled=zeros(1,length(handles_par(no_trial_windows).number_of_components)+1);
-        CI_percent_correct_shuffled=zeros(2,length(handles_par(no_trial_windows).number_of_components)+1);
-        
-
-        for ii_no_comps=1:length(handles_par(no_trial_windows).number_of_components)+1
-            if handles_par(no_trial_windows).timewin(winNo).lda_delta_N(ii_no_comps).no_ldas>0
-                mean_percent_correct(ii_no_comps)=mean(handles_par(no_trial_windows).timewin(winNo).lda_delta_N(ii_no_comps).percent_correct);
-                CI_percent_correct(:,ii_no_comps) = bootci(1000, @mean, handles_par(no_trial_windows).timewin(winNo).lda_delta_N(ii_no_comps).percent_correct);
-                percent_correct_exists(ii_no_comps)=1;
-                mean_percent_correct_shuffled(ii_no_comps)=mean(handles_par(no_trial_windows).timewin(winNo).lda_delta_N(ii_no_comps).percent_correct_shuffled);
-                CI_percent_correct_shuffled(:,ii_no_comps) = bootci(1000, @mean, handles_par(no_trial_windows).timewin(winNo).lda_delta_N(ii_no_comps).percent_correct_shuffled);
-                
-            end
-        end
-        
-        if sum(percent_correct_exists)>2
-            CI_percent_correct_shuffled(1,:)=mean_percent_correct_shuffled-CI_percent_correct_shuffled(1,:);
-            CI_percent_correct_shuffled(2,:)=CI_percent_correct_shuffled(2,:)-mean_percent_correct_shuffled;
-            
-            CI_percent_correct(1,:)=mean_percent_correct-CI_percent_correct(1,:);
-            CI_percent_correct(2,:)=CI_percent_correct(2,:)-mean_percent_correct;
-            
-            %Note that the last numcomps uses all components
-            num_comps=handles_par(no_trial_windows).number_of_components;
-            num_comps(end+1)=num_comps(find(percent_correct_exists==0,1,'first'));
-            
-            handles_par(no_trial_windows).timewin(winNo).percent_correct_exists=percent_correct_exists;
-            handles_par(no_trial_windows).timewin(winNo).mean_percent_correct=mean_percent_correct;
-            handles_par(no_trial_windows).timewin(winNo).CI_percent_correct=CI_percent_correct;
-            handles_par(no_trial_windows).timewin(winNo).mean_percent_correct_shuffled=mean_percent_correct_shuffled;
-            handles_par(no_trial_windows).timewin(winNo).CI_percent_correct_shuffled=CI_percent_correct_shuffled;
-            handles_par(no_trial_windows).timewin(winNo).num_comps=num_comps;
-            
-            
-            
-            %plot the percent correct vs no components
-            figNo=figNo+1;
-            try
-                close(figNo)
-            catch
-            end
-            
-            figure(figNo)
-            hold on
-            
-            boundedline(num_comps(1,logical(percent_correct_exists))', mean_percent_correct_shuffled(1,logical(percent_correct_exists))', CI_percent_correct_shuffled(:,logical(percent_correct_exists))', 'b');
-            p1=plot(num_comps(1,logical(percent_correct_exists))', mean_percent_correct_shuffled(1,logical(percent_correct_exists))','ob','MarkerFace','b','MarkerSize',3);
-            
-            boundedline(num_comps(1,logical(percent_correct_exists))', mean_percent_correct(1,logical(percent_correct_exists))', CI_percent_correct(:,logical(percent_correct_exists))', 'r');
-            p2=plot(num_comps(1,logical(percent_correct_exists))', mean_percent_correct(1,logical(percent_correct_exists))','or','MarkerFace','r','MarkerSize',3);
-            
-            ylim([0 110])
-            xlim([min(num_comps(1,logical(percent_correct_exists))') max(num_comps(1,logical(percent_correct_exists))')])
-            these_xlab=xticklabels;
-            these_xlab{end}='all';
-            xticklabels(these_xlab)
-            xlabel('Number of components used for LDA')
-            ylabel('Percent correct')
-            legend([p1 p2],'shuffled','original')
-            title(['Window  from ' num2str(caimanhandles.caimandr_choices.wins(winNo,1)) ' to ' num2str(caimanhandles.caimandr_choices.wins(winNo,2)) ' sec for ' supertitle_description{no_trial_windows}])
-            
-            pfft=1;
-        end
-    end
-    
-end
- 
-
-save([caimanhandles.caimandr_choices.outPathName caimanhandles.caimandr_choices.outFileName(1:end-4) '_lda.mat'],'handles_par','handles_sig')
- 
+%   
+%       
+% %Now find out what happens if we choose smaller subsets of components
+% for no_trial_windows=1:total_trial_windows
+%     handles_par(no_trial_windows).time_to_eventLDA=time_to_eventLDA;
+%     dFF_trial_mask=[];
+%     jj=0;
+%     
+%     
+%     if caimanhandles.caimandr_choices.start_reversal>length(first_num_odor_trials)
+%         
+%         fprintf(1, '\n\nLDA processed for dF/F for trials before reversal \n');
+%         pct_windows=[45 65;65 80;80 100.1];
+%         
+%         for ii=1:num_odor_trials_dFF
+%             if (perCorr(ii)>=pct_windows(no_trial_windows,1))&(perCorr(ii)<pct_windows(no_trial_windows,2))
+%                 dFF_trial_mask(ii)=1;
+%                 jj=jj+1;
+%                 handles_par(no_trial_windows).perCorr(jj)=perCorr(ii);
+%                 events{jj,1}=all_lda_events{ii};
+%                 if strcmp(events{jj,1},'S+')
+%                     %S+
+%                     per_targets(1,jj)=1;
+%                     %S-
+%                     per_targets(2,jj)=0;
+%                 else
+%                     %S+
+%                     per_targets(1,jj)=0;
+%                     %S-
+%                     per_targets(2,jj)=1;
+%                 end
+%             else
+%                 dFF_trial_mask(ii)=0;
+%             end
+%         end
+%     else
+%         if no_trial_windows==1
+%             %Forward trials
+%             fprintf(1, '\n\nLDA processed for dF/F for trials before reversal \n');
+%             
+%             for ii=1:num_odor_trials_dFF
+%                 if (trial_dFF(ii)>=1)&(trial_dFF(ii)<=first_num_odor_trials(caimanhandles.caimandr_choices.start_reversal)-1)
+%                     dFF_trial_mask(ii)=1;
+%                     jj=jj+1;
+%                     handles_par(no_trial_windows).perCorr(jj)=perCorr(ii);
+%                     events{jj,1}=all_lda_events{ii};
+%                     if strcmp(events{jj,1},'S+')
+%                         %S+
+%                         per_targets(1,jj)=1;
+%                         %S-
+%                         per_targets(2,jj)=0;
+%                     else
+%                         %S+
+%                         per_targets(1,jj)=0;
+%                         %S-
+%                         per_targets(2,jj)=1;
+%                     end
+%                 else
+%                     dFF_trial_mask(ii)=0;
+%                 end
+%             end
+%             
+%         else
+%             %Trials at end of reversal
+%             fprintf(1, '\n\nLDA processed for dF/F for trials after reversal \n');
+%             for ii=1:num_odor_trials_dFF
+%                 if (trial_dFF(ii)>=max(trial_dFF)-100)
+%                     dFF_trial_mask(ii)=1;
+%                     jj=jj+1;
+%                     handles_par(no_trial_windows).perCorr(jj)=perCorr(ii);
+%                     events{jj,1}=all_lda_events{ii};
+%                     if strcmp(events{jj,1},'S+')
+%                         %S+
+%                         per_targets(1,jj)=1;
+%                         %S-
+%                         per_targets(2,jj)=0;
+%                     else
+%                         %S+
+%                         per_targets(1,jj)=0;
+%                         %S-
+%                         per_targets(2,jj)=1;
+%                     end
+%                 else
+%                     dFF_trial_mask(ii)=0;
+%                 end
+%             end
+%         end
+%         
+%     end
+%     
+%     Nall=sum(dFF_trial_mask);
+%     
+%     
+%     fprintf(1,'For S+ vs S-\n')
+%     
+%     handles_par(no_trial_windows).number_of_components=[1 2 [5:5:30] [40:10:100] [120:20:160] [190:30:280]];
+%     
+%     for winNo=1:szwins(1)
+%         first_timepoint=find(time_to_eventLDA>=caimanhandles.caimandr_choices.wins(winNo,1),1,'first');
+%         last_timepoint=find(time_to_eventLDA>=caimanhandles.caimandr_choices.wins(winNo,2),1,'first');
+%         no_timepoints=length(time_to_eventLDA(first_timepoint:last_timepoint));
+%         for ii_no_comps=1:length(handles_par(no_trial_windows).number_of_components)+1
+%             handles_par(no_trial_windows).timewin(winNo).lda_delta_N(ii_no_comps).no_ldas=0;
+%             
+%             for time_point=first_timepoint:last_timepoint
+%                 
+%                 %dFF per trial per component
+%                 measurements=zeros(Nall,max(all_lda_no_comp(logical(dFF_trial_mask))));
+%                 this_all_lda_input_timecourse=zeros(Nall,max(all_lda_no_comp(logical(dFF_trial_mask))))';
+%                 this_all_lda_input_timecourse(:,:)=all_lda_input_timecourse(time_point,1:max(all_lda_no_comp(logical(dFF_trial_mask))),logical(dFF_trial_mask));
+%                 measurements(:,:)=this_all_lda_input_timecourse';
+%                 which_file=[];
+%                 which_file=all_lda_fileNo(logical(dFF_trial_mask));
+%                 no_comps=[];
+%                 no_comps=all_lda_no_comp(logical(dFF_trial_mask));
+%                 
+%                 ii_predict=0;
+%                 correct_predict=[];
+%                 correct_predict_shuffled=[];
+%                 
+%                 for ii=1:Nall
+%                     
+%                     %If there are enough trials process the LDA
+%                     N=sum(which_file(ii)==which_file);
+%                     
+%                     
+%                     if N>=min_trials
+%                         
+%                         if ii_no_comps==length(handles_par(no_trial_windows).number_of_components)+1
+%                             %This will use all components
+%                             do_lda=1;
+%                         else
+%                             %This will use a subset of components
+%                             if  handles_par(no_trial_windows).number_of_components(ii_no_comps)<no_comps(ii)
+%                                 do_lda=1;
+%                             else
+%                                 do_lda=0;
+%                             end
+%                         end
+%                         
+%                         if do_lda==1
+%                             ii_predict=ii_predict+1;
+%                             
+%                             %Choose unique subsets of components
+%                             if ii_no_comps<length(handles_par(no_trial_windows).number_of_components)+1
+%                                 compsubset=[];
+%                                 
+%                                 no_replicates=10;
+%              
+%                                 while(size(compsubset,1)<handles_par(no_trial_windows).number_of_components(ii_no_comps))
+%                                     compsubset=[compsubset;randi(no_comps(ii),[handles_par(no_trial_windows).number_of_components(ii_no_comps) no_replicates])];
+%                                     compsubset=unique(compsubset,'rows');
+%                                 end
+%                                 compsubset=compsubset(1:handles_par(no_trial_windows).number_of_components(ii_no_comps),:);
+%                                 this_no_comps=handles_par(no_trial_windows).number_of_components(ii_no_comps);
+%                                 
+%                             else
+%                                 compsubset=[1:no_comps(ii)]';
+%                                 this_no_comps=no_comps(ii);
+%                                 no_replicates=1;
+%                             end
+%                             
+%                             
+%                             parfor ii_sub=1:no_replicates
+%                                 %Partition the data into training and test sets.
+%                                 
+%                                 %Create input and target vectors leaving one trial out
+%                                 %For per_input each column has the dF/F for one trial
+%                                 %each row is a single time point for dF/F for one of the cells
+%                                 %For per_target the top row is 1 if the odor is S+ and 0 if it is
+%                                 %S-, and row 2 has 1 for S-
+%                                 idxTrn=ones(Nall,1)&(which_file==which_file(ii))';
+%                                 idxTrn(ii)=0;
+%                                 idxTest=zeros(Nall,1);
+%                                 idxTest(ii)=1;
+%                                 
+%                                 %Store the training data in a table.
+%                                 tblTrn=[];
+%                                 tblTrn = array2table(measurements(logical(idxTrn),sort(compsubset(:,ii_sub))));
+%                                 these_events=[];
+%                                 all_these_events=[];
+%                                 noallEvs=0;
+%                                 noEvs=0;
+%                                 
+%                                 for jj=1:Nall
+%                                     if (which_file(jj)==which_file(ii))&(jj~=ii)
+%                                         noEvs=noEvs+1;
+%                                         these_events{noEvs}=events{jj};
+%                                     end
+%                                     if (which_file(jj)==which_file(ii))
+%                                         noallEvs=noallEvs+1;
+%                                         all_these_events{noallEvs}=events{jj};
+%                                          if jj==ii
+%                                             ii_event=noallEvs;
+%                                         end
+%                                     end
+%                                 end
+%                                 tblTrn.Y = these_events';
+%                                 
+%                                 %Train a discriminant analysis model using the training set and default options.
+%                                 %By default this is a regularized linear discriminant analysis (LDA)
+%                                 Mdl = fitcdiscr(tblTrn,'Y');
+%                                 
+%                                 
+%                                 %Predict labels for the test set. You trained Mdl using a table of data, but you can predict labels using a matrix.
+%                                 [label,score] = predict(Mdl,measurements(logical(idxTest),sort(compsubset(:,ii_sub))));
+%                                 
+%                                 
+%                                 correct_predict(ii_sub,ii_predict)=strcmp(events{ii},label);
+%                                 ii_shuffled=randperm(N);
+%                                 correct_predict_shuffled(ii_sub,ii_predict)=strcmp(all_these_events{ii_shuffled(ii_event)},label);
+%                                 
+% 
+%                             end
+%                         end
+%                    
+%                     end
+%                 end
+%                 
+%                 if ii_predict>0
+%                     handles_par(no_trial_windows).timewin(winNo).lda_delta_N(ii_no_comps).percent_correct...
+%                         (handles_par(no_trial_windows).timewin(winNo).lda_delta_N(ii_no_comps).no_ldas+1:...
+%                         handles_par(no_trial_windows).timewin(winNo).lda_delta_N(ii_no_comps).no_ldas+no_replicates)=...
+%                         100*sum(correct_predict')/ii_predict;
+%                     handles_par(no_trial_windows).timewin(winNo).lda_delta_N(ii_no_comps).percent_correct_shuffled...
+%                         (handles_par(no_trial_windows).timewin(winNo).lda_delta_N(ii_no_comps).no_ldas+1:...
+%                         handles_par(no_trial_windows).timewin(winNo).lda_delta_N(ii_no_comps).no_ldas+no_replicates)=...
+%                         100*sum(correct_predict_shuffled')/ii_predict;
+%                         
+%                     handles_par(no_trial_windows).timewin(winNo).lda_delta_N(ii_no_comps).no_ldas=handles_par(no_trial_windows).timewin(winNo).lda_delta_N(ii_no_comps).no_ldas+no_replicates;
+%                     
+%                     fprintf(1, 'LDA percent correct computed in trial window No %d for %d components for window %d\n',no_trial_windows,this_no_comps,winNo);
+%             
+%                 end
+%             end
+%         end
+%     end
+%     
+%     %Calculate the mean and CI for percent correct and plot the percent correct vs number of components
+%     for winNo=1:szwins(1)
+%         
+%         percent_correct_exists=zeros(1,length(handles_par(no_trial_windows).number_of_components)+1);
+%         mean_percent_correct=zeros(1,length(handles_par(no_trial_windows).number_of_components)+1);
+%         CI_percent_correct=zeros(2,length(handles_par(no_trial_windows).number_of_components)+1);
+%         mean_percent_correct_shuffled=zeros(1,length(handles_par(no_trial_windows).number_of_components)+1);
+%         CI_percent_correct_shuffled=zeros(2,length(handles_par(no_trial_windows).number_of_components)+1);
+%         
+% 
+%         for ii_no_comps=1:length(handles_par(no_trial_windows).number_of_components)+1
+%             if handles_par(no_trial_windows).timewin(winNo).lda_delta_N(ii_no_comps).no_ldas>0
+%                 mean_percent_correct(ii_no_comps)=mean(handles_par(no_trial_windows).timewin(winNo).lda_delta_N(ii_no_comps).percent_correct);
+%                 CI_percent_correct(:,ii_no_comps) = bootci(1000, @mean, handles_par(no_trial_windows).timewin(winNo).lda_delta_N(ii_no_comps).percent_correct);
+%                 percent_correct_exists(ii_no_comps)=1;
+%                 mean_percent_correct_shuffled(ii_no_comps)=mean(handles_par(no_trial_windows).timewin(winNo).lda_delta_N(ii_no_comps).percent_correct_shuffled);
+%                 CI_percent_correct_shuffled(:,ii_no_comps) = bootci(1000, @mean, handles_par(no_trial_windows).timewin(winNo).lda_delta_N(ii_no_comps).percent_correct_shuffled);
+%                 
+%             end
+%         end
+%         
+%         if sum(percent_correct_exists)>2
+%             CI_percent_correct_shuffled(1,:)=mean_percent_correct_shuffled-CI_percent_correct_shuffled(1,:);
+%             CI_percent_correct_shuffled(2,:)=CI_percent_correct_shuffled(2,:)-mean_percent_correct_shuffled;
+%             
+%             CI_percent_correct(1,:)=mean_percent_correct-CI_percent_correct(1,:);
+%             CI_percent_correct(2,:)=CI_percent_correct(2,:)-mean_percent_correct;
+%             
+%             %Note that the last numcomps uses all components
+%             num_comps=handles_par(no_trial_windows).number_of_components;
+%             num_comps(end+1)=num_comps(find(percent_correct_exists==0,1,'first'));
+%             
+%             handles_par(no_trial_windows).timewin(winNo).percent_correct_exists=percent_correct_exists;
+%             handles_par(no_trial_windows).timewin(winNo).mean_percent_correct=mean_percent_correct;
+%             handles_par(no_trial_windows).timewin(winNo).CI_percent_correct=CI_percent_correct;
+%             handles_par(no_trial_windows).timewin(winNo).mean_percent_correct_shuffled=mean_percent_correct_shuffled;
+%             handles_par(no_trial_windows).timewin(winNo).CI_percent_correct_shuffled=CI_percent_correct_shuffled;
+%             handles_par(no_trial_windows).timewin(winNo).num_comps=num_comps;
+%             
+%             
+%             
+%             %plot the percent correct vs no components
+%             figNo=figNo+1;
+%             try
+%                 close(figNo)
+%             catch
+%             end
+%             
+%             figure(figNo)
+%             hold on
+%             
+%             boundedline(num_comps(1,logical(percent_correct_exists))', mean_percent_correct_shuffled(1,logical(percent_correct_exists))', CI_percent_correct_shuffled(:,logical(percent_correct_exists))', 'b');
+%             p1=plot(num_comps(1,logical(percent_correct_exists))', mean_percent_correct_shuffled(1,logical(percent_correct_exists))','ob','MarkerFace','b','MarkerSize',3);
+%             
+%             boundedline(num_comps(1,logical(percent_correct_exists))', mean_percent_correct(1,logical(percent_correct_exists))', CI_percent_correct(:,logical(percent_correct_exists))', 'r');
+%             p2=plot(num_comps(1,logical(percent_correct_exists))', mean_percent_correct(1,logical(percent_correct_exists))','or','MarkerFace','r','MarkerSize',3);
+%             
+%             ylim([0 110])
+%             xlim([min(num_comps(1,logical(percent_correct_exists))') max(num_comps(1,logical(percent_correct_exists))')])
+%             these_xlab=xticklabels;
+%             these_xlab{end}='all';
+%             xticklabels(these_xlab)
+%             xlabel('Number of components used for LDA')
+%             ylabel('Percent correct')
+%             legend([p1 p2],'shuffled','original')
+%             title(['Window  from ' num2str(caimanhandles.caimandr_choices.wins(winNo,1)) ' to ' num2str(caimanhandles.caimandr_choices.wins(winNo,2)) ' sec for ' supertitle_description{no_trial_windows}])
+%             
+%             pfft=1;
+%         end
+%     end
+%     
+% end
+%  
+% 
+% save([caimanhandles.caimandr_choices.outPathName caimanhandles.caimandr_choices.outFileName(1:end-4) '_lda.mat'],'handles_par','handles_sig')
+%  
 pffft=1

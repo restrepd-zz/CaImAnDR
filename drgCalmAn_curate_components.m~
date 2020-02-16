@@ -150,6 +150,7 @@ histogram(diameter,edges)
 xlabel('Diameter (um)')
 ylabel('Counts')
 
+fprintf(1, ['\nNumber of ROIs %d\n\n'],length(diameter));
 fprintf(1, ['\nMedian diameter (um) is %d\n\n'],median(diameter));
 fprintf(1, ['\nMean diameter (um) is %d\n\n'],mean(diameter));
 fprintf(1, ['\nStndard deviation (um) is %d\n\n'],std(diameter));
@@ -641,6 +642,7 @@ switch dropc_program
                             this_trace=traces(trNo,snip_mask);
                             Hitii=Hitii+1;
                             Hit_traces(Hitii,1:sum(snip_mask))=traces(trNo,snip_mask)-mean(traces(trNo, ref_mask));
+                            Hit_comps(Hitii)=trNo;
                             no_Hit_traces=no_Hit_traces+1;
                             Hit_trials(Hitii)=no_Hit_trials;
                             which_trace_Hit(Hitii)=trNo;
@@ -679,6 +681,7 @@ switch dropc_program
                             this_trace=traces(trNo,snip_mask);
                             Missii=Missii+1;
                             Miss_traces(Missii,1:sum(snip_mask))=traces(trNo,snip_mask)-mean(traces(trNo, ref_mask));
+                            Miss_comps(Missii)=trNo;
                             no_Miss_traces=no_Miss_traces+1;
                             which_trace_Miss(Missii)=trNo;
                             which_trial_Miss(Missii)=no_odor_trials;
@@ -714,6 +717,7 @@ switch dropc_program
                             this_trace=traces(trNo,snip_mask);
                             FAii=FAii+1;
                             FA_traces(FAii,1:sum(snip_mask))=traces(trNo,snip_mask)-mean(traces(trNo, ref_mask));
+                            FA_comps(FAii)=trNo;
                             no_FA_traces=no_FA_traces+1;
                             which_trace_FA(FAii)=trNo;
                             which_trial_FA(FAii)=no_odor_trials;
@@ -749,6 +753,7 @@ switch dropc_program
                             this_trace=traces(trNo,snip_mask);
                             CRii=CRii+1;
                             CR_traces(CRii,1:sum(snip_mask))=traces(trNo,snip_mask)-mean(traces(trNo, ref_mask));
+                            CR_comps(CRii)=trNo;
                             no_CR_traces=no_CR_traces+1;
                             which_trace_CR(CRii)=trNo;
                             which_trial_CR(CRii)=no_odor_trials;
@@ -966,6 +971,9 @@ xlim([-10 19.8])
 glm_dFF=[];
 glm_ii=0;
 
+ii_stats=0;
+dFF_stats=[];
+
 figNo=figNo+1;
 figure(figNo)
 hold on
@@ -1004,15 +1012,27 @@ glm_dFF.when(glm_ii+1:glm_ii+length(dFF_per_comp_pre))=0*ones(1,length(dFF_per_c
 glm_dFF.spm(glm_ii+1:glm_ii+length(dFF_per_comp_pre))=1*ones(1,length(dFF_per_comp_pre));
 glm_ii=glm_ii+length(dFF_per_comp_pre);
 
+ii_stats=ii_stats+1;
+dFF_stats(ii_stats).data=dFF_per_comp_pre;
+dFF_stats(ii_stats).description=['Pre Splus '];
+
 glm_dFF.data(glm_ii+1:glm_ii+length(dFF_per_comp_odor))=dFF_per_comp_odor;
 glm_dFF.when(glm_ii+1:glm_ii+length(dFF_per_comp_odor))=1*ones(1,length(dFF_per_comp_odor));
 glm_dFF.spm(glm_ii+1:glm_ii+length(dFF_per_comp_odor))=1*ones(1,length(dFF_per_comp_odor));
 glm_ii=glm_ii+length(dFF_per_comp_odor);
 
+ii_stats=ii_stats+1;
+dFF_stats(ii_stats).data=dFF_per_comp_odor;
+dFF_stats(ii_stats).description=['Odor Splus '];
+
 glm_dFF.data(glm_ii+1:glm_ii+length(dFF_per_comp_reinf))=dFF_per_comp_reinf;
 glm_dFF.when(glm_ii+1:glm_ii+length(dFF_per_comp_reinf))=2*ones(1,length(dFF_per_comp_reinf));
 glm_dFF.spm(glm_ii+1:glm_ii+length(dFF_per_comp_reinf))=1*ones(1,length(dFF_per_comp_reinf));
 glm_ii=glm_ii+length(dFF_per_comp_reinf);
+
+ii_stats=ii_stats+1;
+dFF_stats(ii_stats).data=dFF_per_comp_reinf;
+dFF_stats(ii_stats).description=['Reinforcement Splus '];
 
 [hlsp, hpsp] = boundedline(time_to_event',mean(splus_traces(:,1:length(time_to_event)),1)', CIsp(:,1:length(time_to_event))', 'r');
 
@@ -1100,15 +1120,27 @@ glm_dFF.when(glm_ii+1:glm_ii+length(dFF_per_comp_pre))=0*ones(1,length(dFF_per_c
 glm_dFF.spm(glm_ii+1:glm_ii+length(dFF_per_comp_pre))=0*ones(1,length(dFF_per_comp_pre));
 glm_ii=glm_ii+length(dFF_per_comp_pre);
 
+ii_stats=ii_stats+1;
+dFF_stats(ii_stats).data=dFF_per_comp_pre;
+dFF_stats(ii_stats).description=['Pre Sminus '];
+
 glm_dFF.data(glm_ii+1:glm_ii+length(dFF_per_comp_odor))=dFF_per_comp_odor;
 glm_dFF.when(glm_ii+1:glm_ii+length(dFF_per_comp_odor))=1*ones(1,length(dFF_per_comp_odor));
 glm_dFF.spm(glm_ii+1:glm_ii+length(dFF_per_comp_odor))=0*ones(1,length(dFF_per_comp_odor));
 glm_ii=glm_ii+length(dFF_per_comp_odor);
 
+ii_stats=ii_stats+1;
+dFF_stats(ii_stats).data=dFF_per_comp_odor;
+dFF_stats(ii_stats).description=['Odor Sminus '];
+
 glm_dFF.data(glm_ii+1:glm_ii+length(dFF_per_comp_reinf))=dFF_per_comp_reinf;
 glm_dFF.when(glm_ii+1:glm_ii+length(dFF_per_comp_reinf))=2*ones(1,length(dFF_per_comp_reinf));
 glm_dFF.spm(glm_ii+1:glm_ii+length(dFF_per_comp_reinf))=0*ones(1,length(dFF_per_comp_reinf));
 glm_ii=glm_ii+length(dFF_per_comp_reinf);
+
+ii_stats=ii_stats+1;
+dFF_stats(ii_stats).data=dFF_per_comp_reinf;
+dFF_stats(ii_stats).description=['Reinforcement Sminus '];
 
 [hlsp, hpsp] = boundedline(time_to_event',mean(sminus_traces(:,1:length(time_to_event)),1)', CIsp(:,1:length(time_to_event))', 'b');
 
@@ -1120,7 +1152,7 @@ ylabel('dF/F')
 ylim([-0.25 3])
 xlim([-10 19.8])
 
-%Bar graph for S+ for all components
+%Bar graph for S- for all components
 figNo=figNo+1;
 figure(figNo)
 hold on
@@ -1159,16 +1191,16 @@ title("dFF changes for S-")
 
 
 %Perform the glm for mi
-fprintf(1, ['\n\nglm for phase-referenced power for Theta/' PACnames{PACii} '\n'])
+fprintf(1, ['\n\nglm for dFF\n'])
 tbl = table(glm_dFF.data',glm_dFF.when',glm_dFF.spm',...
     'VariableNames',{'dFF','when','spm'});
-mdl = fitglm(tbl,'dFF~when+spm+wfwd_rev+odorant+fwd_rev*odorant'...
+mdl = fitglm(tbl,'dFF~when+spm+when*spm'...
     ,'CategoricalVars',[2,3])
 
 %Do ranksum/t test
-fprintf(1, ['\n\nRanksum or t-test p values for phase-referenced power per mouse for Theta/' PACnames{PACii} '\n'])
+fprintf(1, ['\n\nRanksum or t-test p values for dFF'])
 try
-    [output_data] = drgMutiRanksumorTtest(p_prp_stats);
+    [output_data] = drgMutiRanksumorTtest(dFF_stats);
     fprintf(1, '\n\n')
 catch
 end
@@ -1232,18 +1264,192 @@ if no_FA_traces>2
     CIFA(2,:)=CIFA(2,:)-meanFA;
 end
 
-%To plot a specific trace
-%which_trace_Hit is the ROI
-%Hit_trials is the trial within hit
-% Hit_traces((which_trace_Hit==ROIno)&(Hit_trials==Hit_trialNo),:)
-% odor_snip=(time_to_eventHit>=0)&(time_to_eventHit<=5);
-% for ROIno=1:no_traces
-%     for Hit_trialNo=1:no_Hit_trials
-%         dFF_odor(ROIno,Hit_trialNo)=mean(Hit_traces((which_trace_Hit==ROIno)&(Hit_trials==Hit_trialNo),odor_snip));
-%     end
-% end
-% pctdFF_odor95=prctile(dFF_odor(:),95);
-% pctdFF_odor5=prctile(dFF_odor(:),5);
+%Plot all snips for Hit, CR, FA and Miss
+
+%Hits
+figNo=figNo+1;
+figure(figNo)
+hold on
+
+
+%Plot the traces for all components and calculate the average dFF
+% dFF_per_comp_pre=[];
+% dFF_per_comp_odor=[];
+% dFF_per_comp_reinf=[];
+% no_comps_Hit=0;
+for trNo=1:no_traces
+    if sum(Hit_comps==trNo)>0
+        this_Hit_trace=[];
+        this_Hit_trace=mean(Hit_traces(Hit_comps==trNo,:),1);
+%         no_comps_Hit=no_comps_Hit+1;
+%         dFF_per_comp_pre(no_comps_Hit)=mean(this_Hit_trace((time_to_event>=-1)&(time_to_event<=0)));
+%         dFF_per_comp_odor(no_comps_Hit)=mean(this_sm_trace((time_to_event>=mean(delta_odor)-1)&(time_to_event<=mean(delta_odor))));
+%         dFF_per_comp_reinf(no_comps_sm)=mean(this_sm_trace((time_to_event>=mean(delta_odor_on_reinf_on))&(time_to_event<=mean(delta_odor_on_reinf_on)+mean(delta_reinf))));
+%         
+        plot(time_to_event',this_Hit_trace,'-k','Linewidth',0.5,'Color',[0.7 0.7 0.7])
+    end
+end
+
+
+%Odor on markers
+plot([0 0],[0 max([max(mean(sminus_traces(sp_odor_response==0,:),1)')+max(CIsp(:)) max(mean(sminus_traces(sm_odor_response==0,:),1)')+max(CIsm(:))])+3.5],'-k')
+odorhl=plot([0 mean(delta_odor)],[pct1-0.1*(pct99-pct1) pct1-0.1*(pct99-pct1)],'-k','LineWidth',5);
+plot([mean(delta_odor) mean(delta_odor)],[0 max([max(mean(sminus_traces(sp_odor_response==0,:),1)')+max(CIsp(:)) max(mean(sminus_traces(sm_odor_response==0,:),1)')+max(CIsm(:))])+3.5],'-k')
+
+%Reinforcement markers
+plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)],[0 max([max(mean(sminus_traces(sp_odor_response==0,:),1)')+max(CIsp(:)) max(mean(sminus_traces(sm_odor_response==0,:),1)')+max(CIsm(:))])+3.5],'-r')
+reinfhl=plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[pct1-0.1*(pct99-pct1) pct1-0.1*(pct99-pct1)],'-r','LineWidth',5);
+plot([mean(delta_odor_on_reinf_on)+mean(delta_reinf) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[0 max([max(mean(sminus_traces(sp_odor_response==0,:),1)')+max(CIsp(:)) max(mean(sminus_traces(sm_odor_response==0,:),1)')+max(CIsm(:))])+3.5],'-r')
+
+
+[hlsp, hpsp] = boundedline(time_to_event',mean(Hit_traces(:,1:length(time_to_event)),1)', CIHit(:,1:length(time_to_event))', 'r');
+
+
+
+title("dFF changes for Hits aligned to odor onset")
+xlabel('Time (sec)')
+ylabel('dF/F')
+ylim([-0.25 3])
+xlim([-10 19.8])
+
+%Miss
+figNo=figNo+1;
+figure(figNo)
+hold on
+
+
+%Plot the traces for all components and calculate the average dFF
+% dFF_per_comp_pre=[];
+% dFF_per_comp_odor=[];
+% dFF_per_comp_reinf=[];
+% no_comps_Hit=0;
+for trNo=1:no_traces
+    if sum(Miss_comps==trNo)>0
+        this_Miss_trace=[];
+        this_Miss_trace=mean(Miss_traces(Miss_comps==trNo,:),1);
+%         no_comps_Hit=no_comps_Hit+1;
+%         dFF_per_comp_pre(no_comps_Hit)=mean(this_Hit_trace((time_to_event>=-1)&(time_to_event<=0)));
+%         dFF_per_comp_odor(no_comps_Hit)=mean(this_sm_trace((time_to_event>=mean(delta_odor)-1)&(time_to_event<=mean(delta_odor))));
+%         dFF_per_comp_reinf(no_comps_sm)=mean(this_sm_trace((time_to_event>=mean(delta_odor_on_reinf_on))&(time_to_event<=mean(delta_odor_on_reinf_on)+mean(delta_reinf))));
+%         
+        plot(time_to_event',this_Miss_trace,'-k','Linewidth',0.5,'Color',[0.7 0.7 0.7])
+    end
+end
+
+
+%Odor on markers
+plot([0 0],[0 max([max(mean(sminus_traces(sp_odor_response==0,:),1)')+max(CIsp(:)) max(mean(sminus_traces(sm_odor_response==0,:),1)')+max(CIsm(:))])+3.5],'-k')
+odorhl=plot([0 mean(delta_odor)],[pct1-0.1*(pct99-pct1) pct1-0.1*(pct99-pct1)],'-k','LineWidth',5);
+plot([mean(delta_odor) mean(delta_odor)],[0 max([max(mean(sminus_traces(sp_odor_response==0,:),1)')+max(CIsp(:)) max(mean(sminus_traces(sm_odor_response==0,:),1)')+max(CIsm(:))])+3.5],'-k')
+
+%Reinforcement markers
+plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)],[0 max([max(mean(sminus_traces(sp_odor_response==0,:),1)')+max(CIsp(:)) max(mean(sminus_traces(sm_odor_response==0,:),1)')+max(CIsm(:))])+3.5],'-r')
+reinfhl=plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[pct1-0.1*(pct99-pct1) pct1-0.1*(pct99-pct1)],'-r','LineWidth',5);
+plot([mean(delta_odor_on_reinf_on)+mean(delta_reinf) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[0 max([max(mean(sminus_traces(sp_odor_response==0,:),1)')+max(CIsp(:)) max(mean(sminus_traces(sm_odor_response==0,:),1)')+max(CIsm(:))])+3.5],'-r')
+
+
+[hlsp, hpsp] = boundedline(time_to_event',mean(Miss_traces(:,1:length(time_to_event)),1)', CIMiss(:,1:length(time_to_event))', 'c');
+
+
+
+title("dFF changes for Misses aligned to odor onset")
+xlabel('Time (sec)')
+ylabel('dF/F')
+ylim([-0.25 3])
+xlim([-10 19.8])
+
+%CR
+figNo=figNo+1;
+figure(figNo)
+hold on
+
+
+
+%Plot the traces for all components and calculate the average dFF
+% dFF_per_comp_pre=[];
+% dFF_per_comp_odor=[];
+% dFF_per_comp_reinf=[];
+% no_comps_Hit=0;
+for trNo=1:no_traces
+    if sum(CR_comps==trNo)>0
+        this_CR_trace=[];
+        this_CR_trace=mean(CR_traces(Miss_comps==trNo,:),1);
+%         no_comps_Hit=no_comps_Hit+1;
+%         dFF_per_comp_pre(no_comps_Hit)=mean(this_Hit_trace((time_to_event>=-1)&(time_to_event<=0)));
+%         dFF_per_comp_odor(no_comps_Hit)=mean(this_sm_trace((time_to_event>=mean(delta_odor)-1)&(time_to_event<=mean(delta_odor))));
+%         dFF_per_comp_reinf(no_comps_sm)=mean(this_sm_trace((time_to_event>=mean(delta_odor_on_reinf_on))&(time_to_event<=mean(delta_odor_on_reinf_on)+mean(delta_reinf))));
+%         
+        plot(time_to_event',this_CR_trace,'-k','Linewidth',0.5,'Color',[0.7 0.7 0.7])
+    end
+end
+
+%Odor on markers
+plot([0 0],[0 max([max(mean(sminus_traces(sp_odor_response==0,:),1)')+max(CIsp(:)) max(mean(sminus_traces(sm_odor_response==0,:),1)')+max(CIsm(:))])+3.5],'-k')
+odorhl=plot([0 mean(delta_odor)],[pct1-0.1*(pct99-pct1) pct1-0.1*(pct99-pct1)],'-k','LineWidth',5);
+plot([mean(delta_odor) mean(delta_odor)],[0 max([max(mean(sminus_traces(sp_odor_response==0,:),1)')+max(CIsp(:)) max(mean(sminus_traces(sm_odor_response==0,:),1)')+max(CIsm(:))])+3.5],'-k')
+
+%Reinforcement markers
+plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)],[0 max([max(mean(sminus_traces(sp_odor_response==0,:),1)')+max(CIsp(:)) max(mean(sminus_traces(sm_odor_response==0,:),1)')+max(CIsm(:))])+3.5],'-r')
+reinfhl=plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[pct1-0.1*(pct99-pct1) pct1-0.1*(pct99-pct1)],'-r','LineWidth',5);
+plot([mean(delta_odor_on_reinf_on)+mean(delta_reinf) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[0 max([max(mean(sminus_traces(sp_odor_response==0,:),1)')+max(CIsp(:)) max(mean(sminus_traces(sm_odor_response==0,:),1)')+max(CIsm(:))])+3.5],'-r')
+
+
+[hlsp, hpsp] = boundedline(time_to_event',mean(CR_traces(:,1:length(time_to_event)),1)', CICR(:,1:length(time_to_event))', 'b');
+
+
+
+title("dFF changes for CRs aligned to odor onset")
+xlabel('Time (sec)')
+ylabel('dF/F')
+ylim([-0.25 3])
+xlim([-10 19.8])
+
+%FA
+figNo=figNo+1;
+figure(figNo)
+hold on
+
+
+%Plot the traces for all components and calculate the average dFF
+% dFF_per_comp_pre=[];
+% dFF_per_comp_odor=[];
+% dFF_per_comp_reinf=[];
+% no_comps_Hit=0;
+for trNo=1:no_traces
+    if sum(FA_comps==trNo)>0
+        this_FA_trace=[];
+        this_FA_trace=mean(FA_traces(FA_comps==trNo,:),1);
+%         no_comps_Hit=no_comps_Hit+1;
+%         dFF_per_comp_pre(no_comps_Hit)=mean(this_Hit_trace((time_to_event>=-1)&(time_to_event<=0)));
+%         dFF_per_comp_odor(no_comps_Hit)=mean(this_sm_trace((time_to_event>=mean(delta_odor)-1)&(time_to_event<=mean(delta_odor))));
+%         dFF_per_comp_reinf(no_comps_sm)=mean(this_sm_trace((time_to_event>=mean(delta_odor_on_reinf_on))&(time_to_event<=mean(delta_odor_on_reinf_on)+mean(delta_reinf))));
+%         
+        plot(time_to_event',this_FA_trace,'-k','Linewidth',0.5,'Color',[0.7 0.7 0.7])
+    end
+end
+
+
+%Odor on markers
+plot([0 0],[0 max([max(mean(sminus_traces(sp_odor_response==0,:),1)')+max(CIsp(:)) max(mean(sminus_traces(sm_odor_response==0,:),1)')+max(CIsm(:))])+3.5],'-k')
+odorhl=plot([0 mean(delta_odor)],[pct1-0.1*(pct99-pct1) pct1-0.1*(pct99-pct1)],'-k','LineWidth',5);
+plot([mean(delta_odor) mean(delta_odor)],[0 max([max(mean(sminus_traces(sp_odor_response==0,:),1)')+max(CIsp(:)) max(mean(sminus_traces(sm_odor_response==0,:),1)')+max(CIsm(:))])+3.5],'-k')
+
+%Reinforcement markers
+plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)],[0 max([max(mean(sminus_traces(sp_odor_response==0,:),1)')+max(CIsp(:)) max(mean(sminus_traces(sm_odor_response==0,:),1)')+max(CIsm(:))])+3.5],'-r')
+reinfhl=plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[pct1-0.1*(pct99-pct1) pct1-0.1*(pct99-pct1)],'-r','LineWidth',5);
+plot([mean(delta_odor_on_reinf_on)+mean(delta_reinf) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[0 max([max(mean(sminus_traces(sp_odor_response==0,:),1)')+max(CIsp(:)) max(mean(sminus_traces(sm_odor_response==0,:),1)')+max(CIsm(:))])+3.5],'-r')
+
+
+[hlsp, hpsp] = boundedline(time_to_event',mean(FA_traces(:,1:length(time_to_event)),1)', CIFA(:,1:length(time_to_event))', 'm');
+
+
+
+title("dFF changes for FAs aligned to odor onset")
+xlabel('Time (sec)')
+ylabel('dF/F')
+ylim([-0.25 3])
+xlim([-10 19.8])
+
 
 %Save the calculated data
 
