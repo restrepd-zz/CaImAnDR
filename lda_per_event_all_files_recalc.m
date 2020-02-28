@@ -6,9 +6,9 @@ clear all
 no_tests(3,4)=0;
 shuffled_percent_correct=[];
 %mmPVG04 20180917_mmPVG04_Cerebellum
-load('/Users/restrepd/Documents/Projects/MOM slidebook/mmPVG04/20180917_mmPVG04_Cerebellum/20180917_mmPVG04_Cerebellum_PCA_events_lda.mat')
+load('/Users/restrepd/Documents/Projects/MOM slidebook/mmPVG04/20180917_mmPVG04_Cerebellum new analysis/20180917_mmPVG04_Cerebellum_LDA_events_events_lda.mat')
 experimentNo=1;
-for winNo=1:3
+for winNo=1:length(handles_events.win)
    shuffled_percent_correct=[shuffled_percent_correct handles_events.win(winNo).shuffled_percent_correct];
    for evNo=1:4
        perCorr_per_experiment(winNo,evNo,experimentNo)=100*sum(handles_events.win(winNo).correct_predict(handles_events.win(winNo).events_miss_FA==evNo))/sum(handles_events.win(winNo).events_miss_FA==evNo);
@@ -18,9 +18,9 @@ for winNo=1:3
 end
 
 %mmPVG04 20180910_mmPVG04_Cerebellum
-load('/Users/restrepd/Documents/Projects/MOM slidebook/mmPVG04/20180910_mmPVG04_Cerebellum/20180910_mmPVG04_Cerebellum_events_lda.mat')
+load('/Users/restrepd/Documents/Projects/MOM slidebook/mmPVG04/20180910_mmPVG04_Cerebellum_new_analysis/20180910_mmPVG04_Cerebellum_new_out_events_lda.mat')
 experimentNo=2;
-for winNo=1:3
+for winNo=1:length(handles_events.win)
     shuffled_percent_correct=[shuffled_percent_correct handles_events.win(winNo).shuffled_percent_correct];
    for evNo=1:4
        perCorr_per_experiment(winNo,evNo,experimentNo)=100*sum(handles_events.win(winNo).correct_predict(handles_events.win(winNo).events_miss_FA==evNo))/sum(handles_events.win(winNo).events_miss_FA==evNo);
@@ -30,9 +30,9 @@ for winNo=1:3
 end
 
 %mmPVG05 20181017
-load('/Users/restrepd/Documents/Projects/MOM slidebook/mmPVG05/20181017_mmPVG05_Cerebellum/20181017_mmPVG05_Cerebellum_out_events_lda.mat')
+load('/Users/restrepd/Documents/Projects/MOM slidebook/mmPVG05/20181017_mmPVG05_Cerebellum new analysis/20181017_mmPVG05_Cerebellum_out_events_lda.mat')
 experimentNo=3;
-for winNo=1:3
+for winNo=1:length(handles_events.win)
     shuffled_percent_correct=[shuffled_percent_correct handles_events.win(winNo).shuffled_percent_correct];
    for evNo=1:4
        perCorr_per_experiment(winNo,evNo,experimentNo)=100*sum(handles_events.win(winNo).correct_predict(handles_events.win(winNo).events_miss_FA==evNo))/sum(handles_events.win(winNo).events_miss_FA==evNo);
@@ -42,9 +42,9 @@ for winNo=1:3
 end
 
 %mmPVG02 20180515_18
-load('/Users/restrepd/Documents/Projects/MOM slidebook/mmPVG02/20180515_mmPVG02_Cerebellum/20180515_18_mmPVG02_Cerebellum_out_events_lda.mat')
+load('/Users/restrepd/Documents/Projects/MOM slidebook/mmPVG02/20180515_mmPVG02_Cerebellum_new_analysis/20180515_18_mmPVG02_Cerebellum_out_lda_new_events_lda.mat')
 experimentNo=4;
-for winNo=1:3
+for winNo=1:length(handles_events.win)
     shuffled_percent_correct=[shuffled_percent_correct handles_events.win(winNo).shuffled_percent_correct];
    for evNo=1:4
        perCorr_per_experiment(winNo,evNo,experimentNo)=100*sum(handles_events.win(winNo).correct_predict(handles_events.win(winNo).events_miss_FA==evNo))/sum(handles_events.win(winNo).events_miss_FA==evNo);
@@ -54,9 +54,9 @@ for winNo=1:3
 end
 
 %mmG7f09 20180702_05
-load('/Users/restrepd/Documents/Projects/MOM slidebook/mmG7f09/20180702_mmG7f09_Cerebellum/20180702_05_mmG7f09-Cerebellumbatch_events_lda.mat')
+load('/Users/restrepd/Documents/Projects/MOM slidebook/mmG7f09/20180702_mmG7f09-Cerebellum new analysis/20180702_05_mmG7f09-Cerebellum_lda_sum_events_lda.mat')
 experimentNo=5;
-for winNo=1:3
+for winNo=1:length(handles_events.win)
     shuffled_percent_correct=[shuffled_percent_correct handles_events.win(winNo).shuffled_percent_correct];
    for evNo=1:4
        perCorr_per_experiment(winNo,evNo,experimentNo)=100*sum(handles_events.win(winNo).correct_predict(handles_events.win(winNo).events_miss_FA==evNo))/sum(handles_events.win(winNo).events_miss_FA==evNo);
@@ -68,7 +68,7 @@ end
 %mmG06  20180419
 load('/Users/restrepd/Documents/Projects/MOM slidebook/mmG06/20180419_mmG06_cerebellum new analysis/20180419_mmG06_cerebellumPCAevents_events_lda.mat')
 experimentNo=6;
-for winNo=1:3
+for winNo=1:length(handles_events.win)
     shuffled_percent_correct=[shuffled_percent_correct handles_events.win(winNo).shuffled_percent_correct];
    for evNo=1:4
        perCorr_per_experiment(winNo,evNo,experimentNo)=100*sum(handles_events.win(winNo).correct_predict(handles_events.win(winNo).events_miss_FA==evNo))/sum(handles_events.win(winNo).events_miss_FA==evNo);
@@ -89,7 +89,7 @@ hold on
 
 x=0;
 offset=-50;
-for winNo=1:3
+for winNo=1:length(handles_events.win)
     for evNo=1:4
         if evNo==3
             x=x+1;
@@ -108,7 +108,7 @@ for winNo=1:3
         plot([x x],CI,'-k','Linewidth',3)
         pcorr=zeros(1,6);
         pcorr(1,:)=perCorr_per_experiment(winNo,evNo,:)+offset;
-        plot(x*ones(1,6),pcorr,'ok')
+        plot(x*ones(1,6),pcorr,'ok','MarkerSize',10)
         x=x+1;
     end
     x=x+2;
@@ -122,49 +122,76 @@ ylim([-60 60])
 yticks([-50 0 50])
 yticklabels({'0','50','100'})
 ylabel('Percent correct')
-xticks([2 9 16 21])
-xticklabels({'3-4 sec','4.5-6 sec','8.5-10 sec','shuffled'})
+xticks([2 9 14])
+xticklabels({'3-4 sec','4.5-6 sec','shuffled'})
 title('Percent correct odor classification for LDA analysis')
-
+xlim([-2 16])
 
 %Now do the ranksum/ttests
 event_labels{1}='Hit';
 event_labels{2}='Miss';
 event_labels{3}='CR';
 event_labels{4}='FA';
-win_labels{1}='3-4 sec';
-win_labels{2}='4.5-6 sec';
-win_labels{3}='8.5-10 sec';
+win_labels{1}='Odorant';
+win_labels{2}='Reinforcement';
 
-for winNo=1:3
-    fprintf(1, ['\nTests for significant differences for ' win_labels{winNo} '\n\n']);
-    p_vals_corr=[];
+
+ii_rank=0;
+decod_acc=[];
+glm_lda_ii=0;
+glm_lda=[];
+
+ii_rank=ii_rank+1;
+decode_acc(ii_rank).data=shuffled_percent_correct';
+decode_acc(ii_rank).description=['shuffled'];
+
+
+
+for winNo=1:2
     for evNo1=1:4
-        pcorr1=zeros(1,6);
-            pcorr1(1,:)=perCorr_per_experiment(winNo,evNo1,:);
-            [p_val,r_or_t] = drg_ranksum_or_ttest(pcorr1,shuffled_percent_correct);
-            p_vals_corr=[p_vals_corr p_val];
-            if r_or_t==0
-                fprintf(1, ['ranksum p value for pFDR for ' event_labels{evNo1} ' vs. shuffled =%d\n'],p_val);
-            else
-                fprintf(1, ['t test p value for pFDR for ' event_labels{evNo1} ' vs. shuffled  =%d\n'],p_val);
-            end
+        ii_rank=ii_rank+1;
+        this_perCorr=zeros(1,6);
+        this_perCorr(1,:)=perCorr_per_experiment(winNo,evNo1,:);
+        decode_acc(ii_rank).data=this_perCorr';
+        decode_acc(ii_rank).description=[win_labels{winNo} ' ' event_labels{evNo1}];
         
-        for evNo2=evNo1+1:4
-            pcorr1=zeros(1,6);
-            pcorr1(1,:)=perCorr_per_experiment(winNo,evNo1,:);
-            pcorr2=zeros(1,6);
-            pcorr2(1,:)=perCorr_per_experiment(winNo,evNo2,:);
-            [p_val,r_or_t] = drg_ranksum_or_ttest(pcorr1,pcorr2);
-            p_vals_corr=[p_vals_corr p_val];
-            if r_or_t==0
-                fprintf(1, ['ranksum p value for pFDR for ' event_labels{evNo1} ' vs. ' event_labels{evNo2} ' =%d\n'],p_val);
-            else
-                fprintf(1, ['t test p value for pFDR for ' event_labels{evNo1} ' vs. ' event_labels{evNo2} ' =%d\n'],p_val);
-            end
-        end
+        
+        glm_lda.data(glm_lda_ii+1:glm_lda_ii+length(this_perCorr))=this_perCorr;
+        glm_lda.event(glm_lda_ii+1:glm_lda_ii+length(this_perCorr))=evNo1;
+        glm_lda.window(glm_lda_ii+1:glm_lda_ii+length(this_perCorr))=winNo;
+        glm_lda_ii=glm_lda_ii+length(this_perCorr);
+        
     end
-    pFDRcorr=drsFDRpval(p_vals_corr);
-    fprintf(1, ['\n\npFDR for significant difference percent correct  = %d\n\n'],pFDRcorr);
 end
 
+
+%Perform the glm for LDA percent correct 
+fprintf(1, ['\n\nglm for LDA percent correct\n'])
+tbl = table(glm_lda.data',glm_lda.event',glm_lda.window',...
+    'VariableNames',{'percent_correct_LDA','event','window'});
+mdl = fitglm(tbl,'percent_correct_LDA~window+event+window*event'...
+    ,'CategoricalVars',[2,3])
+
+%  fprintf(1, ['\n\nglm for average wavelet power for Theta/' freq_names{pacii+1} '\n'])
+%                 tbl = table(glm_averagewave.data',glm_averagewave.perCorr',glm_averagewave.event',...
+%                     'VariableNames',{'Average_wave','perCorr','event'});
+%                 mdl = fitglm(tbl,'Average_wave~perCorr+event+perCorr*event'...
+%                     ,'CategoricalVars',[2,3])
+                
+                
+
+%Do ranksum/t test
+fprintf(1, ['\n\nRanksum or t-test p values for decoding accuracy \n\n'])
+try
+    [output_data] = drgMutiRanksumorTtest(decode_acc);
+    fprintf(1, '\n\n')
+catch
+end
+
+%Do vartest2
+fprintf(1, ['\n\nTest of difference in variance for decoding accuracy \n\n'])
+try
+    [output_data] = drgMutiVartest2(decode_acc);
+    fprintf(1, '\n\n')
+catch
+end

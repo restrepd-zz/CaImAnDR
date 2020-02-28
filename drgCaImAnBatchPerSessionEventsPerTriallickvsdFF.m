@@ -1245,6 +1245,7 @@ for no_trial_windows=1:total_trial_windows
                 tbl= table(t,dFF,'VariableNames',{'t','dFF'});
                 lm = fitlm(tbl,'dFF~t');
                 handles_outs.dFF_slopes(handles_outs.no_dFF_slopes,1)=lm.Coefficients{2,1};
+                handles_outs.dFF_mean(handles_outs.no_dFF_slopes,1)=mean(dFF);
                 
                 %Odor window
                 t=time_to_eventLDA((time_to_eventLDA>=0)&(time_to_eventLDA<=mean(delta_odor)))';
@@ -1252,6 +1253,7 @@ for no_trial_windows=1:total_trial_windows
                 tbl= table(t,dFF,'VariableNames',{'t','dFF'});
                 lm = fitlm(tbl,'dFF~t');
                 handles_outs.dFF_slopes(handles_outs.no_dFF_slopes,2)=lm.Coefficients{2,1};
+                handles_outs.dFF_mean(handles_outs.no_dFF_slopes,2)=mean(dFF);
                 
                 %Reinforcement window
                 t=time_to_eventLDA((time_to_eventLDA>=mean(delta_odor_on_reinf_on))&(time_to_eventLDA<=mean(delta_odor_on_reinf_on)+3))';
@@ -1259,13 +1261,18 @@ for no_trial_windows=1:total_trial_windows
                 tbl= table(t,dFF,'VariableNames',{'t','dFF'});
                 lm = fitlm(tbl,'dFF~t');
                 handles_outs.dFF_slopes(handles_outs.no_dFF_slopes,3)=lm.Coefficients{2,1};
+                handles_outs.dFF_mean(handles_outs.no_dFF_slopes,3)=mean(dFF);
+                
+                
                 handles_outs.dFF_derivatives(handles_outs.no_dFF_slopes,1:132)=this_conv_dFF_dx(1:132);
+                handles_outs.conv_dFF(handles_outs.no_dFF_slopes,1:132)=this_conv_dFF(1:132);
                 handles_outs.time_to_eventLDA=time_to_eventLDA(1:132);
                 %                                 end
                 
                 handles_outs.dFF_slopes(handles_outs.no_dFF_slopes,3)=lm.Coefficients{2,1};
-                handles_outs.no_dFF_slopes=handles_outs.no_dFF_slopes+1;
-                handles_outs.dFF_derivatives(handles_outs.no_dFF_slopes,1:132)=this_conv_dFF_dx(1:132);
+%                 handles_outs.no_dFF_slopes=handles_outs.no_dFF_slopes+1;
+%                 handles_outs.dFF_derivatives(handles_outs.no_dFF_slopes,1:132)=this_conv_dFF_dx(1:132);
+%                 
                 handles_outs.time_to_eventLDA=time_to_eventLDA(1:132);
                 
                 t_offset=t_offset+35;
@@ -1392,7 +1399,7 @@ for no_trial_windows=1:total_trial_windows
                 
                 
                 %Odor on markers
-                plot([0+t_offset 0+t_offset],[ymin ymax],'-k')
+                plot([0+t_offset 0+t_offset],[0 ymax],'-k')
                 odorhl=plot([0+t_offset mean(delta_odor)+t_offset],[ymin + 0.1*(ymax-ymin) ymin + 0.1*(ymax-ymin)],'-k','LineWidth',5);
                 plot([mean(delta_odor)+t_offset mean(delta_odor)+t_offset],[ymin ymax],'-k')
                 
@@ -1400,6 +1407,17 @@ for no_trial_windows=1:total_trial_windows
                 plot([mean(delta_odor_on_reinf_on)+t_offset mean(delta_odor_on_reinf_on)+t_offset],[ymin ymax],'-r')
                 reinfhl=plot([mean(delta_odor_on_reinf_on)+t_offset mean(delta_odor_on_reinf_on)+mean(delta_reinf)+t_offset],[ymin + 0.1*(ymax-ymin) ymin + 0.1*(ymax-ymin)],'-r','LineWidth',5);
                 plot([mean(delta_odor_on_reinf_on)+mean(delta_reinf)+t_offset mean(delta_odor_on_reinf_on)+mean(delta_reinf)+t_offset],[ymin ymax],'-r')
+                
+               
+                %Markers for lick segments
+                plot([0+t_offset 0+t_offset],[-1.7 -0.3],'-r','LineWidth',3)
+                plot([2+t_offset 2+t_offset],[-1.7 -0.3],'-r','LineWidth',3)
+                plot([4+t_offset 4+t_offset],[-1.7 -0.3],'-r','LineWidth',3)
+                
+                 %Plot the lick trace
+                time_mask=(time_licksd<=time_licks(132));
+                plot(time_licksd(time_mask)+t_offset,-1.5 +(dLickTraces(trNo,time_mask)-per1)/(per99-per1),'-k')
+                
                 
                 %Calculate the derivative of lick_freq
                 lick_freq_dx=gradient(lick_freq);
@@ -1431,36 +1449,38 @@ for no_trial_windows=1:total_trial_windows
                 reinfhl=plot([mean(delta_odor_on_reinf_on)+t_offset mean(delta_odor_on_reinf_on)+mean(delta_reinf)+t_offset],[ymin_dx + 0.1*(ymax_dx-ymin_dx) ymin_dx + 0.1*(ymax_dx-ymin_dx)],'-r','LineWidth',5);
                 plot([mean(delta_odor_on_reinf_on)+mean(delta_reinf)+t_offset mean(delta_odor_on_reinf_on)+mean(delta_reinf)+t_offset],[ymin_dx ymax_dx],'-r')
                 
-%                 if no_trial_windows==3
-                    %Calculate the slopes of the three different windows
-                    handles_outs.no_lick_slopes=handles_outs.no_lick_slopes+1;
-                    
-                    %Before odor window
-                    t=time_licks((time_licks>=-mean(delta_odor))&(time_licks<=0))';
-                    dFF=lick_freq((time_licks>=-mean(delta_odor))&(time_licks<=0))';
-                    tbl= table(t,dFF,'VariableNames',{'t','dFF'});
-                    lm = fitlm(tbl,'dFF~t');
-                    handles_outs.lick_slopes(handles_outs.no_lick_slopes,1)=lm.Coefficients{2,1};
-                    
-                    %Odor window
-                    t=time_licks((time_licks>=0)&(time_licks<=mean(delta_odor)))';
-                    dFF=lick_freq((time_licks>=0)&(time_licks<=mean(delta_odor)))';
-                    tbl= table(t,dFF,'VariableNames',{'t','dFF'});
-                    lm = fitlm(tbl,'dFF~t');
-                    handles_outs.lick_slopes(handles_outs.no_lick_slopes,2)=lm.Coefficients{2,1};
-                    
-                    %Reinforcement window
-                    t=time_licks((time_licks>=mean(delta_odor_on_reinf_on))&(time_licks<=mean(delta_odor_on_reinf_on)+3))';
-                    dFF=lick_freq((time_licks>=mean(delta_odor_on_reinf_on))&(time_licks<=mean(delta_odor_on_reinf_on)+3))';
-                    tbl= table(t,dFF,'VariableNames',{'t','dFF'});
-                    lm = fitlm(tbl,'dFF~t');
-                    
-                    
-%                 end
                 
-                handles_outs.lick_slopes(handles_outs.no_lick_slopes,3)=lm.Coefficients{2,1};
+                %Calculate the slopes of the three different windows
                 handles_outs.no_lick_slopes=handles_outs.no_lick_slopes+1;
+                
+                %Before odor window
+                t=time_licks((time_licks>=-mean(delta_odor))&(time_licks<=0))';
+                dFF=lick_freq((time_licks>=-mean(delta_odor))&(time_licks<=0))';
+                tbl= table(t,dFF,'VariableNames',{'t','dFF'});
+                lm = fitlm(tbl,'dFF~t');
+                handles_outs.lick_slopes(handles_outs.no_lick_slopes,1)=lm.Coefficients{2,1};
+                handles_outs.mean_lick_freq(handles_outs.no_lick_slopes,1)=mean(dFF);
+                
+                %Odor window
+                t=time_licks((time_licks>=0)&(time_licks<=mean(delta_odor)))';
+                dFF=lick_freq((time_licks>=0)&(time_licks<=mean(delta_odor)))';
+                tbl= table(t,dFF,'VariableNames',{'t','dFF'});
+                lm = fitlm(tbl,'dFF~t');
+                handles_outs.lick_slopes(handles_outs.no_lick_slopes,2)=lm.Coefficients{2,1};
+                handles_outs.mean_lick_freq(handles_outs.no_lick_slopes,2)=mean(dFF);
+                
+                %Reinforcement window
+                t=time_licks((time_licks>=mean(delta_odor_on_reinf_on))&(time_licks<=mean(delta_odor_on_reinf_on)+3))';
+                dFF=lick_freq((time_licks>=mean(delta_odor_on_reinf_on))&(time_licks<=mean(delta_odor_on_reinf_on)+3))';
+                tbl= table(t,dFF,'VariableNames',{'t','dFF'});
+                lm = fitlm(tbl,'dFF~t');
+                handles_outs.lick_slopes(handles_outs.no_lick_slopes,3)=lm.Coefficients{2,1};
+                handles_outs.mean_lick_freq(handles_outs.no_lick_slopes,3)=mean(dFF);
+                
+               
+%                 handles_outs.no_lick_slopes=handles_outs.no_lick_slopes+1;
                 handles_outs.lick_derivatives(handles_outs.no_lick_slopes,1:132)=lick_freq_dx(1:132);
+                handles_outs.conv_lick(handles_outs.no_lick_slopes,1:132)=lick_freq(1:132);
                 handles_outs.time_licks=time_licks(1:132);
                 
                 t_offset=t_offset+35;
@@ -1471,8 +1491,8 @@ for no_trial_windows=1:total_trial_windows
         %         xlim([-5 t_offset-25])
         figure(figNo-1)
         xlim([-50 350])
-        ylim([ymin ymax])
-        %         ylim([-0.4 1])
+%         ylim([ymin ymax])
+        ylim([-2 10])
         xlabel('Time (sec)')
         ylabel('Lick rate (Hz)')
         title(['Timecourse for lick rate for ' supertitle_description{no_trial_windows}])
@@ -1485,6 +1505,7 @@ for no_trial_windows=1:total_trial_windows
         ylabel('Derivative of lick rate (Hz/sec)')
         title(['Timecourse for the drivative of lick rate for ' supertitle_description{no_trial_windows}])
         
+        %Stop here to save the example plots
         pffft=1;
         
         
@@ -1583,7 +1604,6 @@ end
 % end
 
 %Plot the slopes
-%Plot the timecourse for dF/F
 figNo=figNo+1;
 try
     close(figNo)
@@ -1616,8 +1636,8 @@ plot( handles_outs.lick_slopes(:,1), handles_outs.dFF_slopes(:,1),'ob')
 fprintf(1, ['rho and p value for dFF slopes vs lick slopes for pre-odor window  = %d, %d\n\n'],rho,pval);
 xlabel('slope for lick frequency Hz/sec')
 ylabel('slope for dF/F')
-handles_outs.rho(1)=rho;
-handles_outs.pval(1)=pval;
+handles_outs.slope_rho(1)=rho;
+handles_outs.slope_pval(1)=pval;
 xlim([minx-0.1*(maxx-minx) maxx+0.1*(maxx-minx)])
 ylim([miny-0.1*(maxy-miny) maxy+0.1*(maxy-miny)])
 title('Pre-odor')
@@ -1639,8 +1659,8 @@ plot( handles_outs.lick_slopes(:,2), handles_outs.dFF_slopes(:,2),'om')
 fprintf(1, ['rho and p value for dFF slopes vs lick slopes for odor window  = %d, %d\n\n'],rho,pval);
 xlabel('slope for lick frequency Hz/sec')
 ylabel('slope for dF/F')
-handles_outs.rho(2)=rho;
-handles_outs.pval(2)=pval;
+handles_outs.slope_rho(2)=rho;
+handles_outs.slope_pval(2)=pval;
 xlim([minx-0.1*(maxx-minx) maxx+0.1*(maxx-minx)])
 ylim([miny-0.1*(maxy-miny) maxy+0.1*(maxy-miny)])
 title('Odor')
@@ -1662,8 +1682,8 @@ plot( handles_outs.lick_slopes(:,3), handles_outs.dFF_slopes(:,3),'or')
 fprintf(1, ['rho and p value for dFF slopes vs lick slopes for reinforcement window  = %d, %d\n\n'],rho,pval);
 xlabel('slope for lick frequency Hz/sec')
 ylabel('slope for dF/F')
-handles_outs.rho(3)=rho;
-handles_outs.pval(3)=pval;
+handles_outs.slope_rho(3)=rho;
+handles_outs.slope_pval(3)=pval;
 xlim([minx-0.1*(maxx-minx) maxx+0.1*(maxx-minx)])
 ylim([miny-0.1*(maxy-miny) maxy+0.1*(maxy-miny)])
 title('Reinforcement')
@@ -1677,6 +1697,104 @@ this_slope=lm.Coefficients{2,1};
 this_intercept=lm.Coefficients{1,1};
 plot([minx-0.1*(maxx-minx) maxx+0.1*(maxx-minx)], this_slope*[minx-0.1*(maxx-minx) maxx+0.1*(maxx-minx)]+this_intercept,'-k','LineWIdth',3)
 
+
+
+%Plot mean values for dFF and lick rate
+figNo=figNo+1;
+try
+    close(figNo)
+catch
+end
+hFig=figure(figNo)
+set(hFig, 'units','normalized','position',[.15 .25 .5 .25])
+
+maxy=-200;
+miny=200;
+
+maxx=-200;
+minx=200;
+
+for ii=1:3
+    maxx=max([maxx max(handles_outs.mean_lick_freq(:,ii))]);
+    minx=min([minx min(handles_outs.mean_lick_freq(:,ii))]);
+
+    maxy=max([maxy max(handles_outs.dFF_mean(:,ii))]);
+    miny=min([miny min(handles_outs.dFF_mean(:,ii))]);
+end
+
+
+hold on
+
+subplot(1,3,1)
+hold on
+plot( handles_outs.mean_lick_freq(:,1), handles_outs.dFF_mean(:,1),'ob')
+[rho,pval] = corr(handles_outs.mean_lick_freq(:,1),handles_outs.dFF_mean(:,1));
+fprintf(1, ['rho and p value for mean dFF vs mean lick rate for pre-odor window  = %d, %d\n\n'],rho,pval);
+xlabel('lick frequency Hz/sec')
+ylabel('mean dF/F')
+handles_outs.mean_rho(1)=rho;
+handles_outs.mean_pval(1)=pval;
+xlim([minx-0.1*(maxx-minx) maxx+0.1*(maxx-minx)])
+ylim([miny-0.1*(maxy-miny) maxy+0.1*(maxy-miny)])
+title('Pre-odor')
+
+%Least squares fit
+x=handles_outs.mean_lick_freq(:,1);
+y=handles_outs.dFF_mean(:,1);
+tbl= table(x,y,'VariableNames',{'x','y'});
+lm = fitlm(tbl,'y~x');
+this_slope=lm.Coefficients{2,1};
+this_intercept=lm.Coefficients{1,1};
+plot([minx-0.1*(maxx-minx) maxx+0.1*(maxx-minx)], this_slope*[minx-0.1*(maxx-minx) maxx+0.1*(maxx-minx)]+this_intercept,'-k','LineWIdth',3)
+
+
+subplot(1,3,2)
+hold on
+plot( handles_outs.mean_lick_freq(:,2), handles_outs.dFF_mean(:,2),'om')
+[rho,pval] = corr(handles_outs.mean_lick_freq(:,2),handles_outs.dFF_mean(:,2));
+fprintf(1, ['rho and p value for mean dFF  vs lick rate for odor window  = %d, %d\n\n'],rho,pval);
+xlabel('lick frequency Hz/sec')
+ylabel('mean dF/F')
+handles_outs.mean_rho(2)=rho;
+handles_outs.mean_pval(2)=pval;
+xlim([minx-0.1*(maxx-minx) maxx+0.1*(maxx-minx)])
+ylim([miny-0.1*(maxy-miny) maxy+0.1*(maxy-miny)])
+title('Odor')
+
+%Least squares fit
+x=handles_outs.mean_lick_freq(:,2);
+y=handles_outs.dFF_mean(:,2);
+tbl= table(x,y,'VariableNames',{'x','y'});
+lm = fitlm(tbl,'y~x');
+this_slope=lm.Coefficients{2,1};
+this_intercept=lm.Coefficients{1,1};
+plot([minx-0.1*(maxx-minx) maxx+0.1*(maxx-minx)], this_slope*[minx-0.1*(maxx-minx) maxx+0.1*(maxx-minx)]+this_intercept,'-k','LineWIdth',3)
+
+
+subplot(1,3,3)
+hold on
+plot( handles_outs.mean_lick_freq(:,3), handles_outs.dFF_mean(:,3),'or')
+[rho,pval] = corr(handles_outs.mean_lick_freq(:,3),handles_outs.dFF_mean(:,3));
+fprintf(1, ['rho and p value for mean dFF vs lick rates for reinforcement window  = %d, %d\n\n'],rho,pval);
+xlabel('lick frequency Hz/sec')
+ylabel('mean dF/F')
+handles_outs.mean_rho(3)=rho;
+handles_outs.mean_pval(3)=pval;
+xlim([minx-0.1*(maxx-minx) maxx+0.1*(maxx-minx)])
+ylim([miny-0.1*(maxy-miny) maxy+0.1*(maxy-miny)])
+title('Reinforcement')
+
+%Least squares fit
+x=handles_outs.mean_lick_freq(:,3);
+y=handles_outs.dFF_mean(:,3);
+tbl= table(x,y,'VariableNames',{'x','y'});
+lm = fitlm(tbl,'y~x');
+this_slope=lm.Coefficients{2,1};
+this_intercept=lm.Coefficients{1,1};
+plot([minx-0.1*(maxx-minx) maxx+0.1*(maxx-minx)], this_slope*[minx-0.1*(maxx-minx) maxx+0.1*(maxx-minx)]+this_intercept,'-k','LineWIdth',3)
+
+
+
 %Plot the derivative plot
 figNo=figNo+1;
 try
@@ -1686,10 +1804,10 @@ end
 hFig=figure(figNo);
 set(hFig, 'units','normalized','position',[.1 .25 .75 .25])
 
-%For the entire timecourse
-subplot(1,4,1)
-hold on
-
+% %For the entire timecourse
+% subplot(1,4,1)
+% hold on
+% 
 lick_derivatives=[];
 dFF_derivatives=[];
 for trNo=1:handles_outs.no_lick_slopes
@@ -1703,30 +1821,30 @@ ymin=min(dFF_derivatives)-0.1*(max(dFF_derivatives)-min(dFF_derivatives));
 
 xmax=max(lick_derivatives)+0.1*(max(lick_derivatives)-min(lick_derivatives));
 xmin=min(lick_derivatives)-0.1*(max(lick_derivatives)-min(lick_derivatives));
-
-tbl= table(lick_derivatives',dFF_derivatives','VariableNames',{'lick_derivatives','dFF_derivatives'});
-lm = fitlm(tbl,'dFF_derivatives~lick_derivatives');
-this_slope=lm.Coefficients{2,1};
-this_intercept=lm.Coefficients{1,1};
-
-plot([xmin xmax],this_slope*[xmin xmax]+this_intercept,'-r','LineWidth',2)
-
-[rho,pval] = corr(lick_derivatives',dFF_derivatives');
-fprintf(1, ['rho and p value for dFF derivative vs lick derivative  = %d, %d\n\n'],rho,pval);
-handles_outs.rho(1)=rho;
-handles_outs.pval(1)=pval;
-xlabel('lick frequency derivativeHz/sec')
-ylabel('dF/F derivative 1/sec')
-title('All times')
-xlim([xmin xmax])
-ylim([ymin ymax])
+% 
+% tbl= table(lick_derivatives',dFF_derivatives','VariableNames',{'lick_derivatives','dFF_derivatives'});
+% lm = fitlm(tbl,'dFF_derivatives~lick_derivatives');
+% this_slope=lm.Coefficients{2,1};
+% this_intercept=lm.Coefficients{1,1};
+% 
+% plot([xmin xmax],this_slope*[xmin xmax]+this_intercept,'-r','LineWidth',2)
+% 
+% [rho,pval] = corr(lick_derivatives',dFF_derivatives');
+% fprintf(1, ['rho and p value for dFF derivative vs lick derivative  = %d, %d\n\n'],rho,pval);
+% % handles_outs.rho(1)=rho;
+% % handles_outs.pval(1)=pval;
+% xlabel('lick frequency derivativeHz/sec')
+% ylabel('dF/F derivative 1/sec')
+% title('All times')
+% xlim([xmin xmax])
+% ylim([ymin ymax])
 
 %Now do the three windows
 time_licks=[];
 time_licks=handles_outs.time_licks;
 
 %Before odor window
-subplot(1,4,2)
+subplot(1,3,1)
 hold on
 
 time_mask=(time_licks>=-mean(delta_odor))&(time_licks<=0);
@@ -1748,8 +1866,8 @@ plot([xmin xmax],this_slope*[xmin xmax]+this_intercept,'-r','LineWidth',2)
 
 [rho,pval] = corr(lick_derivatives',dFF_derivatives');
 fprintf(1, ['rho and p value for dFF derivative vs lick derivative before odor = %d, %d\n\n'],rho,pval);
-handles_outs.rho(2)=rho;
-handles_outs.pval(2)=pval;
+handles_outs.DtdFF_rho(1)=rho;
+handles_outs.DtdFF_pval(1)=pval;
 xlabel('lick frequency derivativeHz/sec')
 ylabel('dF/F derivative 1/sec')
 title('Before odor')
@@ -1757,7 +1875,7 @@ xlim([xmin xmax])
 ylim([ymin ymax])
 
 %Odor window
-subplot(1,4,3)
+subplot(1,3,2)
 hold on
 
 
@@ -1780,8 +1898,8 @@ plot([xmin xmax],this_slope*[xmin xmax]+this_intercept,'-r','LineWidth',2)
 
 [rho,pval] = corr(lick_derivatives',dFF_derivatives');
 fprintf(1, ['rho and p value for dFF derivative vs lick derivative during odor = %d, %d\n\n'],rho,pval);
-handles_outs.rho(3)=rho;
-handles_outs.pval(3)=pval;
+handles_outs.DtdFF_rho(2)=rho;
+handles_outs.DtdFF_pval(2)=pval;
 xlabel('lick frequency derivativeHz/sec')
 ylabel('dF/F derivative 1/sec')
 title('During odor')
@@ -1789,7 +1907,7 @@ xlim([xmin xmax])
 ylim([ymin ymax])
 
 %Reinforcement window
-subplot(1,4,4)
+subplot(1,3,3)
 hold on
 
 time_mask=(time_licks>=mean(delta_odor_on_reinf_on))&(time_licks<=mean(delta_odor_on_reinf_on)+3);
@@ -1811,13 +1929,158 @@ plot([xmin xmax],this_slope*[xmin xmax]+this_intercept,'-r','LineWidth',2)
 
 [rho,pval] = corr(lick_derivatives',dFF_derivatives');
 fprintf(1, ['rho and p value for dFF derivative vs lick derivative during reinforcement = %d, %d\n\n'],rho,pval);
-handles_outs.rho(4)=rho;
-handles_outs.pval(4)=pval;
+handles_outs.DtdFF_rho(3)=rho;
+handles_outs.DtdFF_pval(3)=pval;
 xlabel('lick frequency derivativeHz/sec')
 ylabel('dF/F derivative 1/sec')
 title('Reinforcement')
 xlim([xmin xmax])
 ylim([ymin ymax])
+
+
+%Plot the dFF vs lick freq plot
+figNo=figNo+1;
+try
+    close(figNo)
+catch
+end
+hFig=figure(figNo);
+set(hFig, 'units','normalized','position',[.1 .25 .75 .25])
+
+% %For the entire timecourse
+% subplot(1,4,1)
+% hold on
+% 
+conv_lick=[];
+conv_dFF=[];
+for trNo=1:handles_outs.no_lick_slopes
+    conv_lick=[conv_lick handles_outs.conv_lick(trNo,:)];
+    conv_dFF=[conv_dFF handles_outs.conv_dFF(trNo,:)];
+    plot(handles_outs.conv_lick(trNo,:),handles_outs.conv_dFF(trNo,:),'.b')
+end
+
+ymax=max(conv_dFF)+0.1*(max(conv_dFF)-min(conv_dFF));
+ymin=min(conv_dFF)-0.1*(max(conv_dFF)-min(conv_dFF));
+
+xmax=max(conv_lick)+0.1*(max(conv_lick)-min(conv_lick));
+xmin=min(conv_lick)-0.1*(max(conv_lick)-min(conv_lick));
+% 
+% tbl= table(lick_derivatives',dFF_derivatives','VariableNames',{'lick_derivatives','dFF_derivatives'});
+% lm = fitlm(tbl,'dFF_derivatives~lick_derivatives');
+% this_slope=lm.Coefficients{2,1};
+% this_intercept=lm.Coefficients{1,1};
+% 
+% plot([xmin xmax],this_slope*[xmin xmax]+this_intercept,'-r','LineWidth',2)
+% 
+% [rho,pval] = corr(lick_derivatives',dFF_derivatives');
+% fprintf(1, ['rho and p value for dFF derivative vs lick derivative  = %d, %d\n\n'],rho,pval);
+% % handles_outs.rho(1)=rho;
+% % handles_outs.pval(1)=pval;
+% xlabel('lick frequency derivativeHz/sec')
+% ylabel('dF/F derivative 1/sec')
+% title('All times')
+% xlim([xmin xmax])
+% ylim([ymin ymax])
+
+%Now do the three windows
+time_licks=[];
+time_licks=handles_outs.time_licks;
+
+%Before odor window
+subplot(1,3,1)
+hold on
+
+time_mask=(time_licks>=-mean(delta_odor))&(time_licks<=0);
+conv_lick=[];
+conv_dFF=[];
+for trNo=1:handles_outs.no_lick_slopes
+    conv_lick=[conv_lick handles_outs.conv_lick(trNo,time_mask)];
+    conv_dFF=[conv_dFF handles_outs.conv_dFF(trNo,time_mask)];
+    plot(handles_outs.conv_lick(trNo,time_mask),handles_outs.conv_dFF(trNo,time_mask),'.b')
+end
+
+
+tbl= table(conv_lick',conv_dFF','VariableNames',{'conv_lick','conv_dFF'});
+lm = fitlm(tbl,'conv_dFF~conv_lick');
+this_slope=lm.Coefficients{2,1};
+this_intercept=lm.Coefficients{1,1};
+
+plot([xmin xmax],this_slope*[xmin xmax]+this_intercept,'-r','LineWidth',2)
+
+[rho,pval] = corr(conv_lick',conv_dFF');
+fprintf(1, ['rho and p value for dFF vs lick frequency before odor = %d, %d\n\n'],rho,pval);
+handles_outs.dFF_rho(1)=rho;
+handles_outs.dFF_pval(1)=pval;
+xlabel('lick frequency Hz')
+ylabel('dF/F')
+title('Before odor')
+xlim([xmin xmax])
+ylim([ymin ymax])
+
+%Odor window
+subplot(1,3,2)
+hold on
+
+
+time_mask=(time_licks>=0)&(time_licks<=mean(delta_odor));
+conv_lick=[];
+conv_dFF=[];
+for trNo=1:handles_outs.no_lick_slopes
+    conv_lick=[conv_lick handles_outs.conv_lick(trNo,time_mask)];
+    conv_dFF=[conv_dFF handles_outs.conv_dFF(trNo,time_mask)];
+    plot(handles_outs.conv_lick(trNo,time_mask),handles_outs.conv_dFF(trNo,time_mask),'.b')
+end
+
+
+tbl= table(conv_lick',conv_dFF','VariableNames',{'conv_lick','conv_dFF'});
+lm = fitlm(tbl,'conv_dFF~conv_lick');
+this_slope=lm.Coefficients{2,1};
+this_intercept=lm.Coefficients{1,1};
+
+plot([xmin xmax],this_slope*[xmin xmax]+this_intercept,'-r','LineWidth',2)
+
+[rho,pval] = corr(conv_lick',conv_dFF');
+fprintf(1, ['rho and p value for dFF  vs lick frequency during odor = %d, %d\n\n'],rho,pval);
+handles_outs.dFF_rho(2)=rho;
+handles_outs.dFF_pval(2)=pval;
+xlabel('lick frequency Hz')
+ylabel('dF/F')
+title('During odor')
+xlim([xmin xmax])
+ylim([ymin ymax])
+
+%Reinforcement window
+subplot(1,3,3)
+hold on
+
+time_mask=(time_licks>=mean(delta_odor_on_reinf_on))&(time_licks<=mean(delta_odor_on_reinf_on)+3);
+conv_lick=[];
+conv_dFF=[];
+for trNo=1:handles_outs.no_lick_slopes
+    conv_lick=[conv_lick handles_outs.conv_lick(trNo,time_mask)];
+    conv_dFF=[conv_dFF handles_outs.conv_dFF(trNo,time_mask)];
+    plot(handles_outs.conv_lick(trNo,time_mask),handles_outs.conv_dFF(trNo,time_mask),'.b')
+end
+
+
+tbl= table(conv_lick',conv_dFF','VariableNames',{'conv_lick','conv_dFF'});
+lm = fitlm(tbl,'conv_dFF~conv_lick');
+this_slope=lm.Coefficients{2,1};
+this_intercept=lm.Coefficients{1,1};
+
+plot([xmin xmax],this_slope*[xmin xmax]+this_intercept,'-r','LineWidth',2)
+
+[rho,pval] = corr(conv_lick',conv_dFF');
+fprintf(1, ['rho and p value for dFF vs lick frequency during reinforcement = %d, %d\n\n'],rho,pval);
+handles_outs.dFF_rho(3)=rho;
+handles_outs.dFF_pval(3)=pval;
+xlabel('lick frequency Hz')
+ylabel('dF/F')
+title('Reinforcement')
+xlim([xmin xmax])
+ylim([ymin ymax])
+
+
 
 save([caimanhandles.caimandr_choices.outPathName caimanhandles.caimandr_choices.outFileName(1:end-4) '_slopes.mat'],'handles_outs')
 

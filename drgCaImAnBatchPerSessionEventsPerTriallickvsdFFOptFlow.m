@@ -28,7 +28,7 @@ if nargin==0
     [choiceFileName,choiceBatchPathName] = uigetfile({'drgCaImAnChoices*.m'},'Select the .m file with all the choices for analysis');
 end
 
-fprintf(1, ['\ndrgCaImAnBatchPerSessionReversalPerTrial run for ' choiceFileName '\n\n']);
+fprintf(1, ['\ndrgCaImAnBatchPerSessionEventsPerTriallickvsdFFOptFlow run for ' choiceFileName '\n\n']);
 
 
 

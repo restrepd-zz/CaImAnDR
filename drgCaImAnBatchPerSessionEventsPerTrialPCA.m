@@ -129,6 +129,8 @@ for filNum=1:caimanhandles.caimandr_choices.no_files
                 for trace_num=1:handles_out.trialNo(Hitii).trace_numHit
                     these_traces(trace_num,:)=handles_out.componentNo(trace_num).trialNo(Hitii).hit_traces;
                 end
+                num_comps_per_trial(num_odor_trials_dFF)=size(these_traces,1);
+                mean_snip_dFF_per_comp(num_odor_trials_dFF,1:size(these_traces,1),1:no_time_points)=these_traces;
                 mean_snip_dFF(num_odor_trials_dFF,1:no_time_points)=mean(these_traces,1);
                 CI_snip_dFF(num_odor_trials_dFF,1:2,1:no_time_points)=bootci(1000, @mean, these_traces);
                 time(num_odor_trials_dFF).time_to_event=handles_out.time_to_eventHit;
@@ -195,6 +197,8 @@ for filNum=1:caimanhandles.caimandr_choices.no_files
                 for trace_num=1:handles_out.trialNo(Missii).trace_numMiss
                     these_traces(trace_num,:)=handles_out.componentNo(trace_num).trialNo(Missii).miss_traces;
                 end
+                num_comps_per_trial(num_odor_trials_dFF)=size(these_traces,1);
+                mean_snip_dFF_per_comp(num_odor_trials_dFF,1:size(these_traces,1),1:no_time_points)=these_traces;
                 mean_snip_dFF(num_odor_trials_dFF,1:no_time_points)=mean(these_traces,1);
                 CI_snip_dFF(num_odor_trials_dFF,1:2,1:no_time_points)=bootci(1000, @mean, these_traces);
                 time(num_odor_trials_dFF).time_to_event=handles_out.time_to_eventMiss;
@@ -258,6 +262,8 @@ for filNum=1:caimanhandles.caimandr_choices.no_files
                 for trace_num=1:handles_out.trialNo(FAii).trace_numFA
                     these_traces(trace_num,:)=handles_out.componentNo(trace_num).trialNo(FAii).FA_traces;
                 end
+                num_comps_per_trial(num_odor_trials_dFF)=size(these_traces,1);
+                mean_snip_dFF_per_comp(num_odor_trials_dFF,1:size(these_traces,1),1:no_time_points)=these_traces;
                 mean_snip_dFF(num_odor_trials_dFF,1:no_time_points)=mean(these_traces,1);
                 CI_snip_dFF(num_odor_trials_dFF,1:2,1:no_time_points)=bootci(1000, @mean, these_traces);
                 time(num_odor_trials_dFF).time_to_event=handles_out.time_to_eventFA;
@@ -318,6 +324,8 @@ for filNum=1:caimanhandles.caimandr_choices.no_files
                 for trace_num=1:handles_out.trialNo(CRii).trace_numCR
                     these_traces(trace_num,:)=handles_out.componentNo(trace_num).trialNo(CRii).CR_traces;
                 end
+                mean_snip_dFF_per_comp(num_odor_trials_dFF,1:size(these_traces,1),1:no_time_points)=these_traces;
+                num_comps_per_trial(num_odor_trials_dFF)=size(these_traces,1);
                 mean_snip_dFF(num_odor_trials_dFF,1:no_time_points)=mean(these_traces,1);
                 CI_snip_dFF(num_odor_trials_dFF,1:2,1:no_time_points)=bootci(1000, @mean, these_traces);
                 time(num_odor_trials_dFF).time_to_event=handles_out.time_to_eventCR;

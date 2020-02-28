@@ -100,7 +100,7 @@ for trialNo=1:handles_outs.no_dFF_slopes
     end
     
 end
-
+ 
 perCorr=(perCorr-50)/50;
  
 % % Store the variables in a table.
