@@ -1594,8 +1594,7 @@ for no_trial_windows=1:total_trial_windows
         title(['Timecourse for dF/F for ' supertitle_description{no_trial_windows}])
         
         %Calculate and plot the mean lick rate
-        %Note: This overwrites thee other percent correct
-        handles_outs.window=[];
+        handles_outs.event=[];
         for evNo=1:4
             handles_outs.no_lick_freq_choice_win(evNo)=0;
         end
@@ -1625,7 +1624,7 @@ for no_trial_windows=1:total_trial_windows
                 
                 for winNo=1:length(caimanhandles.caimandr_choices.wins)
                     this_lick_freq=lick_freq((time_licks>=caimanhandles.caimandr_choices.wins(winNo,1))&(time_licks<=caimanhandles.caimandr_choices.wins(winNo,2)))';
-                    handles_outs.window(winNo).event(evNo).lick_freq_choice_win(handles_outs.no_lick_freq_choice_win(evNo))=mean(this_lick_freq);
+                    handles_outs.event(evNo).lick_freq_choice_win(handles_outs.no_lick_freq_choice_win(evNo))=mean(this_lick_freq);
                 end
             end
         end
@@ -1646,8 +1645,8 @@ for no_trial_windows=1:total_trial_windows
             for evNo=1:4
                 
                 if handles_outs.no_lick_freq_choice_win(evNo)>0
-                    these_lfs=zeros(length(handles_outs.window(winNo).event(evNo).lick_freq_choice_win),1);
-                    these_lfs(:,1)=handles_outs.window(winNo).event(evNo).lick_freq_choice_win;
+                    these_lfs=zeros(length(handles_outs.event(evNo).lick_freq_choice_win),1);
+                    these_lfs(:,1)=handles_outs.event(evNo).lick_freq_choice_win;
                     this_mean_lf=mean(these_lfs);
                     switch evNo
                         case 1
@@ -1665,13 +1664,11 @@ for no_trial_windows=1:total_trial_windows
                         CI = bootci(1000, {@mean, these_lfs})';
                         plot([ii_bar ii_bar],CI,'-k','LineWidth',2) 
                     end
-                    ii_bar=ii_bar+1;
+                    ii_bar=ii
                 end
-               
+                
             end
-             ii_bar=ii_bar+1;
         end
-        title('Lick frequency for the different events')
         %Now do the analysis for the licks aligned to areas with large changes in
         %dF/F
         dFF_slope_thr=0.03;

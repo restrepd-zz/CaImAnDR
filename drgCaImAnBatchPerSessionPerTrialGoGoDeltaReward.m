@@ -22,6 +22,9 @@ warning('off')
 close all
 clear all
 
+dry_time=4;
+wet_time=7.5;
+
 these_colors{1}='b';
 these_colors{2}='r';
 these_colors{3}='m';
@@ -870,6 +873,20 @@ all_uls=[];
 all_CIs=zeros(2,length(unique_ul));
 all_mean_dFFs=zeros(1,length(unique_ul));
 
+glm_mean_wd_dFF=[];
+glm_wd_ii=0;
+all_dFFs_dry=[];
+all_dFFs_wet=[];
+all_CIs_dry=zeros(2,length(unique_ul));
+all_mean_dFFs_dry=zeros(1,length(unique_ul));
+all_CIs_wet=zeros(2,length(unique_ul));
+all_mean_dFFs_wet=zeros(1,length(unique_ul));
+
+this_time=time(1).time_to_event(1:size(mean_snip_dFF,2))';
+
+ii_dry=find(this_time>=dry_time,1,'first');
+ii_wet=find(this_time>=wet_time,1,'first');
+
 for ii_ul=1:length(unique_ul)
     these_files=find(caimanhandles.caimandr_choices.ul_reward==unique_ul(ii_ul));
     this_no_trials=0;
@@ -899,11 +916,30 @@ for ii_ul=1:length(unique_ul)
     all_dFFs=[all_dFFs these_mean_dFFs(:,max_ii)'];
     all_uls=[all_uls unique_ul(ii_ul)*ones(this_ii,1)'];
     
+    %Save dry and wet
+    all_mean_dFFs_dry(ii_ul)=this_mean_dFF(ii_dry);
+    all_CIs_dry(:,ii_ul)=these_CIs(:,ii_dry);
+    all_mean_dFFs_wet(ii_ul)=this_mean_dFF(ii_wet);
+    all_CIs_wet(:,ii_ul)=these_CIs(:,ii_wet);
     
+    glm_mean_wd_dFF.data(glm_wd_ii+1:glm_wd_ii+this_ii)=these_mean_dFFs(:,ii_dry);
+    glm_mean_wd_dFF.ul(glm_wd_ii+1:glm_wd_ii+this_ii)=unique_ul(ii_ul)*ones(1,this_ii);
+    glm_mean_wd_dFF.dry_wet(glm_wd_ii+1:glm_wd_ii+this_ii)=zeros(1,this_ii);
+    glm_wd_ii=glm_wd_ii+this_ii;
+    
+    glm_mean_wd_dFF.data(glm_wd_ii+1:glm_wd_ii+this_ii)=these_mean_dFFs(:,ii_wet);
+    glm_mean_wd_dFF.ul(glm_wd_ii+1:glm_wd_ii+this_ii)=unique_ul(ii_ul)*ones(1,this_ii);
+    glm_mean_wd_dFF.dry_wet(glm_wd_ii+1:glm_wd_ii+this_ii)=ones(1,this_ii);
+    glm_wd_ii=glm_wd_ii+this_ii;
+    
+    all_dFFs_dry=[all_dFFs_dry these_mean_dFFs(:,ii_dry)'];
+    all_dFFs_wet=[all_dFFs_wet these_mean_dFFs(:,ii_wet)'];
+    
+    
+    %Now plot the timecourse
     these_CIs(1,:)=this_mean_dFF- these_CIs(1,:);
     these_CIs(2,:)=(these_CIs(2,:)-this_mean_dFF);
 
-    this_time=time(1).time_to_event(1:size(mean_snip_dFF,2))';
     plot(this_time,this_mean_dFF', these_lines{ii_ul})
     
 end
@@ -948,7 +984,8 @@ end
 f=fit(unique_ul',all_mean_dFFs','poly1');
 plot(f,unique_ul',all_mean_dFFs')
 
-ylim([1.1 1.7])
+ylim([1.1 1.8])
+xlim([-0.5 35])
 
 xlabel('Reward volume (ul)')
 ylabel('dF/F peak')
@@ -959,6 +996,44 @@ fprintf(1, ['\n\nglm for LDA percent correct\n'])
 tbl = table(glm_mean_dFF.data',glm_mean_dFF.ul',...
     'VariableNames',{'dFF','ul'});
 mdl = fitglm(tbl,'dFF~ul')
+
+
+%Plot dFF vs ul for wet vs dry
+figNo=figNo+1;
+try
+    close(figNo)
+catch
+end
+hFig1 = figure(figNo);
+set(hFig1, 'units','normalized','position',[.25 .25 .25 .25])
+hold on
+
+plot(unique_ul,all_mean_dFFs_dry,'or')
+plot(unique_ul,all_mean_dFFs_wet,'ob')
+
+for ii=1:length(unique_ul)
+    plot([unique_ul(ii) unique_ul(ii)],all_CIs_dry(:,ii),'-r')
+    plot([unique_ul(ii) unique_ul(ii)],all_CIs_wet(:,ii),'-b')
+end
+
+f=fit(unique_ul',all_mean_dFFs_dry','poly1');
+plot(f,'r')
+
+f=fit(unique_ul',all_mean_dFFs_wet','poly1');
+plot(f,'b')
+
+ylim([0.9 1.5])
+xlim([-0.5 35])
+
+xlabel('Reward volume (ul)')
+ylabel('dF/F peak')
+
+
+%Perform the glm for dFF for ul and wet vs dry
+fprintf(1, ['\n\nglm for dF/F ul and dry vs wet\n'])
+tbl = table(glm_mean_wd_dFF.data',glm_mean_wd_dFF.ul',glm_mean_wd_dFF.dry_wet',...
+    'VariableNames',{'dFF','ul','dry_wet'});
+mdl = fitglm(tbl,'dFF~ul+dry_wet+ul*dry_wet','CategoricalVars',[3])
  
 
 %Do lick analysis
@@ -1027,6 +1102,20 @@ all_uls_licks=[];
 all_CIlick=zeros(2,length(unique_ul));
 all_mean_lickfs=zeros(1,length(unique_ul));
 
+glm_mean_wd_licks=[];
+glm_wd_ii=0;
+all_lickfs_dry=[];
+all_lickfs_wet=[];
+all_CIlick_dry=zeros(2,length(unique_ul));
+all_mean_lickfs_dry=zeros(1,length(unique_ul));
+all_CIlick_wet=zeros(2,length(unique_ul));
+all_mean_lickfs_wet=zeros(1,length(unique_ul));
+
+this_time=time(1).time_to_event(1:no_time_points)';
+
+ii_dry=find(this_time>=dry_time,1,'first');
+ii_wet=find(this_time>=wet_time,1,'first');
+
 for ii_ul=1:length(unique_ul)
     these_files=find(caimanhandles.caimandr_choices.ul_reward==unique_ul(ii_ul));
     this_no_trials=0;
@@ -1057,10 +1146,30 @@ for ii_ul=1:length(unique_ul)
     all_uls_licks=[all_uls_licks unique_ul(ii_ul)*ones(this_ii,1)'];
     
     
+    %Save dry and wet
+    all_mean_lickfs_dry(ii_ul)=this_mean_lickf(ii_dry);
+    all_CIlick_dry(:,ii_ul)=these_CIlicks(:,ii_dry);
+    all_mean_lickfs_wet(ii_ul)=this_mean_lickf(ii_wet);
+    all_CIlick_wet(:,ii_ul)=these_CIlicks(:,ii_wet);
+    
+    glm_mean_wd_licks.data(glm_wd_ii+1:glm_wd_ii+this_ii)=these_mean_lickfs(:,ii_dry);
+    glm_mean_wd_licks.ul(glm_wd_ii+1:glm_wd_ii+this_ii)=unique_ul(ii_ul)*ones(1,this_ii);
+    glm_mean_wd_licks.dry_wet(glm_wd_ii+1:glm_wd_ii+this_ii)=zeros(1,this_ii);
+    glm_wd_ii=glm_wd_ii+this_ii;
+    
+    glm_mean_wd_licks.data(glm_wd_ii+1:glm_wd_ii+this_ii)=these_mean_lickfs(:,ii_wet);
+    glm_mean_wd_licks.ul(glm_wd_ii+1:glm_wd_ii+this_ii)=unique_ul(ii_ul)*ones(1,this_ii);
+    glm_mean_wd_licks.dry_wet(glm_wd_ii+1:glm_wd_ii+this_ii)=ones(1,this_ii);
+    glm_wd_ii=glm_wd_ii+this_ii;
+    
+    all_lickfs_dry=[all_lickfs_dry these_mean_lickfs(:,ii_dry)'];
+    all_lickfs_wet=[all_lickfs_wet these_mean_lickfs(:,ii_wet)'];
+    
+    
     these_CIlicks(1,:)=this_mean_lickf- these_CIlicks(1,:);
     these_CIlicks(2,:)=(these_CIlicks(2,:)-this_mean_lickf);
 
-    this_time=time(1).time_to_event(1:no_time_points)';
+    
     plot(time_licks,this_mean_lickf', these_lines{ii_ul})
     
 end
@@ -1117,7 +1226,46 @@ tbl = table(glm_mean_licks.data',glm_mean_licks.ul',...
 mdl = fitglm(tbl,'lick_frequency~ul')
 
 
+%Plot lickf vs ul for wet vs dry
+figNo=figNo+1;
+try
+    close(figNo)
+catch
+end
+hFig1 = figure(figNo);
+set(hFig1, 'units','normalized','position',[.25 .25 .25 .25])
+hold on
+
+plot(unique_ul,all_mean_lickfs_dry,'or')
+plot(unique_ul,all_mean_lickfs_wet,'ob')
+
+for ii=1:length(unique_ul)
+    plot([unique_ul(ii) unique_ul(ii)],all_CIlick_dry(:,ii),'-r')
+    plot([unique_ul(ii) unique_ul(ii)],all_CIlick_wet(:,ii),'-b')
+end
+
+f=fit(unique_ul',all_mean_lickfs_dry','poly1');
+plot(f,'r')
+
+f=fit(unique_ul',all_mean_lickfs_wet','poly1');
+plot(f,'b')
+
+ylim([7 14])
+xlim([-0.5 35])
+
+xlabel('Reward volume (ul)')
+ylabel('Lick frequency peak')
+
+
+%Perform the glm for dFF for ul and wet vs dry
+fprintf(1, ['\n\nglm for lick frequency ul and dry vs wet\n'])
+tbl = table(glm_mean_wd_licks.data',glm_mean_wd_licks.ul',glm_mean_wd_licks.dry_wet',...
+    'VariableNames',{'lick_f','ul','dry_wet'});
+mdl = fitglm(tbl,'lick_f~ul+dry_wet+ul*dry_wet','CategoricalVars',[3])
+
+
 %Now plot the correlation of peak lick frequency with peak dF/F 
+%on a trial by trial basis
 figNo=figNo+1;
 try
     close(figNo)
@@ -1131,9 +1279,50 @@ plot(all_dFFs, all_lickfs,'ob')
 f=fit(all_dFFs',all_lickfs','poly1')
 plot(f,all_dFFs',all_lickfs')
 [rho, pval]=corr(all_dFFs', all_lickfs');
-fprintf(1, ['\n\nrho %d and p value %d for lick frequency vs. dF/F\n'],rho,pval)
+fprintf(1, ['\n\nrho %d and p value %d for peak lick frequency vs. peak dF/F\n'],rho,pval)
 xlabel('dF/F')
 ylabel('Lick frequency (Hz)')
+title('Peak dF/F and lick frequency')
+
+%Now plot the correlation of dry lick frequency with dF/F 
+%on a trial by trial basis
+figNo=figNo+1;
+try
+    close(figNo)
+catch
+end
+hFig1 = figure(figNo);
+set(hFig1, 'units','normalized','position',[.25 .25 .25 .25])
+hold on
+
+plot(all_dFFs_dry, all_lickfs_dry,'ob')
+f=fit(all_dFFs_dry',all_lickfs_dry','poly1')
+plot(f,all_dFFs_dry',all_lickfs_dry')
+[rho, pval]=corr(all_dFFs_dry', all_lickfs_dry');
+fprintf(1, ['\n\nrho %d and p value %d for dry lick frequency vs. dF/F\n'],rho,pval)
+xlabel('dF/F')
+ylabel('Lick frequency (Hz)')
+title('Dry dF/F and lick frequency')
+
+%Now plot the correlation of wet lick frequency with dF/F 
+%on a trial by trial basis
+figNo=figNo+1;
+try
+    close(figNo)
+catch
+end
+hFig1 = figure(figNo);
+set(hFig1, 'units','normalized','position',[.25 .25 .25 .25])
+hold on
+
+plot(all_dFFs_wet, all_lickfs_wet,'ob')
+f=fit(all_dFFs_wet',all_lickfs_wet','poly1')
+plot(f,all_dFFs_wet',all_lickfs_wet')
+[rho, pval]=corr(all_dFFs_wet', all_lickfs_wet');
+fprintf(1, ['\n\nrho %d and p value %d for wet lick frequency vs. dF/F\n'],rho,pval)
+xlabel('dF/F')
+ylabel('Lick frequency (Hz)')
+title('Wet dF/F and lick frequency')
 
  
 %Now plot the correlation of mean peak lick frequency with mean peak dF/F 
@@ -1160,6 +1349,60 @@ plot(f,all_mean_dFFs',all_mean_lickfs')
 fprintf(1, ['\n\nrho %d and p value %d for mean lick frequency vs. mean dF/F\n'],rho,pval)
 xlabel('Mean dF/F')
 ylabel('Mean lick frequency (Hz)')
+
+
+%Now plot the correlation of mean dry lick frequency with mean peak dF/F 
+figNo=figNo+1;
+try
+    close(figNo)
+catch
+end
+hFig1 = figure(figNo);
+set(hFig1, 'units','normalized','position',[.25 .25 .25 .25])
+hold on
+
+
+for ii_ul=1:length(unique_ul)
+   plot(all_mean_dFFs_dry(ii_ul),all_mean_lickfs_dry(ii_ul), ['o' these_colors{ii_ul}])
+   plot(all_CIs_dry(:,ii_ul), [all_mean_lickfs_dry(ii_ul) all_mean_lickfs_dry(ii_ul)],'-k')
+   plot([all_mean_dFFs_dry(ii_ul) all_mean_dFFs_dry(ii_ul)], all_CIlick_dry(:,ii_ul),'-k')
+end
+
+
+f=fit(all_mean_dFFs_dry',all_mean_lickfs_dry','poly1')
+plot(f,'k')
+[rho, pval]=corr(all_mean_dFFs_dry', all_mean_lickfs_dry');
+fprintf(1, ['\n\nrho %d and p value %d for mean lick frequency vs. mean dF/F dry\n'],rho,pval)
+xlabel('Mean dF/F')
+ylabel('Mean lick frequency (Hz)')
+title('dry')
+
+
+%Now plot the correlation of mean wet lick frequency with mean peak dF/F 
+figNo=figNo+1;
+try
+    close(figNo)
+catch
+end
+hFig1 = figure(figNo);
+set(hFig1, 'units','normalized','position',[.25 .25 .25 .25])
+hold on
+
+
+for ii_ul=1:length(unique_ul)
+   plot(all_mean_dFFs_wet(ii_ul),all_mean_lickfs_wet(ii_ul), ['o' these_colors{ii_ul}])
+   plot(all_CIs_wet(:,ii_ul), [all_mean_lickfs_wet(ii_ul) all_mean_lickfs_wet(ii_ul)],'-k')
+   plot([all_mean_dFFs_wet(ii_ul) all_mean_dFFs_wet(ii_ul)], all_CIlick_wet(:,ii_ul),'-k')
+end
+
+
+f=fit(all_mean_dFFs_wet',all_mean_lickfs_wet','poly1')
+plot(f,'k')
+[rho, pval]=corr(all_mean_dFFs_wet', all_mean_lickfs_wet');
+fprintf(1, ['\n\nrho %d and p value %d for mean lick frequency vs. mean dF/F wet\n'],rho,pval)
+xlabel('Mean dF/F')
+ylabel('Mean lick frequency (Hz)')
+title('wet')
 
 % save([caimanhandles.caimandr_choices.outPathName caimanhandles.caimandr_choices.outFileName],'handles_out2')
  
