@@ -198,6 +198,7 @@ end
 
 %Now do the lick frequency
 all_licking_frequency=[];
+all_dFFs=[];
 no_exps=zeros(length(handles_events.win),4);
 load('/Users/restrepd/Documents/Projects/MOM slidebook/mmPVG04/20180917_mmPVG04_Cerebellum new analysis/20180917_mmPVG04_Cerebellum_slopes.mat')
 experimentNo=1;
@@ -206,6 +207,7 @@ for winNo=1:length(handles_events.win)
         if handles_outs.no_lick_freq_choice_win(evNo)>0
             no_exps(winNo,evNo)=no_exps(winNo,evNo)+1;
             all_licking_frequency(winNo,evNo,no_exps(winNo,evNo))=mean(handles_outs.window(winNo).event(evNo).lick_freq_choice_win);
+            all_dFFs(winNo,evNo,no_exps(winNo,evNo))=mean(handles_outs.window(winNo).event(evNo).dFF_choice_win);
         end
     end
 end
@@ -218,6 +220,7 @@ for winNo=1:length(handles_events.win)
         if handles_outs.no_lick_freq_choice_win(evNo)>0
             no_exps(winNo,evNo)=no_exps(winNo,evNo)+1;
             all_licking_frequency(winNo,evNo,no_exps(winNo,evNo))=mean(handles_outs.window(winNo).event(evNo).lick_freq_choice_win);
+            all_dFFs(winNo,evNo,no_exps(winNo,evNo))=mean(handles_outs.window(winNo).event(evNo).dFF_choice_win);
         end
     end
 end
@@ -230,6 +233,7 @@ for winNo=1:length(handles_events.win)
         if handles_outs.no_lick_freq_choice_win(evNo)>0
             no_exps(winNo,evNo)=no_exps(winNo,evNo)+1;
             all_licking_frequency(winNo,evNo,no_exps(winNo,evNo))=mean(handles_outs.window(winNo).event(evNo).lick_freq_choice_win);
+            all_dFFs(winNo,evNo,no_exps(winNo,evNo))=mean(handles_outs.window(winNo).event(evNo).dFF_choice_win);
         end
     end
 end
@@ -242,6 +246,7 @@ for winNo=1:length(handles_events.win)
         if handles_outs.no_lick_freq_choice_win(evNo)>0
             no_exps(winNo,evNo)=no_exps(winNo,evNo)+1;
             all_licking_frequency(winNo,evNo,no_exps(winNo,evNo))=mean(handles_outs.window(winNo).event(evNo).lick_freq_choice_win);
+            all_dFFs(winNo,evNo,no_exps(winNo,evNo))=mean(handles_outs.window(winNo).event(evNo).dFF_choice_win);
         end
     end
 end
@@ -254,6 +259,7 @@ for winNo=1:length(handles_events.win)
         if handles_outs.no_lick_freq_choice_win(evNo)>0
             no_exps(winNo,evNo)=no_exps(winNo,evNo)+1;
             all_licking_frequency(winNo,evNo,no_exps(winNo,evNo))=mean(handles_outs.window(winNo).event(evNo).lick_freq_choice_win);
+            all_dFFs(winNo,evNo,no_exps(winNo,evNo))=mean(handles_outs.window(winNo).event(evNo).dFF_choice_win);
         end
     end
 end
@@ -266,11 +272,12 @@ for winNo=1:length(handles_events.win)
         if handles_outs.no_lick_freq_choice_win(evNo)>0
             no_exps(winNo,evNo)=no_exps(winNo,evNo)+1;
             all_licking_frequency(winNo,evNo,no_exps(winNo,evNo))=mean(handles_outs.window(winNo).event(evNo).lick_freq_choice_win);
+            all_dFFs(winNo,evNo,no_exps(winNo,evNo))=mean(handles_outs.window(winNo).event(evNo).dFF_choice_win);
         end
     end
 end
 
-%Plot the figure
+%Plot the figure for lick frequency
 try
     close 6
 catch
@@ -282,6 +289,7 @@ hold on
 
 x=0;
 for winNo=1:length(handles_events.win)
+    these_lfs=zeros(4,6);
     for evNo=1:4
         if evNo==3
             x=x+1;
@@ -300,8 +308,12 @@ for winNo=1:length(handles_events.win)
         plot([x x],CI,'-k','Linewidth',3)
         lick_f=zeros(1,6);
         lick_f(1,:)=all_licking_frequency(winNo,evNo,1:no_exps(winNo,evNo));
+        these_lfs(evNo,:)=lick_f(1,:);
         plot(x*ones(1,6),lick_f,'ok','MarkerSize',10)
         x=x+1;
+    end
+    for ii=1:6
+        plot([x-5 x-4 x-2 x-1],these_lfs(:,ii),'-k')
     end
     x=x+2;
 end
@@ -374,6 +386,120 @@ end
 fprintf(1, ['\n\nTest of difference in variance for lick frequency \n\n'])
 try
     [output_data] = drgMutiVartest2(lick_freq);
+    fprintf(1, '\n\n')
+catch
+end
+
+%Plot the figure for dFF
+try
+    close 7
+catch
+end
+7
+hFig7 = figure(7);
+set(hFig7, 'units','normalized','position',[.07 .7 .7 .3])
+hold on
+
+x=0;
+
+for winNo=1:length(handles_events.win)
+    these_dFFs=zeros(4,6);
+    for evNo=1:4
+        if evNo==3
+            x=x+1;
+        end 
+        switch evNo
+            case 1
+                bar(x,mean(all_dFFs(winNo,evNo,1:no_exps(winNo,evNo))),'r')
+            case 2
+                bar(x,mean(all_dFFs(winNo,evNo,1:no_exps(winNo,evNo))),'c')
+            case 3
+                bar(x,mean(all_dFFs(winNo,evNo,1:no_exps(winNo,evNo))),'b')
+            case 4
+                bar(x,mean(all_dFFs(winNo,evNo,1:no_exps(winNo,evNo))),'m')
+        end
+        CI = bootci(1000, @mean, all_dFFs(winNo,evNo,:));
+        plot([x x],CI,'-k','Linewidth',3)
+        this_dFF=zeros(1,6);
+        this_dFF(1,:)=all_dFFs(winNo,evNo,1:no_exps(winNo,evNo));
+        these_dFFs(evNo,:)=this_dFF(1,:);
+        plot(x*ones(1,6),this_dFF,'ok','MarkerSize',10)
+        x=x+1;
+    end
+    for ii=1:6
+        plot([x-5 x-4 x-2 x-1],these_dFFs(:,ii),'-k')
+    end
+    x=x+2;
+end
+
+
+ 
+
+ylabel('dFF')
+xticks([2 9])
+xticklabels({'Odor','Reinforcement'})
+title('dFF')
+xlim([-2 12])
+
+%Now do the ranksum/ttests
+event_labels{1}='Hit';
+event_labels{2}='Miss';
+event_labels{3}='CR';
+event_labels{4}='FA';
+win_labels{1}='Odorant';
+win_labels{2}='Reinforcement';
+
+
+ii_rank=0;
+dFF_stats=[];
+glm_dFF_ii=0;
+glm_dFF=[];
+
+
+for winNo=1:2
+    for evNo1=1:4
+        ii_rank=ii_rank+1;
+        this_lick_f=zeros(1,6);
+        this_lick_f(1,:)=all_dFFs(winNo,evNo1,:);
+        dFF_stats(ii_rank).data=this_lick_f';
+        dFF_stats(ii_rank).description=[win_labels{winNo} ' ' event_labels{evNo1}];
+        
+        glm_dFF.data(glm_dFF_ii+1:glm_dFF_ii+length(this_lick_f))=this_lick_f;
+        glm_dFF.event(glm_dFF_ii+1:glm_dFF_ii+length(this_lick_f))=evNo1;
+        glm_dFF.window(glm_dFF_ii+1:glm_dFF_ii+length(this_lick_f))=winNo;
+        glm_dFF_ii=glm_dFF_ii+length(this_lick_f);
+        
+    end
+end
+
+
+%Perform the glm for LDA percent correct 
+fprintf(1, ['\n\nglm for dFF\n'])
+tbl = table(glm_dFF.data',glm_dFF.event',glm_dFF.window',...
+    'VariableNames',{'dFF','event','window'});
+mdl = fitglm(tbl,'dFF~window+event+window*event'...
+    ,'CategoricalVars',[2,3])
+
+%  fprintf(1, ['\n\nglm for average wavelet power for Theta/' freq_names{pacii+1} '\n'])
+%                 tbl = table(glm_averagewave.data',glm_averagewave.lick_f',glm_averagewave.event',...
+%                     'VariableNames',{'Average_wave','lick_f','event'});
+%                 mdl = fitglm(tbl,'Average_wave~lick_f+event+lick_f*event'...
+%                     ,'CategoricalVars',[2,3])
+                
+                
+
+%Do ranksum/t test
+fprintf(1, ['\n\nRanksum or t-test p values for dFF \n\n'])
+try
+    [output_data] = drgMutiRanksumorTtest(dFF_stats);
+    fprintf(1, '\n\n')
+catch
+end
+
+%Do vartest2
+fprintf(1, ['\n\nTest of difference in variance for dFF \n\n'])
+try
+    [output_data] = drgMutiVartest2(dFF_stats);
     fprintf(1, '\n\n')
 catch
 end

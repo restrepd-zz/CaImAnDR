@@ -726,7 +726,7 @@ trial_window_description{3}='percent correct >=80';
 lick_threshold=20; %This is the threshold to exclude the runs where Ming was adding water manually
 t_odor_on=0;
 t_odor_off=4;
-
+all_lda_events_CR_zero_f=[];
 
 
 for no_trial_windows=1:total_trial_windows
@@ -1593,19 +1593,27 @@ for no_trial_windows=1:total_trial_windows
         ylabel('dF/F')
         title(['Timecourse for dF/F for ' supertitle_description{no_trial_windows}])
         
-        %Calculate and plot the mean lick rate
-        handles_outs.event=[];
-        for evNo=1:4
+        %Calculate and plot the mean lick rate and dFF
+        %Note: This overwrites the other percent correct
+        handles_outs.window=[];
+        for evNo=1:6
             handles_outs.no_lick_freq_choice_win(evNo)=0;
+            for winNo=1:length(caimanhandles.caimandr_choices.wins)
+                handles_outs.window(winNo).no_lick_freq_choice_win(evNo)=0;
+            end
+        end
+        
+        if no_trial_windows==3
+            pffft=1;
         end
         
         for trNo=1:length(dFF_trial_mask)
             
             if dFF_trial_mask(trNo)
                 
-                this_lick_freq=zeros(1,ceil((dt_after+dt_before)/dt_lick));
+                actual_lick_freq=zeros(1,ceil((dt_after+dt_before)/dt_lick));
                 for ii_lick=1:no_licks(trNo)
-                    this_lick_freq( ceil((lick_times(trNo,ii_lick)+dt_before)/dt_lick))=this_lick_freq( ceil((lick_times(trNo,ii_lick)+dt_before)/dt_lick))+1;
+                    actual_lick_freq( floor((lick_times(trNo,ii_lick)+dt_before)/dt_lick))=actual_lick_freq( floor((lick_times(trNo,ii_lick)+dt_before)/dt_lick))+1;
                 end
                 
                 
@@ -1616,19 +1624,55 @@ for no_trial_windows=1:total_trial_windows
                 %Convolve lick_freq using a Gaussian window
                 conv_win=gausswin(no_conv_points_lick);
                 
-                lick_freq=conv(this_lick_freq,conv_win,'same')/sum(conv_win);
+                lick_freq=conv(actual_lick_freq,conv_win,'same')/sum(conv_win);
                 lick_freq=lick_freq/dt_lick;
+                
                 
                 evNo=all_lda_events_miss_FA(trNo);
                 handles_outs.no_lick_freq_choice_win(evNo)=handles_outs.no_lick_freq_choice_win(evNo)+1;
                 
                 for winNo=1:length(caimanhandles.caimandr_choices.wins)
-                    this_lick_freq=lick_freq((time_licks>=caimanhandles.caimandr_choices.wins(winNo,1))&(time_licks<=caimanhandles.caimandr_choices.wins(winNo,2)))';
-                    handles_outs.event(evNo).lick_freq_choice_win(handles_outs.no_lick_freq_choice_win(evNo))=mean(this_lick_freq);
+                    if winNo==2
+                        %On ourpose I make a time_mask covering the two 2 sec time seegments for decision making
+                        this_time_mask=(time_licks>=0)&(time_licks<=4);
+                    else
+                        this_time_mask=(time_licks>=caimanhandles.caimandr_choices.wins(winNo,1))&(time_licks<=caimanhandles.caimandr_choices.wins(winNo,2));
+                    end
+                    this_lick_freq=actual_lick_freq(this_time_mask)/dt';
+                    handles_outs.window(winNo).event(evNo).lick_freq_choice_win(handles_outs.no_lick_freq_choice_win(evNo))=mean(this_lick_freq);
+                    this_dFF=mean_snip_dFF(trNo,(time_to_eventLDA>=caimanhandles.caimandr_choices.wins(winNo,1))&(time_to_eventLDA<=caimanhandles.caimandr_choices.wins(winNo,2)))';
+                    handles_outs.window(winNo).event(evNo).dFF_mean_choice_win(handles_outs.no_lick_freq_choice_win(evNo))=mean(this_dFF);
+                    
+                    %Calculate mean lick frequency for the two 4 sec periods
+                    %                 this_lick_freq4=lick_freq((time_licks>=0)&(time_licks<=4))';
+                    if evNo==3
+                        time_mask=(time_licks>=0)&(time_licks<=4);  %Time mask covering the two 2 sec time seegments for decision making
+                        this_actual_lick_freq=mean(actual_lick_freq(time_mask))/dt;
+                        if this_actual_lick_freq>0
+                            %There are licks in the two 2 sec segments
+                            all_lda_events_CR_zero_f(trNo)=1;
+                            handles_outs.window(winNo).no_lick_freq_choice_win(5)=handles_outs.window(winNo).no_lick_freq_choice_win(5)+1;
+                            handles_outs.window(winNo).event(5).lick_freq_choice_win(handles_outs.window(winNo).no_lick_freq_choice_win(5))=mean(this_lick_freq);
+                            handles_outs.window(winNo).event(5).dFF_choice_win(handles_outs.window(winNo).no_lick_freq_choice_win(5))=mean(this_dFF);
+                        else
+                            %No licks
+                            all_lda_events_CR_zero_f(trNo)=2;
+                            handles_outs.window(winNo).no_lick_freq_choice_win(6)=handles_outs.window(winNo).no_lick_freq_choice_win(6)+1;
+                            handles_outs.window(winNo).event(6).lick_freq_choice_win(handles_outs.window(winNo).no_lick_freq_choice_win(6))=mean(this_lick_freq);
+                            handles_outs.window(winNo).event(6).dFF_choice_win(handles_outs.window(winNo).no_lick_freq_choice_win(6))=mean(this_dFF);
+                        end
+                    else
+                        all_lda_events_CR_zero_f(trNo)=-1;
+                    end
                 end
             end
         end
         
+        if no_trial_windows==3
+            pffft=1;
+        end
+        
+        %Plot the lick frequency
         figNo=figNo+1;
         try
             close(figNo)
@@ -1645,8 +1689,8 @@ for no_trial_windows=1:total_trial_windows
             for evNo=1:4
                 
                 if handles_outs.no_lick_freq_choice_win(evNo)>0
-                    these_lfs=zeros(length(handles_outs.event(evNo).lick_freq_choice_win),1);
-                    these_lfs(:,1)=handles_outs.event(evNo).lick_freq_choice_win;
+                    these_lfs=zeros(length(handles_outs.window(winNo).event(evNo).lick_freq_choice_win),1);
+                    these_lfs(:,1)=handles_outs.window(winNo).event(evNo).lick_freq_choice_win;
                     this_mean_lf=mean(these_lfs);
                     switch evNo
                         case 1
@@ -1659,16 +1703,101 @@ for no_trial_windows=1:total_trial_windows
                             bar(ii_bar,this_mean_lf, 'm');
                     end
                     
-                    if handles_outs.no_lick_freq_choice_win(evNo)>2
+                    if handles_outs.window(winNo).no_lick_freq_choice_win(evNo)>2
                         CI=[];
                         CI = bootci(1000, {@mean, these_lfs})';
                         plot([ii_bar ii_bar],CI,'-k','LineWidth',2) 
                     end
-                    ii_bar=ii
+                    ii_bar=ii_bar+1;
                 end
-                
+               
             end
+             ii_bar=ii_bar+1;
         end
+        title('Lick frequency for the different events')
+        
+
+        %Plot the lick frequency for CR zero licks vs CR
+        figNo=figNo+1;
+        try
+            close(figNo)
+        catch
+        end
+        figure(figNo)
+        
+        hold on
+        
+        ii_bar=0;
+        
+        for winNo=1:length(caimanhandles.caimandr_choices.wins)
+            
+            for evNo_CR=5:6
+                
+                if handles_outs.window(winNo).no_lick_freq_choice_win(evNo_CR)>0
+                    these_lfs=zeros(length(handles_outs.window(winNo).event(evNo_CR).lick_freq_choice_win),1);
+                    these_lfs(:,1)=handles_outs.window(winNo).event(evNo_CR).lick_freq_choice_win;
+                    this_mean_lf=mean(these_lfs);
+                    switch evNo_CR
+                        case 5
+                            bar(ii_bar,this_mean_lf, 'r');
+                        case 6
+                            bar(ii_bar,this_mean_lf, 'b');
+                    end
+                    
+                    if handles_outs.window(winNo).no_lick_freq_choice_win(evNo_CR)>2
+                        CI=[];
+                        CI = bootci(1000, {@mean, these_lfs})';
+                        plot([ii_bar ii_bar],CI,'-k','LineWidth',2) 
+                    end
+                    ii_bar=ii_bar+1;
+                end
+               
+            end
+             ii_bar=ii_bar+1;
+        end
+        title('Lick frequency for CR no licks=blue, CR licks=red')
+        
+        %Plot dFF for CR zero licks vs CR licks
+        figNo=figNo+1;
+        try
+            close(figNo)
+        catch
+        end
+        figure(figNo)
+        
+        hold on
+        
+        ii_bar=0;
+        
+        for winNo=1:length(caimanhandles.caimandr_choices.wins)
+            
+            for evNo_CR=5:6
+                
+                if handles_outs.window(winNo).no_lick_freq_choice_win(evNo_CR)>0
+                    these_dffs=zeros(length(handles_outs.window(winNo).event(evNo_CR).dFF_choice_win),1);
+                    these_dffs(:,1)=handles_outs.window(winNo).event(evNo_CR).dFF_choice_win;
+                    this_mean_dFF=mean(these_dffs);
+                    switch evNo_CR
+                           case 5
+                            bar(ii_bar,this_mean_dFF, 'r');
+                        case 6
+                            bar(ii_bar,this_mean_dFF, 'b');
+                    end
+                    
+                    if handles_outs.window(winNo).no_lick_freq_choice_win(evNo_CR)>2
+                        CI=[];
+                        CI = bootci(1000, {@mean, these_dffs})';
+                        plot([ii_bar ii_bar],CI,'-k','LineWidth',2) 
+                    end
+                    ii_bar=ii_bar+1;
+                end
+               
+            end
+             ii_bar=ii_bar+1;
+        end
+        title('dFF for CR no licks=blue, CR licks=red')
+        
+        
         %Now do the analysis for the licks aligned to areas with large changes in
         %dF/F
         dFF_slope_thr=0.03;
