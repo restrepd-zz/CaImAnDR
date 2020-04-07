@@ -161,7 +161,7 @@ glm_ii=glm_ii+1;
 
 LDAs_ii=LDAs_ii+1;
 LDAs(LDAs_ii).data=these_LDAs;
-LDAs(LDAs_ii).description='Reverse shiffled';
+LDAs(LDAs_ii).description='Reverse shuffled';
 
 fprintf(1, ['\n\nglm for LDA for window' num2str(winNo) '\n'])
 tbl = table(glm_LDA.data',glm_LDA.orig_shuffled',glm_LDA.fwd_rev',...

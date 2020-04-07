@@ -1215,6 +1215,10 @@ time_to_eventHit=[];
 time_to_eventCR=[];
 time_to_eventFA=[];
 time_to_eventMiss=[];
+glm_dFF_errors=[];
+glm_ii_errors=0;
+ii_stats_errors=0;
+dFF_stats_errors=[];
 
 %S+, S-, all snips
 if no_Hit_traces>1
@@ -1277,18 +1281,51 @@ hold on
 % dFF_per_comp_odor=[];
 % dFF_per_comp_reinf=[];
 % no_comps_Hit=0;
+
+no_rois=0;
+
+
 for trNo=1:no_traces
     if sum(Hit_comps==trNo)>0
         this_Hit_trace=[];
         this_Hit_trace=mean(Hit_traces(Hit_comps==trNo,:),1);
-%         no_comps_Hit=no_comps_Hit+1;
-%         dFF_per_comp_pre(no_comps_Hit)=mean(this_Hit_trace((time_to_event>=-1)&(time_to_event<=0)));
-%         dFF_per_comp_odor(no_comps_Hit)=mean(this_sm_trace((time_to_event>=mean(delta_odor)-1)&(time_to_event<=mean(delta_odor))));
-%         dFF_per_comp_reinf(no_comps_sm)=mean(this_sm_trace((time_to_event>=mean(delta_odor_on_reinf_on))&(time_to_event<=mean(delta_odor_on_reinf_on)+mean(delta_reinf))));
-%         
+        %         no_comps_Hit=no_comps_Hit+1;
+        %         dFF_per_comp_pre(no_comps_Hit)=mean(this_Hit_trace((time_to_event>=-1)&(time_to_event<=0)));
+        %         dFF_per_comp_odor(no_comps_Hit)=mean(this_sm_trace((time_to_event>=mean(delta_odor)-1)&(time_to_event<=mean(delta_odor))));
+        %         dFF_per_comp_reinf(no_comps_sm)=mean(this_sm_trace((time_to_event>=mean(delta_odor_on_reinf_on))&(time_to_event<=mean(delta_odor_on_reinf_on)+mean(delta_reinf))));
+        %
         plot(time_to_event',this_Hit_trace,'-k','Linewidth',0.5,'Color',[0.7 0.7 0.7])
+        
+        no_rois=no_rois+1;
+        
+        this_Hit_pre=mean(this_Hit_trace((time_to_event>=-1)&(time_to_event<=0)));
+        glm_ii_errors=glm_ii_errors+1;
+        glm_dFF_errors.data(glm_ii_errors)=this_Hit_pre;
+        glm_dFF_errors.when(glm_ii_errors)=0;
+        glm_dFF_errors.which_trial(glm_ii_errors)=0;
+        dFF_stats_errors(ii_stats_errors+1).data(no_rois)=this_Hit_pre;
+        
+        this_Hit_odor=mean(this_Hit_trace((time_to_event>=mean(delta_odor)-1)&(time_to_event<=mean(delta_odor))));
+        glm_ii_errors=glm_ii_errors+1;
+        glm_dFF_errors.data(glm_ii_errors)=this_Hit_odor;
+        glm_dFF_errors.when(glm_ii_errors)=1;
+        glm_dFF_errors.which_trial(glm_ii_errors)=0;
+        dFF_stats_errors(ii_stats_errors+2).data(no_rois)=this_Hit_odor;
+        
+        this_Hit_reinf=mean(this_Hit_trace((time_to_event>=mean(delta_odor_on_reinf_on))&(time_to_event<=mean(delta_odor_on_reinf_on)+mean(delta_reinf))));
+        glm_ii_errors=glm_ii_errors+1;
+        glm_dFF_errors.data(glm_ii_errors)=this_Hit_reinf;
+        glm_dFF_errors.when(glm_ii_errors)=2;
+        glm_dFF_errors.which_trial(glm_ii_errors)=0;
+        dFF_stats_errors(ii_stats_errors+3).data(no_rois)=this_Hit_reinf;
+        
     end
 end
+
+dFF_stats_errors(ii_stats_errors+1).description=['Pre Hit '];
+dFF_stats_errors(ii_stats_errors+2).description=['Odor Hit '];
+dFF_stats_errors(ii_stats_errors+3).description=['Reinforcement Hit '];
+ii_stats_errors=ii_stats_errors+3;
 
 
 %Odor on markers
@@ -1318,11 +1355,8 @@ figure(figNo)
 hold on
 
 
-%Plot the traces for all components and calculate the average dFF
-% dFF_per_comp_pre=[];
-% dFF_per_comp_odor=[];
-% dFF_per_comp_reinf=[];
-% no_comps_Hit=0;
+no_rois=0;
+
 for trNo=1:no_traces
     if sum(Miss_comps==trNo)>0
         this_Miss_trace=[];
@@ -1333,9 +1367,36 @@ for trNo=1:no_traces
 %         dFF_per_comp_reinf(no_comps_sm)=mean(this_sm_trace((time_to_event>=mean(delta_odor_on_reinf_on))&(time_to_event<=mean(delta_odor_on_reinf_on)+mean(delta_reinf))));
 %         
         plot(time_to_event',this_Miss_trace,'-k','Linewidth',0.5,'Color',[0.7 0.7 0.7])
+        
+        no_rois=no_rois+1;
+        
+        this_Miss_pre=mean(this_Miss_trace((time_to_event>=-1)&(time_to_event<=0)));
+        glm_ii_errors=glm_ii_errors+1;
+        glm_dFF_errors.data(glm_ii_errors)=this_Miss_pre;
+        glm_dFF_errors.when(glm_ii_errors)=0;
+        glm_dFF_errors.which_trial(glm_ii_errors)=1;
+        dFF_stats_errors(ii_stats_errors+1).data(no_rois)=this_Miss_pre;
+        
+        this_Miss_odor=mean(this_Miss_trace((time_to_event>=mean(delta_odor)-1)&(time_to_event<=mean(delta_odor))));
+        glm_ii_errors=glm_ii_errors+1;
+        glm_dFF_errors.data(glm_ii_errors)=this_Miss_odor;
+        glm_dFF_errors.when(glm_ii_errors)=1;
+        glm_dFF_errors.which_trial(glm_ii_errors)=1;
+        dFF_stats_errors(ii_stats_errors+2).data(no_rois)=this_Miss_odor;
+        
+        this_Miss_reinf=mean(this_Miss_trace((time_to_event>=mean(delta_odor_on_reinf_on))&(time_to_event<=mean(delta_odor_on_reinf_on)+mean(delta_reinf))));
+        glm_ii_errors=glm_ii_errors+1;
+        glm_dFF_errors.data(glm_ii_errors)=this_Miss_reinf;
+        glm_dFF_errors.when(glm_ii_errors)=2;
+        glm_dFF_errors.which_trial(glm_ii_errors)=1;
+        dFF_stats_errors(ii_stats_errors+3).data(no_rois)=this_Miss_reinf;
     end
 end
 
+dFF_stats_errors(ii_stats_errors+1).description=['Pre Miss '];
+dFF_stats_errors(ii_stats_errors+2).description=['Odor Miss '];
+dFF_stats_errors(ii_stats_errors+3).description=['Reinforcement Miss '];
+ii_stats_errors=ii_stats_errors+3;
 
 %Odor on markers
 plot([0 0],[0 max([max(mean(sminus_traces(sp_odor_response==0,:),1)')+max(CIsp(:)) max(mean(sminus_traces(sm_odor_response==0,:),1)')+max(CIsm(:))])+3.5],'-k')
@@ -1370,6 +1431,8 @@ hold on
 % dFF_per_comp_odor=[];
 % dFF_per_comp_reinf=[];
 % no_comps_Hit=0;
+no_rois=0;
+
 for trNo=1:no_traces
     if sum(CR_comps==trNo)>0
         this_CR_trace=[];
@@ -1380,8 +1443,36 @@ for trNo=1:no_traces
 %         dFF_per_comp_reinf(no_comps_sm)=mean(this_sm_trace((time_to_event>=mean(delta_odor_on_reinf_on))&(time_to_event<=mean(delta_odor_on_reinf_on)+mean(delta_reinf))));
 %         
         plot(time_to_event',this_CR_trace,'-k','Linewidth',0.5,'Color',[0.7 0.7 0.7])
+        
+        no_rois=no_rois+1;
+        
+        this_CR_pre=mean(this_CR_trace((time_to_event>=-1)&(time_to_event<=0)));
+        glm_ii_errors=glm_ii_errors+1;
+        glm_dFF_errors.data(glm_ii_errors)=this_CR_pre;
+        glm_dFF_errors.when(glm_ii_errors)=0;
+        glm_dFF_errors.which_trial(glm_ii_errors)=2;
+        dFF_stats_errors(ii_stats_errors+1).data(no_rois)=this_CR_pre;
+        
+        this_CR_odor=mean(this_CR_trace((time_to_event>=mean(delta_odor)-1)&(time_to_event<=mean(delta_odor))));
+        glm_ii_errors=glm_ii_errors+1;
+        glm_dFF_errors.data(glm_ii_errors)=this_CR_odor;
+        glm_dFF_errors.when(glm_ii_errors)=1;
+        glm_dFF_errors.which_trial(glm_ii_errors)=2;
+        dFF_stats_errors(ii_stats_errors+2).data(no_rois)=this_CR_odor;
+        
+        this_CR_reinf=mean(this_CR_trace((time_to_event>=mean(delta_odor_on_reinf_on))&(time_to_event<=mean(delta_odor_on_reinf_on)+mean(delta_reinf))));
+        glm_ii_errors=glm_ii_errors+1;
+        glm_dFF_errors.data(glm_ii_errors)=this_CR_reinf;
+        glm_dFF_errors.when(glm_ii_errors)=2;
+        glm_dFF_errors.which_trial(glm_ii_errors)=2;
+        dFF_stats_errors(ii_stats_errors+3).data(no_rois)=this_CR_reinf;
     end
 end
+
+stats(ii_stats_errors+1).description=['Pre CR '];
+dFF_stats_errors(ii_stats_errors+2).description=['Odor CR '];
+dFF_stats_errors(ii_stats_errors+3).description=['Reinforcement CR '];
+ii_stats_errors=ii_stats_errors+3;
 
 %Odor on markers
 plot([0 0],[0 max([max(mean(sminus_traces(sp_odor_response==0,:),1)')+max(CIsp(:)) max(mean(sminus_traces(sm_odor_response==0,:),1)')+max(CIsm(:))])+3.5],'-k')
@@ -1415,6 +1506,9 @@ hold on
 % dFF_per_comp_odor=[];
 % dFF_per_comp_reinf=[];
 % no_comps_Hit=0;
+
+no_rois=0;
+
 for trNo=1:no_traces
     if sum(FA_comps==trNo)>0
         this_FA_trace=[];
@@ -1425,9 +1519,36 @@ for trNo=1:no_traces
 %         dFF_per_comp_reinf(no_comps_sm)=mean(this_sm_trace((time_to_event>=mean(delta_odor_on_reinf_on))&(time_to_event<=mean(delta_odor_on_reinf_on)+mean(delta_reinf))));
 %         
         plot(time_to_event',this_FA_trace,'-k','Linewidth',0.5,'Color',[0.7 0.7 0.7])
+        
+              no_rois=no_rois+1;
+        
+        this_FA_pre=mean(this_FA_trace((time_to_event>=-1)&(time_to_event<=0)));
+        glm_ii_errors=glm_ii_errors+1;
+        glm_dFF_errors.data(glm_ii_errors)=this_FA_pre;
+        glm_dFF_errors.when(glm_ii_errors)=0;
+        glm_dFF_errors.which_trial(glm_ii_errors)=3;
+        dFF_stats_errors(ii_stats_errors+1).data(no_rois)=this_FA_pre;
+        
+        this_FA_odor=mean(this_FA_trace((time_to_event>=mean(delta_odor)-1)&(time_to_event<=mean(delta_odor))));
+        glm_ii_errors=glm_ii_errors+1;
+        glm_dFF_errors.data(glm_ii_errors)=this_FA_odor;
+        glm_dFF_errors.when(glm_ii_errors)=1;
+        glm_dFF_errors.which_trial(glm_ii_errors)=3;
+        dFF_stats_errors(ii_stats_errors+2).data(no_rois)=this_FA_odor;
+        
+        this_FA_reinf=mean(this_FA_trace((time_to_event>=mean(delta_odor_on_reinf_on))&(time_to_event<=mean(delta_odor_on_reinf_on)+mean(delta_reinf))));
+        glm_ii_errors=glm_ii_errors+1;
+        glm_dFF_errors.data(glm_ii_errors)=this_FA_reinf;
+        glm_dFF_errors.when(glm_ii_errors)=2;
+        glm_dFF_errors.which_trial(glm_ii_errors)=3;
+        dFF_stats_errors(ii_stats_errors+3).data(no_rois)=this_FA_reinf;
     end
 end
 
+stats(ii_stats_errors+1).description=['Pre FA '];
+dFF_stats_errors(ii_stats_errors+2).description=['Odor FA '];
+dFF_stats_errors(ii_stats_errors+3).description=['Reinforcement FA '];
+ii_stats_errors=ii_stats_errors+3;
 
 %Odor on markers
 plot([0 0],[0 max([max(mean(sminus_traces(sp_odor_response==0,:),1)')+max(CIsp(:)) max(mean(sminus_traces(sm_odor_response==0,:),1)')+max(CIsm(:))])+3.5],'-k')
@@ -1470,6 +1591,21 @@ xlim([-10 19.8])
 %                             'handles','odor_traces','dt','all_lick_traces','acq_rate','y_shift','traces'...
 %                             ,'time_rhd','adc_in','no_images')
 
+%Perform the glm for dFF per roi
+fprintf(1, ['\n\nglm for dFF per roi for Hit, Miss, CR and FA\n'])
+tbl = table(glm_dFF.data',glm_dFF.when',glm_dFF.which_trial',...
+    'VariableNames',{'dFF','when','which_trial'});
+mdl = fitglm(tbl,'dFF~when+which_trial+when*which_trial'...
+    ,'CategoricalVars',[2,3])
+
+%Do ranksum/t test
+fprintf(1, ['\n\nRanksum or t-test p values for dFF'])
+try
+    [output_data] = drgMutiRanksumorTtest(dFF_stats_errors);
+    fprintf(1, '\n\n')
+catch
+end
+ 
 figNo=figNo+1;
 figure(figNo)
 hold on

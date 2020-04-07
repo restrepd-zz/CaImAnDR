@@ -1185,7 +1185,35 @@ for no_trial_windows=1:total_trial_windows
                 this_conv_dFF=[];
                 this_conv_dFF=conv(mean_snip_dFF(trNo,:),conv_win,'same')/sum(conv_win);
                 
+                upper_CI=zeros(1,length(this_conv_dFF));
+                upper_CI(1,:)=CI_snip_dFF(trNo,2,:);
+                this_conv_upper_CI=[];
+                this_conv_upper_CI=conv(upper_CI,conv_win,'same')/sum(conv_win);
                 
+                lower_CI=zeros(1,length(this_conv_dFF));
+                lower_CI(1,:)=CI_snip_dFF(trNo,1,:);
+                this_conv_lower_CI=[];
+                this_conv_lower_CI=conv(lower_CI,conv_win,'same')/sum(conv_win);
+                
+                this_conv_CI=zeros(2,length(this_conv_dFF));
+                this_conv_CI(1,:)=this_conv_lower_CI;
+                this_conv_CI(2,:)=this_conv_upper_CI;
+                
+                this_conv_CI(1,:)=this_conv_dFF-this_conv_CI(1,:);
+                this_conv_CI(2,:)=this_conv_CI(2,:)-this_conv_dFF;
+                   
+   
+                switch evNo
+                    case 1
+                        boundedline(time_to_eventLDA(1:132)+t_offset,this_conv_dFF(1:132), this_conv_CI(:,1:132)', 'r');
+                    case 2
+                        boundedline(time_to_eventLDA(1:132)+t_offset,this_conv_dFF(1:132), this_conv_CI(:,1:132)', 'c');
+                    case 3
+                        boundedline(time_to_eventLDA(1:132)+t_offset,this_conv_dFF(1:132), this_conv_CI(:,1:132)', 'b');
+                    case 4
+                        boundedline(time_to_eventLDA(1:132)+t_offset,this_conv_dFF(1:132), this_conv_CI(:,1:132)', 'm');
+                end
+                    
                 switch evNo
                     case 1
                         plot(time_to_eventLDA(1:132)'+t_offset,this_conv_dFF(1:132)','r','LineWidth',2);
@@ -1196,7 +1224,8 @@ for no_trial_windows=1:total_trial_windows
                     case 4
                         plot(time_to_eventLDA(1:132)'+t_offset,this_conv_dFF(1:132)','m','LineWidth',2);
                 end
-                
+
+
                 %Odor on markers
                 plot([0+t_offset 0+t_offset],[ymin ymax],'-k')
                 odorhl=plot([0+t_offset mean(delta_odor)+t_offset],[ymin + 0.1*(ymax-ymin) ymin + 0.1*(ymax-ymin)],'-k','LineWidth',5);

@@ -1,16 +1,13 @@
-function drgCaImAnBatchMultiSessionLicks(choiceBatchPathName,choiceFileName)
+function drgCaImAnBatchMultiSessionLicksv2(choiceBatchPathName,choiceFileName)
 
 %This code does a lick analysis for sessions where we record the behavior and licks
 %for optogenetic modulation of behavior/licks by turning MLIs with
 %optogenetics
 % Needs a choices file such as
-% drgCaImAn_multichoices_PVhM4Di_all_files_05052019.m
+% drgCaImAn_multichoices_PVhM4Di_all_files_03262020.m
 % Needs the output files from drgCaImAn_batch_dropc_no_microscope.m
 %
-% Use display_choice=1 for
-% drgCaImAn_multichoices_PVhM4Di_all_files_05052019.m 
-%
-%Used display_choice=2 for drgCaImAn_multichoices_PVhM4Di_all_files_08192019
+%Used display_choice=2 
 warning('off')
 
 close all
@@ -53,8 +50,8 @@ for ii_mouse=1:length(mice_included)
             end
         end
         for hM4DNo=1:4
-           caimanhandles.per_mouse(mice_included(ii_mouse)).hM4D(hM4DNo).no_sptrials=0;
-           caimanhandles.per_mouse(mice_included(ii_mouse)).hM4D(hM4DNo).no_smtrials=0;
+            caimanhandles.per_mouse(mice_included(ii_mouse)).hM4D(hM4DNo).no_sptrials=0;
+            caimanhandles.per_mouse(mice_included(ii_mouse)).hM4D(hM4DNo).no_smtrials=0;
         end
     end
 end
@@ -387,7 +384,7 @@ for filNum=1:caimanhandles.caimandr_choices.no_files
                 if caimanhandles.caimandr_choices.start_reversal>length(first_num_odor_trials)
                     
                     %             fprintf(1, '\n\nPCA processed for dF/F for trials before reversal \n');
-                    pct_windows=[45 65;65 80;80 100.1];
+                    pct_windows=[45 65;65 80;75 100.1];
                     
                     for ii=1:num_odor_trials
                         if sum((lick_times(ii,1:no_licks(ii))>=t_odor_on)&(lick_times(ii,1:no_licks(ii))<=t_odor_off))<lick_threshold
@@ -589,7 +586,7 @@ for filNum=1:caimanhandles.caimandr_choices.no_files
                     caimanhandles.delta_reinf=mean(delta_reinf);
                     caimanhandles.delta_odor=mean(delta_odor);
                     
-                  
+                    
                     
                     %If there were a subset of trials with light on for optogenetics
                     %show the frequency with light on and off
@@ -785,17 +782,17 @@ for filNum=1:caimanhandles.caimandr_choices.no_files
                                         end
                                     end
                                 end
-                                 p_val_Sp_Sm(no_pvals)=mean(these_pvals);
-                             else
+                                p_val_Sp_Sm(no_pvals)=mean(these_pvals);
+                            else
                                 p_val_Sp_Sm(no_pvals)=1;
                             end
-                               
                             
-%                             if (~isempty(this_Sm))&(~isempty(this_Sp))
-%                                 p_val_Sp_Sm(no_pvals)=ranksum(this_Sm,this_Sp);
-%                             else
-%                                 p_val_Sp_Sm(no_pvals)=1;
-%                             end
+                            
+                            %                             if (~isempty(this_Sm))&(~isempty(this_Sp))
+                            %                                 p_val_Sp_Sm(no_pvals)=ranksum(this_Sm,this_Sp);
+                            %                             else
+                            %                                 p_val_Sp_Sm(no_pvals)=1;
+                            %                             end
                             
                             %ranksum gives NaN if the values are all the same
                             if isnan(p_val_Sp_Sm(no_pvals))
@@ -876,12 +873,12 @@ for filNum=1:caimanhandles.caimandr_choices.no_files
                             decision_time_reinf=time_p_lick(end);
                         end
                         decision_time_reinf=decision_time_reinf-dt_reinf_on;
-                         if decision_time_reinf>10
+                        if decision_time_reinf>10
                             decision_time_reinf=10+randn;
                         end
                         
                         %These if statements are here to exclude NaNs and zeros
-                        if (sum(isnan(Splick_freq))==0)&(sum(isnan(Smlick_freq))==0)&(length(this_Sp)>10)&(length(this_Sm)>10)  
+                        if (sum(isnan(Splick_freq))==0)&(sum(isnan(Smlick_freq))==0)&(length(this_Sp)>10)&(length(this_Sm)>10)
                             no_files_included=no_files_included+1;
                             per_file_lick_log10_p_val(no_files_included,1:length(log10(p_val_Sp_Sm)))=log10(p_val_Sp_Sm);
                             per_file_lick_freq_sp(no_files_included,1:length(Splick_freq_no_conv))=Splick_freq_no_conv;
@@ -890,8 +887,8 @@ for filNum=1:caimanhandles.caimandr_choices.no_files
                             per_file_mouse(no_files_included)=caimanhandles.caimandr_choices.mouse(filNum);
                             per_file_noSp(no_files_included)=length(this_Sp);
                             per_file_noSm(no_files_included)=length(this_Sm);
-                            per_file_trial_window(no_files_included)=no_trial_windows; 
-                            per_file_decision_time(no_files_included)=decision_time;  
+                            per_file_trial_window(no_files_included)=no_trial_windows;
+                            per_file_decision_time(no_files_included)=decision_time;
                             per_file_decision_time_reinf(no_files_included)=decision_time_reinf;
                             per_file_fractional_lick_time_on_sp(no_files_included,1:length(fractional_lick_time_on_sp))=fractional_lick_time_on_sp;
                             per_file_fractional_lick_time_on_sm(no_files_included,1:length(fractional_lick_time_on_sm))=fractional_lick_time_on_sm;
@@ -1378,10 +1375,10 @@ for filNum=1:caimanhandles.caimandr_choices.no_files
         fprintf(1, ['\nFile number %d ' caimanhandles.caimandr_choices.fileName{filNum} ' does not exist\n'],filNum);
     end
 end
-   
+
 figNo
 % save([caimanhandles.caimandr_choices.outPathName caimanhandles.caimandr_choices.outFileName(1:end-4) '_licks.mat'],'handles_outs')
- 
+
 %Now plot the figures
 
 %Plot decision time
@@ -1422,7 +1419,7 @@ if display_choice==1
     title('Decision times')
     ylabel('Decision time (sec)')
     
-     for mouseNo=1:caimanhandles.caimandr_choices.no_mice
+    for mouseNo=1:caimanhandles.caimandr_choices.no_mice
         these_decision_times=[];
         these_no_decision_timecoursesSm=[];
         these_no_decision_timecoursesSp=[];
@@ -1474,7 +1471,7 @@ if display_choice==1
         ylabel('Frequency (Hz)')
         xlabel('Time (sec)')
     end
-
+    
 end
 
 show_CI=1;
@@ -1482,1012 +1479,1088 @@ show_CI=1;
 if display_choice==2
     
     %Plot lick frequency
-    for trial_window_no=1:total_trial_windows
-        figNo=figNo+1;
-        try
-            close(figNo)
-        catch
-        end
-        
-        hFig=figure(figNo);
-        set(hFig, 'units','normalized','position',[.1 .4 .6 .25])
-        
-        subplot(1,2,1)
-        hold on
-        
-        %Plot the bounded lines
-        if show_CI==1
-            for hM4DNo=1:2
-                mean_freq_Sm=mean(per_file_lick_freq_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-                no_trials=size(per_file_lick_freq_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-                these_per_file_lick_freq_sm=[];
-                these_per_file_lick_freq_sm=per_file_lick_freq_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
-                CIfreq = bootci(1000, {@mean, these_per_file_lick_freq_sm})';
-                CIfreq(:,1)=mean_freq_Sm'-CIfreq(:,1);
-                CIfreq(:,2)=CIfreq(:,2)-mean_freq_Sm';
-                
-                if hM4DNo==1
-                    [hlCR, hpCR] = boundedline(time_licks,mean_freq_Sm', CIfreq, 'b');
-                else
-                    [hlCR, hpCR] = boundedline(time_licks,mean_freq_Sm', CIfreq, 'c');
-                end
-                
-                mean_freq_Sp=mean(per_file_lick_freq_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-                no_trials=size(per_file_lick_freq_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-                these_per_file_lick_freq_sp=[];
-                these_per_file_lick_freq_sp=per_file_lick_freq_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
-                CIfreq = bootci(1000, {@mean, these_per_file_lick_freq_sp})';
-                CIfreq(:,1)=mean_freq_Sp'-CIfreq(:,1);
-                CIfreq(:,2)=CIfreq(:,2)-mean_freq_Sp';
-                
-                if hM4DNo==1
-                    [hlCR, hpCR] = boundedline(time_licks,mean_freq_Sp', CIfreq, 'r');
-                else
-                    [hlCR, hpCR] = boundedline(time_licks,mean_freq_Sp', CIfreq, 'm');
-                end
-            end
-        end
-        
-        %Plot the thick lines and do the glm
-        glm_lick_f=[];
-        glm_lick_f_ii=0;
-        %Plot the thick lines and do glm
-        for hM4DNo=1:2
-            mean_freq_Sm=mean(per_file_lick_freq_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-            no_trials=size(per_file_lick_freq_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-            these_per_file_lick_freq_sm=[];
-            these_per_file_lick_freq_sm=per_file_lick_freq_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
-            for ii=1:no_trials
-                glm_lick_f.data(glm_lick_f_ii+1:glm_lick_f_ii+180)=these_per_file_lick_freq_sm(ii,:);
-                if hM4DNo==3
-                    glm_lick_f.CNO(glm_lick_f_ii+1:glm_lick_f_ii+180)=1;
-                    glm_lick_f.spm(glm_lick_f_ii+1:glm_lick_f_ii+180)=1;
-                    glm_lick_f.genotype(glm_lick_f_ii+1:glm_lick_f_ii+180)=2;
-                else
-                    glm_lick_f.CNO(glm_lick_f_ii+1:glm_lick_f_ii+180)=0;
-                    glm_lick_f.spm(glm_lick_f_ii+1:glm_lick_f_ii+180)=1;
-                    glm_lick_f.genotype(glm_lick_f_ii+1:glm_lick_f_ii+180)=2;
-                end
-                glm_lick_f.time(glm_lick_f_ii+1:glm_lick_f_ii+180)=time_licks;
-                glm_lick_f_ii=glm_lick_f_ii+180;
-            end
-            if hM4DNo==1
-                p1=plot(time_licks,mean_freq_Sm,'-b','LineWidth',2);
-            else
-                p3=plot(time_licks,mean_freq_Sm,'-c','LineWidth',2);
-            end
-            mean_freq_Sp=mean(per_file_lick_freq_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-            no_trials=size(per_file_lick_freq_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-            these_per_file_lick_freq_sp=[];
-            these_per_file_lick_freq_sp=per_file_lick_freq_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
-            for ii=1:no_trials
-                glm_lick_f.data(glm_lick_f_ii+1:glm_lick_f_ii+180)=these_per_file_lick_freq_sp(ii,:);
-                if hM4DNo==3
-                    glm_lick_f.CNO(glm_lick_f_ii+1:glm_lick_f_ii+180)=1;
-                    glm_lick_f.spm(glm_lick_f_ii+1:glm_lick_f_ii+180)=2;
-                    glm_lick_f.genotype(glm_lick_f_ii+1:glm_lick_f_ii+180)=2;
-                else
-                    glm_lick_f.CNO(glm_lick_f_ii+1:glm_lick_f_ii+180)=0;
-                    glm_lick_f.spm(glm_lick_f_ii+1:glm_lick_f_ii+180)=2;
-                    glm_lick_f.genotype(glm_lick_f_ii+1:glm_lick_f_ii+180)=2;
-                end
-                glm_lick_f.time(glm_lick_f_ii+1:glm_lick_f_ii+180)=time_licks;
-                glm_lick_f_ii=glm_lick_f_ii+180;
-            end
-            if hM4DNo==1
-                p2=plot(time_licks,mean_freq_Sp,'-r','LineWidth',2);
-            else
-                p4=plot(time_licks,mean_freq_Sp,'-m','LineWidth',2);
-            end
-        end
-        
-        %Odor on markers
-        plot([0 0],[-2 16],'-k')
-        odorhl=plot([0 mean(delta_odor)],[-1 -1],'-k','LineWidth',5);
-        plot([mean(delta_odor) mean(delta_odor)],[-2 16],'-k')
-        
-        %Reinforcement markers
-        plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)],[-2 16],'-r')
-        reinfhl=plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[-1 -1],'-r','LineWidth',5);
-        plot([mean(delta_odor_on_reinf_on)+mean(delta_reinf) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[-2 16],'-r')
-        
-        
-        legend([p1 p2 p3 p4],{'CNO Sm','CNO Sp','No CNO Sm','No CNO Sp'})
-        title('hM4Di')
-        ylim([-2 16])
-        ylabel('Frequency (Hz)')
-        xlabel('Time (sec)')
-        
-        subplot(1,2,2)
-        hold on
-         
-        %Plot the bounded lines
-        if show_CI==1
-            for hM4DNo=3:4
-                mean_freq_Sm=mean(per_file_lick_freq_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-                no_trials=size(per_file_lick_freq_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-                these_per_file_lick_freq_sm=[];
-                these_per_file_lick_freq_sm=per_file_lick_freq_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
-                CIfreq = bootci(1000, {@mean, these_per_file_lick_freq_sm})';
-                CIfreq(:,1)=mean_freq_Sm'-CIfreq(:,1);
-                CIfreq(:,2)=CIfreq(:,2)-mean_freq_Sm';
-                
-                if hM4DNo==1
-                    [hlCR, hpCR] = boundedline(time_licks,mean_freq_Sm', CIfreq, 'b');
-                else
-                    [hlCR, hpCR] = boundedline(time_licks,mean_freq_Sm', CIfreq, 'c');
-                end
-                
-                mean_freq_Sp=mean(per_file_lick_freq_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-                no_trials=size(per_file_lick_freq_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-                these_per_file_lick_freq_sp=[];
-                these_per_file_lick_freq_sp=per_file_lick_freq_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
-                CIfreq = bootci(1000, {@mean, these_per_file_lick_freq_sp})';
-                CIfreq(:,1)=mean_freq_Sp'-CIfreq(:,1);
-                CIfreq(:,2)=CIfreq(:,2)-mean_freq_Sp';
-                
-                if hM4DNo==1
-                    [hlCR, hpCR] = boundedline(time_licks,mean_freq_Sp', CIfreq, 'r');
-                else
-                    [hlCR, hpCR] = boundedline(time_licks,mean_freq_Sp', CIfreq, 'm');
-                end
-            end
-        end
-        
-        %Plot the thick lines and do glm
-        for hM4DNo=3:4
-            mean_freq_Sm=mean(per_file_lick_freq_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-            no_trials=size(per_file_lick_freq_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-            these_per_file_lick_freq_sm=[];
-            these_per_file_lick_freq_sm=per_file_lick_freq_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
-            for ii=1:no_trials
-                glm_lick_f.data(glm_lick_f_ii+1:glm_lick_f_ii+180)=these_per_file_lick_freq_sm(ii,:);
-                if hM4DNo==3
-                    glm_lick_f.CNO(glm_lick_f_ii+1:glm_lick_f_ii+180)=1;
-                    glm_lick_f.spm(glm_lick_f_ii+1:glm_lick_f_ii+180)=1;
-                    glm_lick_f.genotype(glm_lick_f_ii+1:glm_lick_f_ii+180)=2;
-                else
-                    glm_lick_f.CNO(glm_lick_f_ii+1:glm_lick_f_ii+180)=0;
-                    glm_lick_f.spm(glm_lick_f_ii+1:glm_lick_f_ii+180)=1;
-                    glm_lick_f.genotype(glm_lick_f_ii+1:glm_lick_f_ii+180)=2;
-                end
-                glm_lick_f.time(glm_lick_f_ii+1:glm_lick_f_ii+180)=time_licks;
-                glm_lick_f_ii=glm_lick_f_ii+180;
-            end
-            if hM4DNo==3
-                p1=plot(time_licks,mean_freq_Sm,'-b','LineWidth',2);
-            else
-                p3=plot(time_licks,mean_freq_Sm,'-c','LineWidth',2);
-            end
-            mean_freq_Sp=mean(per_file_lick_freq_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-            no_trials=size(per_file_lick_freq_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-            these_per_file_lick_freq_sp=[];
-            these_per_file_lick_freq_sp=per_file_lick_freq_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
-            for ii=1:no_trials
-                glm_lick_f.data(glm_lick_f_ii+1:glm_lick_f_ii+180)=these_per_file_lick_freq_sp(ii,:);
-                if hM4DNo==3
-                    glm_lick_f.CNO(glm_lick_f_ii+1:glm_lick_f_ii+180)=1;
-                    glm_lick_f.spm(glm_lick_f_ii+1:glm_lick_f_ii+180)=2;
-                    glm_lick_f.genotype(glm_lick_f_ii+1:glm_lick_f_ii+180)=2;
-                else
-                    glm_lick_f.CNO(glm_lick_f_ii+1:glm_lick_f_ii+180)=0;
-                    glm_lick_f.spm(glm_lick_f_ii+1:glm_lick_f_ii+180)=2;
-                    glm_lick_f.genotype(glm_lick_f_ii+1:glm_lick_f_ii+180)=2;
-                end
-                glm_lick_f.time(glm_lick_f_ii+1:glm_lick_f_ii+180)=time_licks;
-                glm_lick_f_ii=glm_lick_f_ii+180;
-            end
-            if hM4DNo==3
-                p2=plot(time_licks,mean_freq_Sp,'-r','LineWidth',2);
-            else
-                p4=plot(time_licks,mean_freq_Sp,'-m','LineWidth',2);
-            end
-        end
-        
-        %Odor on markers
-        plot([0 0],[-2 16],'-k')
-        odorhl=plot([0 mean(delta_odor)],[-1 -1],'-k','LineWidth',5);
-        plot([mean(delta_odor) mean(delta_odor)],[-2 16],'-k')
-        
-        %Reinforcement markers
-        plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)],[-2 16],'-r')
-        reinfhl=plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[-1 -1],'-r','LineWidth',5);
-        plot([mean(delta_odor_on_reinf_on)+mean(delta_reinf) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[-2 16],'-r')
-        
-        legend([p1 p2 p3 p4],{'CNO Sm','CNO Sp','No CNO Sm','No CNO Sp'})
-        ylim([-2 16])
-        title('Control')
-        ylabel('Frequency (Hz)')
-        xlabel('Time (sec)')
-        
-        suptitle(['Lick frequency ' supertitle_description{trial_window_no}])
-        
-        %Perform the glm
-        fprintf(1, ['\n\nglm for lick frequency timecourse for ' trial_window_description{trial_window_no} '\n'])
-        tbl = table(glm_lick_f.data',glm_lick_f.spm',glm_lick_f.CNO',glm_lick_f.genotype',glm_lick_f.time',...
-            'VariableNames',{'lick_frequency','spm','CNO','genotype','time'});
-        mdl = fitglm(tbl,'lick_frequency~spm+CNO+genotype+time+spm*CNO*genotype*time'...
-            ,'CategoricalVars',[2,3,4])
+    %     for trial_window_no=1:total_trial_windows
+    trial_window_no=3;
+    figNo=figNo+1;
+    try
+        close(figNo)
+    catch
     end
     
-    %Plot lick proabability
-    for trial_window_no=1:total_trial_windows
-        figNo=figNo+1;
-        try
-            close(figNo)
-        catch
-        end
-        
-        hFig=figure(figNo);
-        set(hFig, 'units','normalized','position',[.1 .4 .6 .25])
-        
-        subplot(1,2,1)
-        hold on
-        
-        %Plot the bounded lines
-        if show_CI==1
-            for hM4DNo=1:2
-                mean_prob_Sm=mean(per_file_fractional_lick_time_on_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-                no_trials=size(per_file_fractional_lick_time_on_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-                these_per_file_lick_prob_sm=[];
-                these_per_file_lick_prob_sm=per_file_fractional_lick_time_on_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
-                CIprob = bootci(1000, {@mean, these_per_file_lick_prob_sm})';
-                CIprob(:,1)=mean_prob_Sm'-CIprob(:,1);
-                CIprob(:,2)=CIprob(:,2)-mean_prob_Sm';
-                
+    hFig=figure(figNo);
+    set(hFig, 'units','normalized','position',[.1 .4 .6 .25])
+    
+    subplot(1,2,1)
+    hold on
+    
+    %Plot the bounded lines
+    if show_CI==1
+        for hM4DNo=2:-1:1
+            
+            mean_freq_Sp=mean(per_file_lick_freq_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+            no_trials=size(per_file_lick_freq_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+            these_per_file_lick_freq_sp=[];
+            these_per_file_lick_freq_sp=per_file_lick_freq_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
+            
+            if size(these_per_file_lick_freq_sp,1)<3
                 if hM4DNo==1
-                    [hlCR, hpCR] = boundedline(time_licks,mean_prob_Sm', CIprob, 'b');
+                    plot(time_licks,mean_freq_Sp','-r','LineWidth', 3);
                 else
-                    [hlCR, hpCR] = boundedline(time_licks,mean_prob_Sm', CIprob, 'c');
+                    plot(time_licks,mean_freq_Sp','-m','LineWidth', 3);
                 end
-                
-                mean_prob_Sp=mean(per_file_fractional_lick_time_on_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-                no_trials=size(per_file_fractional_lick_time_on_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-                these_per_file_lick_prob_sp=[];
-                these_per_file_lick_prob_sp=per_file_fractional_lick_time_on_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
-                CIprob = bootci(1000, {@mean, these_per_file_lick_prob_sp})';
-                CIprob(:,1)=mean_prob_Sp'-CIprob(:,1);
-                CIprob(:,2)=CIprob(:,2)-mean_prob_Sp';
-                
-                if hM4DNo==1
-                    [hlCR, hpCR] = boundedline(time_licks,mean_prob_Sp', CIprob, 'r');
-                else
-                    [hlCR, hpCR] = boundedline(time_licks,mean_prob_Sp', CIprob, 'm');
-                end
-            end
-        end
-        
-        %Plot the thick lines and do the glm
-        glm_lick_prob=[];
-        glm_lick_prob_ii=0;
-        for hM4DNo=1:2
-            mean_prob_Sm=mean(per_file_fractional_lick_time_on_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-            no_trials=size(per_file_fractional_lick_time_on_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-            these_per_file_lick_prob_sm=[];
-            these_per_file_lick_prob_sm=per_file_fractional_lick_time_on_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
-            for ii=1:no_trials
-                glm_lick_prob.data(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=these_per_file_lick_prob_sm(ii,:);
-                if hM4DNo==1
-                    glm_lick_prob.CNO(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=1;
-                    glm_lick_prob.spm(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=1;
-                    glm_lick_prob.genotype(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=1;
-                else
-                    glm_lick_prob.CNO(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=0;
-                    glm_lick_prob.spm(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=1;
-                    glm_lick_prob.genotype(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=1;
-                end
-                glm_lick_prob.time(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=time_licks;
-                glm_lick_prob_ii=glm_lick_prob_ii+180;
-            end
-            if hM4DNo==1
-                p1=plot(time_licks,mean_prob_Sm,'-b','LineWidth',2);
             else
-                p3=plot(time_licks,mean_prob_Sm,'-c','LineWidth',2);
+                CIfreq = bootci(1000, {@mean, these_per_file_lick_freq_sp})';
+                CIfreq(:,1)=mean_freq_Sp'-CIfreq(:,1);
+                CIfreq(:,2)=CIfreq(:,2)-mean_freq_Sp';
+                
+                if hM4DNo==1
+                    [hlCR, hpCR] = boundedline(time_licks,mean_freq_Sp', CIfreq, 'r');
+                else
+                    [hlCR, hpCR] = boundedline(time_licks,mean_freq_Sp', CIfreq, 'm');
+                end
             end
             
-            mean_prob_Sp=mean(per_file_fractional_lick_time_on_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-            no_trials=size(per_file_fractional_lick_time_on_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-            these_per_file_lick_prob_sp=[];
-            these_per_file_lick_prob_sp=per_file_fractional_lick_time_on_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
-            for ii=1:no_trials
-                glm_lick_prob.data(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=these_per_file_lick_prob_sp(ii,:);
+            mean_freq_Sm=mean(per_file_lick_freq_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+            no_trials=size(per_file_lick_freq_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+            these_per_file_lick_freq_sm=[];
+            these_per_file_lick_freq_sm=per_file_lick_freq_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
+            
+            if size(these_per_file_lick_freq_sm,1)<3
                 if hM4DNo==1
-                    glm_lick_prob.CNO(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=1;
-                    glm_lick_prob.spm(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=2;
-                    glm_lick_prob.genotype(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=1;
+                    plot(time_licks,mean_freq_Sm','-b','LineWidth', 3);
                 else
-                    glm_lick_prob.CNO(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=0;
-                    glm_lick_prob.spm(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=2;
-                    glm_lick_prob.genotype(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=1;
+                    plot(time_licks,mean_freq_Sm','-c','LineWidth', 3);
                 end
-                glm_lick_prob.time(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=time_licks;
-                glm_lick_prob_ii=glm_lick_prob_ii+180;
-            end
-            if hM4DNo==1
-                p2=plot(time_licks,mean_prob_Sp,'-r','LineWidth',2);
             else
-                p4=plot(time_licks,mean_prob_Sp,'-m','LineWidth',2);
-            end
-        end
-        legend([p1 p2 p3 p4],{'CNO Sm','CNO Sp','No CNO Sm','No CNO Sp'})
-        title('hM4Di')
-        ylabel('Frequency (Hz)')
-        xlabel('Time (sec)')
-        
-        subplot(1,2,2)
-        hold on
-        
-        %Plot the bounded lines
-        if show_CI==1
-            for hM4DNo=3:4
-                mean_prob_Sm=mean(per_file_fractional_lick_time_on_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-                no_trials=size(per_file_fractional_lick_time_on_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-                these_per_file_lick_prob_sm=[];
-                these_per_file_lick_prob_sm=per_file_fractional_lick_time_on_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
-                CIprob = bootci(1000, {@mean, these_per_file_lick_prob_sm})';
-                CIprob(:,1)=mean_prob_Sm'-CIprob(:,1);
-                CIprob(:,2)=CIprob(:,2)-mean_prob_Sm';
+                CIfreq = bootci(1000, {@mean, these_per_file_lick_freq_sm})';
+                CIfreq(:,1)=mean_freq_Sm'-CIfreq(:,1);
+                CIfreq(:,2)=CIfreq(:,2)-mean_freq_Sm';
                 
                 if hM4DNo==1
-                    [hlCR, hpCR] = boundedline(time_licks,mean_prob_Sm', CIprob, 'b');
+                    [hlCR, hpCR] = boundedline(time_licks,mean_freq_Sm', CIfreq, 'b');
                 else
-                    [hlCR, hpCR] = boundedline(time_licks,mean_prob_Sm', CIprob, 'c');
-                end
-                
-                mean_prob_Sp=mean(per_file_fractional_lick_time_on_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-                no_trials=size(per_file_fractional_lick_time_on_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-                these_per_file_lick_prob_sp=[];
-                these_per_file_lick_prob_sp=per_file_fractional_lick_time_on_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
-                CIprob = bootci(1000, {@mean, these_per_file_lick_prob_sp})';
-                CIprob(:,1)=mean_prob_Sp'-CIprob(:,1);
-                CIprob(:,2)=CIprob(:,2)-mean_prob_Sp';
-                
-                if hM4DNo==1
-                    [hlCR, hpCR] = boundedline(time_licks,mean_prob_Sp', CIprob, 'r');
-                else
-                    [hlCR, hpCR] = boundedline(time_licks,mean_prob_Sp', CIprob, 'm');
+                    [hlCR, hpCR] = boundedline(time_licks,mean_freq_Sm', CIfreq, 'c');
                 end
             end
+            
+            pfft=1;
+            
+        end
+    end
+    
+    %Plot the thick lines and do the glm
+    glm_lick_f=[];
+    glm_lick_f_ii=0;
+    %Plot the thick lines and do glm
+    for hM4DNo=2:-1:1
+        
+        mean_freq_Sp=mean(per_file_lick_freq_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+        no_trials=size(per_file_lick_freq_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+        these_per_file_lick_freq_sp=[];
+        these_per_file_lick_freq_sp=per_file_lick_freq_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
+        for ii=1:no_trials
+            glm_lick_f.data(glm_lick_f_ii+1:glm_lick_f_ii+180)=these_per_file_lick_freq_sp(ii,:);
+            glm_lick_f.fwdrev(glm_lick_f_ii+1:glm_lick_f_ii+180)=1;
+            glm_lick_f.spm(glm_lick_f_ii+1:glm_lick_f_ii+180)=2;
+            glm_lick_f.hM4D(glm_lick_f_ii+1:glm_lick_f_ii+180)=hM4DNo;
+            glm_lick_f.time(glm_lick_f_ii+1:glm_lick_f_ii+180)=time_licks;
+            glm_lick_f_ii=glm_lick_f_ii+180;
+        end
+        if hM4DNo==1
+            p2=plot(time_licks,mean_freq_Sp,'-r','LineWidth',2);
+        else
+            p4=plot(time_licks,mean_freq_Sp,'-m','LineWidth',2);
         end
         
-        %Plot the thick lines and calcualte the glm
-        for hM4DNo=3:4
-            mean_prob_Sm=mean(per_file_fractional_lick_time_on_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-            no_trials=size(per_file_fractional_lick_time_on_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-            these_per_file_lick_prob_sm=[];
-            these_per_file_lick_prob_sm=per_file_fractional_lick_time_on_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
-            for ii=1:no_trials
-                glm_lick_prob.data(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=these_per_file_lick_prob_sm(ii,:);
+        mean_freq_Sm=mean(per_file_lick_freq_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+        no_trials=size(per_file_lick_freq_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+        these_per_file_lick_freq_sm=[];
+        these_per_file_lick_freq_sm=per_file_lick_freq_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
+        for ii=1:no_trials
+            glm_lick_f.data(glm_lick_f_ii+1:glm_lick_f_ii+180)=these_per_file_lick_freq_sm(ii,:);
+            glm_lick_f.fwdrev(glm_lick_f_ii+1:glm_lick_f_ii+180)=1;
+            glm_lick_f.spm(glm_lick_f_ii+1:glm_lick_f_ii+180)=1;
+            glm_lick_f.hM4D(glm_lick_f_ii+1:glm_lick_f_ii+180)=hM4DNo;
+            glm_lick_f.time(glm_lick_f_ii+1:glm_lick_f_ii+180)=time_licks;
+            glm_lick_f_ii=glm_lick_f_ii+180;
+        end
+        if hM4DNo==1
+            p1=plot(time_licks,mean_freq_Sm,'-b','LineWidth',2);
+        else
+            p3=plot(time_licks,mean_freq_Sm,'-c','LineWidth',2);
+        end
+    end
+    
+    %Odor on markers
+    plot([0 0],[-2 16],'-k')
+    odorhl=plot([0 mean(delta_odor)],[-1 -1],'-k','LineWidth',5);
+    plot([mean(delta_odor) mean(delta_odor)],[-2 16],'-k')
+    
+    %Reinforcement markers
+    plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)],[-2 16],'-r')
+    reinfhl=plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[-1 -1],'-r','LineWidth',5);
+    plot([mean(delta_odor_on_reinf_on)+mean(delta_reinf) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[-2 16],'-r')
+    
+    
+    legend([p1 p2 p3 p4],{'h4dmi Sm','h4dmi Sp','Ctr Sm','Ctr Sp'})
+    title('Forward, all CNO')
+    ylim([-2 16])
+    ylabel('Frequency (Hz)')
+    xlabel('Time (sec)')
+    
+    subplot(1,2,2)
+    hold on
+    
+    %Plot the bounded lines
+    if show_CI==1
+        for hM4DNo=4:-1:3
+            mean_freq_Sp=mean(per_file_lick_freq_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+            no_trials=size(per_file_lick_freq_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+            these_per_file_lick_freq_sp=[];
+            these_per_file_lick_freq_sp=per_file_lick_freq_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
+            
+            if size(these_per_file_lick_freq_sp,1)<3
                 if hM4DNo==3
-                    glm_lick_prob.CNO(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=1;
-                    glm_lick_prob.spm(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=1;
-                    glm_lick_prob.genotype(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=2;
+                    plot(time_licks,mean_freq_Sp','-r','LineWidth', 3);
                 else
-                    glm_lick_prob.CNO(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=0;
-                    glm_lick_prob.spm(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=1;
-                    glm_lick_prob.genotype(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=2;
+                    plot(time_licks,mean_freq_Sp','-m','LineWidth', 3);
                 end
-                glm_lick_prob.time(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=time_licks;
-                glm_lick_prob_ii=glm_lick_prob_ii+180;
-            end
-            if hM4DNo==3
-                p1=plot(time_licks,mean_prob_Sm,'-b','LineWidth',2);
             else
-                p3=plot(time_licks,mean_prob_Sm,'-c','LineWidth',2);
-            end
-            mean_prob_Sp=mean(per_file_fractional_lick_time_on_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-            no_trials=size(per_file_fractional_lick_time_on_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-            these_per_file_lick_prob_sp=[];
-            these_per_file_lick_prob_sp=per_file_fractional_lick_time_on_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
-            for ii=1:no_trials
-                glm_lick_prob.data(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=these_per_file_lick_prob_sp(ii,:);
+                CIfreq = bootci(1000, {@mean, these_per_file_lick_freq_sp})';
+                CIfreq(:,1)=mean_freq_Sp'-CIfreq(:,1);
+                CIfreq(:,2)=CIfreq(:,2)-mean_freq_Sp';
                 if hM4DNo==3
-                    glm_lick_prob.CNO(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=1;
-                    glm_lick_prob.spm(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=2;
-                    glm_lick_prob.genotype(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=2;
+                    [hlCR, hpCR] = boundedline(time_licks,mean_freq_Sp', CIfreq, 'r');
                 else
-                    glm_lick_prob.CNO(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=0;
-                    glm_lick_prob.spm(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=2;
-                    glm_lick_prob.genotype(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=2;
+                    [hlCR, hpCR] = boundedline(time_licks,mean_freq_Sp', CIfreq, 'm');
                 end
-                glm_lick_prob.time(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=time_licks;
-                glm_lick_prob_ii=glm_lick_prob_ii+180;
             end
-            if hM4DNo==3
-                p2=plot(time_licks,mean_prob_Sp,'-r','LineWidth',2);
-            else
-                p4=plot(time_licks,mean_prob_Sp,'-m','LineWidth',2);
-            end
-        end
-        legend([p1 p2 p3 p4],{'CNO Sm','CNO Sp','No CNO Sm','No CNO Sp'})
-        title('Control')
-        ylabel('Probability')
-        xlabel('Time (sec)')
-        
-        suptitle(['Lick probability ' supertitle_description{trial_window_no}])
-        
-        %Perform the glm
-        fprintf(1, ['\n\nglm for lick probability timecourse for ' trial_window_description{trial_window_no} '\n'])
-        tbl = table(glm_lick_prob.data',glm_lick_prob.spm',glm_lick_prob.CNO',glm_lick_prob.genotype',glm_lick_prob.time',...
-            'VariableNames',{'lick_probability','spm','CNO','genotype','time'});
-        mdl = fitglm(tbl,'lick_probability~spm+CNO+genotype+time+spm*CNO*genotype*time'...
-            ,'CategoricalVars',[2,3,4])
-    end
-    
-    %Plot p value timecourses for lick decision
-    for trial_window_no=1:total_trial_windows
-        figNo=figNo+1;
-        try
-            close(figNo)
-        catch
-        end
-        
-        hFig=figure(figNo);
-        set(hFig, 'units','normalized','position',[.1 .4 .6 .25])
-        
-        subplot(1,2,1)
-        hold on
-        
-        %Plot the bounded lines
-        if show_CI==1
-            for hM4DNo=1:2
-                mean_log10_pval=mean(per_file_lick_log10_p_val((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-                no_trials=size(per_file_lick_log10_p_val((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-                these_per_file_lick_log10_p_val=[];
-                these_per_file_lick_log10_p_val=per_file_lick_log10_p_val((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
-                CIpval = bootci(1000, {@mean, these_per_file_lick_log10_p_val})';
-                CIpval(:,1)=mean_log10_pval'-CIpval(:,1);
-                CIpval(:,2)=CIpval(:,2)-mean_log10_pval';
-                
-                if hM4DNo==1
-                    [hlCR, hpCR] = boundedline(time_p_lick,mean_log10_pval', CIpval, 'r');
-                else
-                    [hlCR, hpCR] = boundedline(time_p_lick,mean_log10_pval', CIpval, 'b');
-                end
-                
-            end
-        end
-        
-        %Plot the thick lines and glm
-        glm_lick_p=[];
-        glm_lick_p_ii=0;
-        
-        for hM4DNo=1:2
-            mean_log10_pval=mean(per_file_lick_log10_p_val((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-            no_trials=size(per_file_lick_log10_p_val((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-            these_per_file_lick_log10_p_val=[];
-            these_per_file_lick_log10_p_val=per_file_lick_log10_p_val((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
-            for ii=1:no_trials
-                glm_lick_p.data(glm_lick_p_ii+1:glm_lick_p_ii+179)=these_per_file_lick_log10_p_val(ii,:);
-                if hM4DNo==1
-                    glm_lick_p.CNO(glm_lick_p_ii+1:glm_lick_p_ii+179)=1;
-                    glm_lick_p.genotype(glm_lick_p_ii+1:glm_lick_p_ii+179)=1;
-                else
-                    glm_lick_p.CNO(glm_lick_p_ii+1:glm_lick_p_ii+179)=0;
-                    glm_lick_p.genotype(glm_lick_p_ii+1:glm_lick_p_ii+179)=1;
-                end
-                glm_lick_p.time(glm_lick_p_ii+1:glm_lick_p_ii+179)=time_p_lick;
-                glm_lick_p_ii=glm_lick_p_ii+179;
-            end
-            if hM4DNo==1
-                p1=plot(time_p_lick,mean_log10_pval,'-r','LineWidth',2);
-            else
-                p2=plot(time_p_lick,mean_log10_pval,'-b','LineWidth',2);
-            end
-        end
-        
-        plot([time_p_lick(1) time_p_lick(end)],[log10(0.05) log10(0.05)],'-r','LineWidth',1)
-        
-        %Odor on markers
-        plot([0 0],[logpmin 0.5],'-k')
-        odorhl=plot([0 mean(delta_odor)],[logpmin+0.5 logpmin+0.5],'-k','LineWidth',5);
-        plot([mean(delta_odor) mean(delta_odor)],[logpmin 0.5],'-k')
-        
-        %Reinforcement markers
-        plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)],[logpmin 0.5],'-r')
-        reinfhl=plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[logpmin+0.5 logpmin+0.5],'-r','LineWidth',5);
-        plot([mean(delta_odor_on_reinf_on)+mean(delta_reinf) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[logpmin 0.5],'-r')
-        
-        
-        legend([p1 p2],{'CNO','No CNO'})
-        title(['h4DMi'])
-        ylim([-20 1])
-        ylabel('Log10(pvalue)')
-        xlabel('Time (sec)')
-        
-        subplot(1,2,2)
-        hold on
-        
-        %Plot the bounded lines
-        if show_CI==1
-            for hM4DNo=3:4
-                mean_log10_pval=mean(per_file_lick_log10_p_val((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-                no_trials=size(per_file_lick_log10_p_val((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-                these_per_file_lick_log10_p_val=[];
-                these_per_file_lick_log10_p_val=per_file_lick_log10_p_val((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
-                CIpval = bootci(1000, {@mean, these_per_file_lick_log10_p_val})';
-                CIpval(:,1)=mean_log10_pval'-CIpval(:,1);
-                CIpval(:,2)=CIpval(:,2)-mean_log10_pval';
-                
-                if hM4DNo==1
-                    [hlCR, hpCR] = boundedline(time_p_lick,mean_log10_pval', CIpval, 'r');
-                else
-                    [hlCR, hpCR] = boundedline(time_p_lick,mean_log10_pval', CIpval, 'b');
-                end
-                
-            end
-        end
-        
-        for hM4DNo=3:4
-            mean_log10_pval=mean(per_file_lick_log10_p_val((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-            no_trials=size(per_file_lick_log10_p_val((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
-            these_per_file_lick_log10_p_val=[];
-            these_per_file_lick_log10_p_val=per_file_lick_log10_p_val((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
-            for ii=1:no_trials
-                glm_lick_p.data(glm_lick_p_ii+1:glm_lick_p_ii+179)=these_per_file_lick_log10_p_val(ii,:);
+             
+            mean_freq_Sm=mean(per_file_lick_freq_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+            no_trials=size(per_file_lick_freq_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+            these_per_file_lick_freq_sm=[];
+            these_per_file_lick_freq_sm=per_file_lick_freq_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
+            
+            if size(these_per_file_lick_freq_sm,1)<3
                 if hM4DNo==3
-                    glm_lick_p.CNO(glm_lick_p_ii+1:glm_lick_p_ii+179)=1;
-                    glm_lick_p.genotype(glm_lick_p_ii+1:glm_lick_p_ii+179)=2;
+                    plot(time_licks,mean_freq_Sm','-b','LineWidth', 3);
                 else
-                    glm_lick_p.CNO(glm_lick_p_ii+1:glm_lick_p_ii+179)=0;
-                    glm_lick_p.genotype(glm_lick_p_ii+1:glm_lick_p_ii+179)=2;
+                    plot(time_licks,mean_freq_Sm','-c','LineWidth', 3);
                 end
-                glm_lick_p.time(glm_lick_p_ii+1:glm_lick_p_ii+179)=time_p_lick;
-                glm_lick_p_ii=glm_lick_p_ii+179;
-            end
-            if hM4DNo==3
-                p1=plot(time_p_lick,mean_log10_pval,'-r','LineWidth',2);
             else
-                p2=plot(time_p_lick,mean_log10_pval,'-b','LineWidth',2);
+                CIfreq = bootci(1000, {@mean, these_per_file_lick_freq_sm})';
+                CIfreq(:,1)=mean_freq_Sm'-CIfreq(:,1);
+                CIfreq(:,2)=CIfreq(:,2)-mean_freq_Sm';
+                
+                if hM4DNo==3
+                    [hlCR, hpCR] = boundedline(time_licks,mean_freq_Sm', CIfreq, 'b');
+                else
+                    [hlCR, hpCR] = boundedline(time_licks,mean_freq_Sm', CIfreq, 'c');
+                end
             end
+            
+            pffft=1;
         end
-        
-        plot([time_p_lick(1) time_p_lick(end)],[log10(0.05) log10(0.05)],'-r','LineWidth',1)
-        
-        %Odor on markers
-        plot([0 0],[logpmin 0.5],'-k')
-        odorhl=plot([0 mean(delta_odor)],[logpmin+0.5 logpmin+0.5],'-k','LineWidth',5);
-        plot([mean(delta_odor) mean(delta_odor)],[logpmin 0.5],'-k')
-        
-        %Reinforcement markers
-        plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)],[logpmin 0.5],'-r')
-        reinfhl=plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[logpmin+0.5 logpmin+0.5],'-r','LineWidth',5);
-        plot([mean(delta_odor_on_reinf_on)+mean(delta_reinf) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[logpmin 0.5],'-r')
-        
-        
-        legend([p1 p2],{'CNO','No CNO'})
-        ylim([-20 1])
-        title(['Control'])
-        ylabel('Frequency (Hz)')
-        xlabel('Time (sec)')
-        
-        suptitle(['Log10(p value) decision making for ' supertitle_description{trial_window_no}])
-        
-        %Perform the glm
-        fprintf(1, ['\n\nglm for decision making p value timecourse for ' trial_window_description{trial_window_no} '\n'])
-        tbl = table(glm_lick_p.data',glm_lick_p.CNO',glm_lick_p.genotype',glm_lick_p.time',...
-            'VariableNames',{'lick_p_value','CNO','genotype','time'});
-        mdl = fitglm(tbl,'lick_p_value~CNO+genotype+time+CNO*genotype*time'...
-            ,'CategoricalVars',[2,3])
     end
     
-    %Plot the number of trials per session
-    for trial_window_no=1:total_trial_windows
-        figNo=figNo+1;
-        try
-            close(figNo)
-        catch
+    %Plot the thick lines and do glm
+    for hM4DNo=4:-1:3
+        
+        mean_freq_Sp=mean(per_file_lick_freq_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+        no_trials=size(per_file_lick_freq_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+        these_per_file_lick_freq_sp=[];
+        these_per_file_lick_freq_sp=per_file_lick_freq_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
+        for ii=1:no_trials
+            glm_lick_f.data(glm_lick_f_ii+1:glm_lick_f_ii+180)=these_per_file_lick_freq_sp(ii,:);
+            glm_lick_f.fwdrev(glm_lick_f_ii+1:glm_lick_f_ii+180)=2;
+            glm_lick_f.spm(glm_lick_f_ii+1:glm_lick_f_ii+180)=2;
+            glm_lick_f.hM4D(glm_lick_f_ii+1:glm_lick_f_ii+180)=hM4DNo-2;
+            glm_lick_f.time(glm_lick_f_ii+1:glm_lick_f_ii+180)=time_licks;
+            glm_lick_f_ii=glm_lick_f_ii+180;
+        end
+        if hM4DNo==3
+            p2=plot(time_licks,mean_freq_Sp,'-r','LineWidth',2);
+        else
+            p4=plot(time_licks,mean_freq_Sp,'-m','LineWidth',2);
         end
         
-        hFig=figure(figNo);
-        set(hFig, 'units','normalized','position',[.1 .4 .6 .25])
-        
-        %Plot cumultaive histo for S+ trials
-        subplot(1,2,1)
-        hold on
-        
-        [f_trNo,x_trNo] = drg_ecdf(per_file_noSp((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)));
-        plot(x_trNo,f_trNo,'r')
-        
-        [f_trNo,x_trNo] = drg_ecdf(per_file_noSp((per_file_hM4D==2)&(per_file_trial_window==trial_window_no)));
-        plot(x_trNo,f_trNo,'b')
-        
-        [f_trNo,x_trNo] = drg_ecdf(per_file_noSp((per_file_hM4D==3)&(per_file_trial_window==trial_window_no)));
-        plot(x_trNo,f_trNo,'m')
-        
-        [f_trNo,x_trNo] = drg_ecdf(per_file_noSp((per_file_hM4D==4)&(per_file_trial_window==trial_window_no)));
-        plot(x_trNo,f_trNo,'c')
-        
-        
-        legend('h4DMi CNO','h4DMi no CNO','control CNO','control no CNO')
-        title(['S+'])
-        ylim([0 1.1])
-        ylabel('Probability')
-        xlabel('Number of trials')
-        
-        %Plot cumultaive histo for S- trials
-        subplot(1,2,2)
-        hold on
-        
-        [f_trNo,x_trNo] = drg_ecdf(per_file_noSm((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)));
-        plot(x_trNo,f_trNo,'r')
-        
-        [f_trNo,x_trNo] = drg_ecdf(per_file_noSm((per_file_hM4D==2)&(per_file_trial_window==trial_window_no)));
-        plot(x_trNo,f_trNo,'b')
-        
-        [f_trNo,x_trNo] = drg_ecdf(per_file_noSm((per_file_hM4D==3)&(per_file_trial_window==trial_window_no)));
-        plot(x_trNo,f_trNo,'m')
-        
-        [f_trNo,x_trNo] = drg_ecdf(per_file_noSm((per_file_hM4D==4)&(per_file_trial_window==trial_window_no)));
-        plot(x_trNo,f_trNo,'c')
-        
-        
-        legend('h4DMi CNO','h4DMi no CNO','control CNO','control no CNO')
-        title(['S-'])
-        ylim([0 1.1])
-        ylabel('Probability')
-        xlabel('Number of trials')
-        
-        suptitle(['Number of trials per session' trial_window_description{trial_window_no}])
-        
-    end
-    
-    %Now plot decision times
-    for trial_window_no=1:total_trial_windows
-        
-        figNo=figNo+1;
-        try
-            close(figNo)
-        catch
+        mean_freq_Sm=mean(per_file_lick_freq_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+        no_trials=size(per_file_lick_freq_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+        these_per_file_lick_freq_sm=[];
+        these_per_file_lick_freq_sm=per_file_lick_freq_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
+        for ii=1:no_trials
+            glm_lick_f.data(glm_lick_f_ii+1:glm_lick_f_ii+180)=these_per_file_lick_freq_sm(ii,:);
+            glm_lick_f.fwdrev(glm_lick_f_ii+1:glm_lick_f_ii+180)=2;
+            glm_lick_f.spm(glm_lick_f_ii+1:glm_lick_f_ii+180)=1;
+            glm_lick_f.hM4D(glm_lick_f_ii+1:glm_lick_f_ii+180)=hM4DNo-2;
+            glm_lick_f.time(glm_lick_f_ii+1:glm_lick_f_ii+180)=time_licks;
+            glm_lick_f_ii=glm_lick_f_ii+180;
         end
-        
-        figure(figNo)
-        hold on
-        
-        glm_dt_ii=0;
-        glm_dt=[];
-        
-        %Control, no CNO
-        these_dts=[];
-        these_dts=per_file_decision_time((per_file_hM4D==4)&(per_file_trial_window==trial_window_no));
-        bar(1,mean(these_dts),'FaceColor',[0.7 0.7 1],'EdgeColor',[0.7 0.7 1])
-        CIdt = bootci(1000, {@mean, these_dts})';
-        plot([1 1],CIdt,'-k','LineWidth',2)
-        plot(ones(1,length(these_dts)),these_dts,'o','Color',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
-        
-        glm_dt.data(glm_dt_ii+1:glm_dt_ii+length(these_dts))=these_dts;
-        glm_dt.genotype(glm_dt_ii+1:glm_dt_ii+length(these_dts))=1;
-        glm_dt.CNO(glm_dt_ii+1:glm_dt_ii+length(these_dts))=0;
-        glm_dt_ii=glm_dt_ii+length(these_dts);
-        
-        %Control, CNO
-        these_dts=[];
-        these_dts=per_file_decision_time((per_file_hM4D==3)&(per_file_trial_window==trial_window_no));
-        bar(2,mean(these_dts),'FaceColor',[1 0.7 0.7],'EdgeColor',[1 0.7 0.7])
-        CIdt = bootci(1000, {@mean, these_dts})';
-        plot([2 2],CIdt,'-k','LineWidth',2)
-        plot(2*ones(1,length(these_dts)),these_dts,'o','Color',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
-        
-        glm_dt.data(glm_dt_ii+1:glm_dt_ii+length(these_dts))=these_dts;
-        glm_dt.genotype(glm_dt_ii+1:glm_dt_ii+length(these_dts))=1;
-        glm_dt.CNO(glm_dt_ii+1:glm_dt_ii+length(these_dts))=1;
-        glm_dt_ii=glm_dt_ii+length(these_dts);
-        
-        %hM4D, no CNO
-        these_dts=[];
-        these_dts=per_file_decision_time((per_file_hM4D==2)&(per_file_trial_window==trial_window_no));
-        bar(4,mean(these_dts),'FaceColor','b','EdgeColor','b')
-        CIdt = bootci(1000, {@mean, these_dts})';
-        plot([4 4],CIdt,'-k','LineWidth',2)
-        plot(4*ones(1,length(these_dts)),these_dts,'o','Color',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
-        
-        glm_dt.data(glm_dt_ii+1:glm_dt_ii+length(these_dts))=these_dts;
-        glm_dt.genotype(glm_dt_ii+1:glm_dt_ii+length(these_dts))=2;
-        glm_dt.CNO(glm_dt_ii+1:glm_dt_ii+length(these_dts))=0;
-        glm_dt_ii=glm_dt_ii+length(these_dts);
-        
-        %hM4D, CNO
-        these_dts=[];
-        these_dts=per_file_decision_time((per_file_hM4D==1)&(per_file_trial_window==trial_window_no));
-        bar(5,mean(these_dts),'FaceColor','r','EdgeColor','r')
-        CIdt = bootci(1000, {@mean, these_dts})';
-        plot([5 5],CIdt,'-k','LineWidth',2)
-        plot(5*ones(1,length(these_dts)),these_dts,'o','Color',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
-        
-        glm_dt.data(glm_dt_ii+1:glm_dt_ii+length(these_dts))=these_dts;
-        glm_dt.genotype(glm_dt_ii+1:glm_dt_ii+length(these_dts))=2;
-        glm_dt.CNO(glm_dt_ii+1:glm_dt_ii+length(these_dts))=1;
-        glm_dt_ii=glm_dt_ii+length(these_dts);
-        
-        xticks([1 2 4 5])
-        ylim([0 15])
-        xticklabels({'Ctrl, noCNO','Ctrl, CNO','hM4d, noCNO','hM4d, CNO'})
-        title(['Decision times for' trial_window_description{trial_window_no}])
-        ylabel('Decision time (sec)')
-        
-        %Perform the glm 
-        fprintf(1, ['\n\nglm for decision times for ' trial_window_description{trial_window_no} '\n'])
-        tbl = table(glm_dt.data',glm_dt.genotype',glm_dt.CNO',...
-            'VariableNames',{'decision_times','genotype','CNO'});
-        mdl = fitglm(tbl,'decision_times~genotype+CNO+genotype*CNO'...
-            ,'CategoricalVars',[2,3])
-        
-        fprintf(1, ['Number of sessions and mice:\n'])
-        fprintf(1, ['hM4d CNO: %d, %d\n'],sum((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)),...
-            length(unique(per_file_mouse((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)))))
-        fprintf(1, ['hM4d no CNO: %d, %d\n'],sum((per_file_hM4D==2)&(per_file_trial_window==trial_window_no)),...
-            length(unique(per_file_mouse((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)))))
-        fprintf(1, ['control CNO: %d, %d\n'],sum((per_file_hM4D==3)&(per_file_trial_window==trial_window_no)),...
-            length(unique(per_file_mouse((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)))))
-        fprintf(1, ['control no CNO: %d, %d\n'],sum((per_file_hM4D==4)&(per_file_trial_window==trial_window_no)),...
-            length(unique(per_file_mouse((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)))))
-        
-    end
-    
-    %Now plot decision times for water reinforcement
-    %This is only done for <65% correct 
-    for trial_window_no=1:1
-        
-        figNo=figNo+1;
-        try
-            close(figNo)
-        catch
+        if hM4DNo==3
+            p1=plot(time_licks,mean_freq_Sm,'-b','LineWidth',2);
+        else
+            p3=plot(time_licks,mean_freq_Sm,'-c','LineWidth',2);
         end
-        
-        figure(figNo)
-        hold on
-        
-        glm_dtr_ii=0;
-        glm_dtr=[];
-        
-        %Control, no CNO
-        these_dtrs=[];
-        these_dtrs=per_file_decision_time_reinf((per_file_hM4D==4)&(per_file_trial_window==trial_window_no));
-        bar(1,mean(these_dtrs),'FaceColor',[0.7 0.7 1],'EdgeColor',[0.7 0.7 1])
-        CIdt = bootci(1000, {@mean, these_dtrs})';
-        plot([1 1],CIdt,'-k','LineWidth',2)
-        plot(1*ones(1,length(these_dtrs)),these_dtrs,'o','Color',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
-        
-        glm_dtr.data(glm_dtr_ii+1:glm_dtr_ii+length(these_dtrs))=these_dtrs;
-        glm_dtr.genotype(glm_dtr_ii+1:glm_dtr_ii+length(these_dtrs))=1;
-        glm_dtr.CNO(glm_dtr_ii+1:glm_dtr_ii+length(these_dtrs))=0;
-        glm_dtr_ii=glm_dtr_ii+length(these_dtrs);
-        
-        %Control, CNO
-        these_dtrs=[];
-        these_dtrs=per_file_decision_time_reinf((per_file_hM4D==3)&(per_file_trial_window==trial_window_no));
-        bar(2,mean(these_dtrs),'FaceColor',[1 0.7 0.7],'EdgeColor',[1 0.7 0.7])
-        CIdt = bootci(1000, {@mean, these_dtrs})';
-        plot([2 2],CIdt,'-k','LineWidth',2)
-        plot(2*ones(1,length(these_dtrs)),these_dtrs,'o','Color',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
-        
-        glm_dtr.data(glm_dtr_ii+1:glm_dtr_ii+length(these_dtrs))=these_dtrs;
-        glm_dtr.genotype(glm_dtr_ii+1:glm_dtr_ii+length(these_dtrs))=1;
-        glm_dtr.CNO(glm_dtr_ii+1:glm_dtr_ii+length(these_dtrs))=1;
-        glm_dtr_ii=glm_dtr_ii+length(these_dtrs);
-        
-        %hM4D, no CNO
-        these_dtrs=[];
-        these_dtrs=per_file_decision_time_reinf((per_file_hM4D==2)&(per_file_trial_window==trial_window_no));
-        bar(4,mean(these_dtrs),'FaceColor','b','EdgeColor','b')
-        CIdt = bootci(1000, {@mean, these_dtrs})';
-        plot([4 4],CIdt,'-k','LineWidth',2)
-        plot(4*ones(1,length(these_dtrs)),these_dtrs,'o','Color',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
-        
-        glm_dtr.data(glm_dtr_ii+1:glm_dtr_ii+length(these_dtrs))=these_dtrs;
-        glm_dtr.genotype(glm_dtr_ii+1:glm_dtr_ii+length(these_dtrs))=2;
-        glm_dtr.CNO(glm_dtr_ii+1:glm_dtr_ii+length(these_dtrs))=0;
-        glm_dtr_ii=glm_dtr_ii+length(these_dtrs);
-        
-        %hM4D, CNO
-        these_dtrs=[];
-        these_dtrs=per_file_decision_time_reinf((per_file_hM4D==1)&(per_file_trial_window==trial_window_no));
-        bar(5,mean(these_dtrs),'FaceColor','r','EdgeColor','r')
-        CIdt = bootci(1000, {@mean, these_dtrs})';
-        plot([5 5],CIdt,'-k','LineWidth',2)
-        plot(5*ones(1,length(these_dtrs)),these_dtrs,'o','Color',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
-        
-        glm_dtr.data(glm_dtr_ii+1:glm_dtr_ii+length(these_dtrs))=these_dtrs;
-        glm_dtr.genotype(glm_dtr_ii+1:glm_dtr_ii+length(these_dtrs))=2;
-        glm_dtr.CNO(glm_dtr_ii+1:glm_dtr_ii+length(these_dtrs))=1;
-        glm_dtr_ii=glm_dtr_ii+length(these_dtrs);
-        
-        xticks([1 2 4 5])
-        xticklabels({'Ctrl, noCNO','Ctrl, CNO','hM4d, noCNO','hM4d, CNO'})
-        ylim([0 15])
-        title(['Decision times for water detection for ' trial_window_description{trial_window_no}])
-        ylabel('Decision time (sec)')
-        
-        %Perform the glm
-        fprintf(1, ['\n\nglm for decision times for water detection for ' trial_window_description{trial_window_no} '\n'])
-        tbl = table(glm_dtr.data',glm_dtr.genotype',glm_dtr.CNO',...
-            'VariableNames',{'decision_time_reinf','genotype','CNO'});
-        mdl = fitglm(tbl,'decision_time_reinf~genotype+CNO+genotype*CNO'...
-            ,'CategoricalVars',[2,3])
-        
     end
     
+    %Odor on markers
+    plot([0 0],[-2 16],'-k')
+    odorhl=plot([0 mean(delta_odor)],[-1 -1],'-k','LineWidth',5);
+    plot([mean(delta_odor) mean(delta_odor)],[-2 16],'-k')
     
-    %Now plot bar graphs for fraction of the time that the animl is licking
-    for trial_window_no=1:total_trial_windows
-        
-        figNo=figNo+1;
-        try
-            close(figNo)
-        catch
-        end
-        
-        figure(figNo)
-
-        glm_flt_ii=0;
-        glm_flt=[];
-        
-        %S+ trials
-        subplot(1,2,1)
-        hold on
-          
-        %Control, no CNO
-        flt_timecourses=per_file_fractional_lick_time_on_sp((per_file_hM4D==4)&(per_file_trial_window==trial_window_no),:);
-        flts=mean(flt_timecourses(:,(time_licks>=0.8)&(time_licks<=1.8)),2);
-        mean_prob=mean(flts);
-        CIprob = bootci(1000, {@mean, flts})';;
-        bar(1,mean_prob,'FaceColor',[0.7 0.7 1],'EdgeColor',[0.7 0.7 1])
-        plot([1 1],CIprob,'-k','LineWidth',2)
-        plot(ones(1,length(flts)),flts,'ok')
-        
-        glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
-        glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
-        glm_flt.CNO(glm_flt_ii+1:glm_flt_ii+length(flts))=0;
-        glm_flt_ii=glm_flt_ii+length(flts);
-        
-        %Control, CNO
-        flt_timecourses=per_file_fractional_lick_time_on_sp((per_file_hM4D==3)&(per_file_trial_window==trial_window_no),:);
-        flts=mean(flt_timecourses(:,(time_licks>=0.8)&(time_licks<=1.8)),2);
-        mean_prob=mean(flts);
-        CIprob = bootci(1000, {@mean, flts})';
-        bar(2,mean_prob,'FaceColor',[1 0.7 0.7],'EdgeColor',[1 0.7 0.7])
-        plot([2 2],CIprob,'-k','LineWidth',2)
-        plot(2*ones(1,length(flts)),flts,'ok')
-        
-        glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
-        glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
-        glm_flt.CNO(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
-        glm_flt_ii=glm_flt_ii+length(flts);
-        
-        %hM4D, no CNO
-        flt_timecourses=per_file_fractional_lick_time_on_sp((per_file_hM4D==2)&(per_file_trial_window==trial_window_no),:);
-        flts=mean(flt_timecourses(:,(time_licks>=0.8)&(time_licks<=1.8)),2);
-        mean_prob=mean(flts);
-        CIprob = bootci(1000, {@mean, flts})';
-        bar(4,mean_prob,'b')
-        plot([4 4],CIprob,'-k','LineWidth',2)
-        plot(4*ones(1,length(flts)),flts,'ok')
-        
-        glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
-        glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=2;
-        glm_flt.CNO(glm_flt_ii+1:glm_flt_ii+length(flts))=0;
-        glm_flt_ii=glm_flt_ii+length(flts);
-        
-        %hM4D, CNO
-        flt_timecourses=per_file_fractional_lick_time_on_sp((per_file_hM4D==1)&(per_file_trial_window==trial_window_no),:);
-        flts=mean(flt_timecourses(:,(time_licks>=0.8)&(time_licks<=1.8)),2);
-        mean_prob=mean(flts);
-        CIprob = bootci(1000, {@mean, flts})';
-        bar(5,mean_prob,'r')
-        plot([5 5],CIprob,'-k','LineWidth',2)
-        plot(5*ones(1,length(flts)),flts,'ok')
-        
-        glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
-        glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=2;
-        glm_flt.CNO(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
-        glm_flt_ii=glm_flt_ii+length(flts);
-        
-        xticks([1 2 4 5])
-        ylim([0 1.1])
-        xticklabels({'Ctrl, noCNO','Ctrl, CNO','hM4d, noCNO','hM4d, CNO'})
-        title('S+')
-        ylabel('Lick on time')
-        
-        %Perform the glm
-        fprintf(1, ['\n\nglm for lick on time for S+ for ' trial_window_description{trial_window_no} '\n'])
-        tbl = table(glm_flt.data',glm_flt.genotype',glm_flt.CNO',...
-            'VariableNames',{'lick_on_time','genotype','CNO'});
-        mdl = fitglm(tbl,'lick_on_time~genotype+CNO+genotype*CNO'...
-            ,'CategoricalVars',[2,3])
-        
-        
-      
-        glm_flt_ii=0;
-        glm_flt=[];
-        
-        %S- trials
-        subplot(1,2,2)
-         hold on
-         
-        %Control, no CNO
-        flt_timecourses=per_file_fractional_lick_time_on_sm((per_file_hM4D==4)&(per_file_trial_window==trial_window_no),:);
-        flts=mean(flt_timecourses(:,(time_licks>=0.8)&(time_licks<=1.8)),2);
-        mean_prob=mean(flts);
-        CIprob = bootci(1000, {@mean, flts})';;
-        bar(1,mean_prob,'FaceColor',[0.7 0.7 1],'EdgeColor',[0.7 0.7 1])
-        plot([1 1],CIprob,'-k','LineWidth',2)
-        plot(ones(1,length(flts)),flts,'ok')
-        
-        glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
-        glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
-        glm_flt.CNO(glm_flt_ii+1:glm_flt_ii+length(flts))=0;
-        glm_flt_ii=glm_flt_ii+length(flts);
-        
-        %Control, CNO
-        flt_timecourses=per_file_fractional_lick_time_on_sm((per_file_hM4D==3)&(per_file_trial_window==trial_window_no),:);
-        flts=mean(flt_timecourses(:,(time_licks>=0.8)&(time_licks<=1.8)),2);
-        mean_prob=mean(flts);
-        CIprob = bootci(1000, {@mean, flts})';
-        bar(2,mean_prob,'FaceColor',[1 0.7 0.7],'EdgeColor',[1 0.7 0.7])
-        plot([2 2],CIprob,'-k','LineWidth',2)
-        plot(2*ones(1,length(flts)),flts,'ok')
-        
-        glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
-        glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
-        glm_flt.CNO(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
-        glm_flt_ii=glm_flt_ii+length(flts);
-        
-        %hM4D, no CNO
-        flt_timecourses=per_file_fractional_lick_time_on_sm((per_file_hM4D==2)&(per_file_trial_window==trial_window_no),:);
-        flts=mean(flt_timecourses(:,(time_licks>=0.8)&(time_licks<=1.8)),2);
-        mean_prob=mean(flts);
-        CIprob = bootci(1000, {@mean, flts})';
-        bar(4,mean_prob,'b')
-        plot([4 4],CIprob,'-k','LineWidth',2)
-        plot(4*ones(1,length(flts)),flts,'ok')
-        
-        glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
-        glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=2;
-        glm_flt.CNO(glm_flt_ii+1:glm_flt_ii+length(flts))=0;
-        glm_flt_ii=glm_flt_ii+length(flts);
-        
-        %hM4D, CNO
-        flt_timecourses=per_file_fractional_lick_time_on_sm((per_file_hM4D==1)&(per_file_trial_window==trial_window_no),:);
-        flts=mean(flt_timecourses(:,(time_licks>=0.8)&(time_licks<=1.8)),2);
-        mean_prob=mean(flts);
-        CIprob = bootci(1000, {@mean, flts})';
-        bar(5,mean_prob,'r')
-        plot([5 5],CIprob,'-k','LineWidth',2)
-        plot(5*ones(1,length(flts)),flts,'ok')
-        
-        glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
-        glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=2;
-        glm_flt.CNO(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
-        glm_flt_ii=glm_flt_ii+length(flts);
-        
-        xticks([1 2 4 5])
-        ylim([0 1.1])
-        xticklabels({'Ctrl, noCNO','Ctrl, CNO','hM4d, noCNO','hM4d, CNO'})
-        title('S-')
-        ylabel('Lick on time')
-        
-        suptitle(['Lick on time for' trial_window_description{trial_window_no}])
-        
-        %Perform the glm
-        fprintf(1, ['\n\nglm for lick on time for ' trial_window_description{trial_window_no} '\n'])
-        tbl = table(glm_flt.data',glm_flt.genotype',glm_flt.CNO',...
-            'VariableNames',{'lick_on_time','genotype','CNO'});
-        mdl = fitglm(tbl,'lick_on_time~genotype+CNO+genotype*CNO'...
-            ,'CategoricalVars',[2,3])
-        
-      
-        
-        fprintf(1, ['Number of sessions and mice:\n'])
-        fprintf(1, ['hM4d CNO: %d, %d\n'],sum((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)),...
-            length(unique(per_file_mouse((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)))))
-        fprintf(1, ['hM4d no CNO: %d, %d\n'],sum((per_file_hM4D==2)&(per_file_trial_window==trial_window_no)),...
-            length(unique(per_file_mouse((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)))))
-        fprintf(1, ['control CNO: %d, %d\n'],sum((per_file_hM4D==3)&(per_file_trial_window==trial_window_no)),...
-            length(unique(per_file_mouse((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)))))
-        fprintf(1, ['control no CNO: %d, %d\n'],sum((per_file_hM4D==4)&(per_file_trial_window==trial_window_no)),...
-            length(unique(per_file_mouse((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)))))
-        
-    end
+    %Reinforcement markers
+    plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)],[-2 16],'-r')
+    reinfhl=plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[-1 -1],'-r','LineWidth',5);
+    plot([mean(delta_odor_on_reinf_on)+mean(delta_reinf) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[-2 16],'-r')
+    
+    legend([p1 p2 p3 p4],{'h4dmi Sm','h4dmi Sp','Ctr Sm','Ctr Sp'})
+    ylim([-2 16])
+    title('Reversed, all with CNO')
+    ylabel('Frequency (Hz)')
+    xlabel('Time (sec)')
+    
+    suptitle(['Lick frequency ' supertitle_description{trial_window_no}])
+    
+    %Perform the glm
+    fprintf(1, ['\n\nglm for lick frequency timecourse for ' trial_window_description{trial_window_no} '\n'])
+    tbl = table(glm_lick_f.data',glm_lick_f.spm',glm_lick_f.hM4D',glm_lick_f.fwdrev',glm_lick_f.time',...
+        'VariableNames',{'lick_frequency','spm','hM4D','fwdrev','time'});
+    mdl = fitglm(tbl,'lick_frequency~spm+hM4D+fwdrev+time+spm*hM4D*fwdrev*time'...
+        ,'CategoricalVars',[2,3,4])
+    
+    
+    %     %Plot lick proabability
+    %     for trial_window_no=1:total_trial_windows
+    %         figNo=figNo+1;
+    %         try
+    %             close(figNo)
+    %         catch
+    %         end
+    %
+    %         hFig=figure(figNo);
+    %         set(hFig, 'units','normalized','position',[.1 .4 .6 .25])
+    %
+    %         subplot(1,2,1)
+    %         hold on
+    %
+    %         %Plot the bounded lines
+    %         if show_CI==1
+    %             for hM4DNo=1:2
+    %                 mean_prob_Sm=mean(per_file_fractional_lick_time_on_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+    %                 no_trials=size(per_file_fractional_lick_time_on_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+    %                 these_per_file_lick_prob_sm=[];
+    %                 these_per_file_lick_prob_sm=per_file_fractional_lick_time_on_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
+    %
+    %                 if size(these_per_file_lick_prob_sm,1)<3
+    %                     if hM4DNo==1
+    %                         plot(time_licks,mean_prob_Sm','-b','LineWidth', 3);
+    %                     else
+    %                         plot(time_licks,mean_prob_Sm','-c','LineWidth', 3);
+    %                     end
+    %                 else
+    %                     CIprob = bootci(1000, {@mean, these_per_file_lick_prob_sm})';
+    %                     CIprob(:,1)=mean_prob_Sm'-CIprob(:,1);
+    %                     CIprob(:,2)=CIprob(:,2)-mean_prob_Sm';
+    %
+    %                     if hM4DNo==1
+    %                         [hlCR, hpCR] = boundedline(time_licks,mean_prob_Sm', CIprob, 'b');
+    %                     else
+    %                         [hlCR, hpCR] = boundedline(time_licks,mean_prob_Sm', CIprob, 'c');
+    %                     end
+    %                 end
+    %
+    %                 mean_prob_Sp=mean(per_file_fractional_lick_time_on_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+    %                 no_trials=size(per_file_fractional_lick_time_on_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+    %                 these_per_file_lick_prob_sp=[];
+    %                 these_per_file_lick_prob_sp=per_file_fractional_lick_time_on_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
+    %
+    %                 if size(these_per_file_lick_prob_sp,1)<3
+    %                     if hM4DNo==1
+    %                         plot(time_licks,mean_prob_Sp','-r','LineWidth', 3);
+    %                     else
+    %                         plot(time_licks,mean_prob_Sp','-m','LineWidth', 3);
+    %                     end
+    %                 else
+    %                     CIprob = bootci(1000, {@mean, these_per_file_lick_prob_sp})';
+    %                     CIprob(:,1)=mean_prob_Sp'-CIprob(:,1);
+    %                     CIprob(:,2)=CIprob(:,2)-mean_prob_Sp';
+    %
+    %                     if hM4DNo==1
+    %                         [hlCR, hpCR] = boundedline(time_licks,mean_prob_Sp', CIprob, 'r');
+    %                     else
+    %                         [hlCR, hpCR] = boundedline(time_licks,mean_prob_Sp', CIprob, 'm');
+    %                     end
+    %                 end
+    %             end
+    %         end
+    %
+    %         %Plot the thick lines and do the glm
+    %         glm_lick_prob=[];
+    %         glm_lick_prob_ii=0;
+    %         for hM4DNo=1:2
+    %             mean_prob_Sm=mean(per_file_fractional_lick_time_on_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+    %             no_trials=size(per_file_fractional_lick_time_on_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+    %             these_per_file_lick_prob_sm=[];
+    %             these_per_file_lick_prob_sm=per_file_fractional_lick_time_on_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
+    %             for ii=1:no_trials
+    %                 glm_lick_prob.data(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=these_per_file_lick_prob_sm(ii,:);
+    %                 if hM4DNo==1
+    %                     glm_lick_prob.CNO(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=1;
+    %                     glm_lick_prob.spm(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=1;
+    %                     glm_lick_prob.genotype(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=1;
+    %                 else
+    %                     glm_lick_prob.CNO(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=0;
+    %                     glm_lick_prob.spm(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=1;
+    %                     glm_lick_prob.genotype(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=1;
+    %                 end
+    %                 glm_lick_prob.time(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=time_licks;
+    %                 glm_lick_prob_ii=glm_lick_prob_ii+180;
+    %             end
+    %             if hM4DNo==1
+    %                 p1=plot(time_licks,mean_prob_Sm,'-b','LineWidth',2);
+    %             else
+    %                 p3=plot(time_licks,mean_prob_Sm,'-c','LineWidth',2);
+    %             end
+    %
+    %             mean_prob_Sp=mean(per_file_fractional_lick_time_on_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+    %             no_trials=size(per_file_fractional_lick_time_on_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+    %             these_per_file_lick_prob_sp=[];
+    %             these_per_file_lick_prob_sp=per_file_fractional_lick_time_on_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
+    %             for ii=1:no_trials
+    %                 glm_lick_prob.data(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=these_per_file_lick_prob_sp(ii,:);
+    %                 if hM4DNo==1
+    %                     glm_lick_prob.CNO(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=1;
+    %                     glm_lick_prob.spm(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=2;
+    %                     glm_lick_prob.genotype(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=1;
+    %                 else
+    %                     glm_lick_prob.CNO(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=0;
+    %                     glm_lick_prob.spm(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=2;
+    %                     glm_lick_prob.genotype(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=1;
+    %                 end
+    %                 glm_lick_prob.time(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=time_licks;
+    %                 glm_lick_prob_ii=glm_lick_prob_ii+180;
+    %             end
+    %             if hM4DNo==1
+    %                 p2=plot(time_licks,mean_prob_Sp,'-r','LineWidth',2);
+    %             else
+    %                 p4=plot(time_licks,mean_prob_Sp,'-m','LineWidth',2);
+    %             end
+    %         end
+    %         legend([p1 p2 p3 p4],{'CNO Sm','CNO Sp','No CNO Sm','No CNO Sp'})
+    %         title('hM4Di')
+    %         ylabel('Frequency (Hz)')
+    %         xlabel('Time (sec)')
+    %
+    %         subplot(1,2,2)
+    %         hold on
+    %
+    %         %Plot the bounded lines
+    %         if show_CI==1
+    %             for hM4DNo=3:4
+    %                 mean_prob_Sm=mean(per_file_fractional_lick_time_on_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+    %                 no_trials=size(per_file_fractional_lick_time_on_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+    %                 these_per_file_lick_prob_sm=[];
+    %                 these_per_file_lick_prob_sm=per_file_fractional_lick_time_on_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
+    %
+    %                 if size(these_per_file_lick_prob_sm,1)<3
+    %                     if hM4DNo==1
+    %                         plot(time_licks,mean_prob_Sm','-b','LineWidth', 3);
+    %                     else
+    %                         plot(time_licks,mean_prob_Sm','-c','LineWidth', 3);
+    %                     end
+    %                 else
+    %                     CIprob = bootci(1000, {@mean, these_per_file_lick_prob_sm})';
+    %                     CIprob(:,1)=mean_prob_Sm'-CIprob(:,1);
+    %                     CIprob(:,2)=CIprob(:,2)-mean_prob_Sm';
+    %
+    %                     if hM4DNo==1
+    %                         [hlCR, hpCR] = boundedline(time_licks,mean_prob_Sm', CIprob, 'b');
+    %                     else
+    %                         [hlCR, hpCR] = boundedline(time_licks,mean_prob_Sm', CIprob, 'c');
+    %                     end
+    %                 end
+    %
+    %                 mean_prob_Sp=mean(per_file_fractional_lick_time_on_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+    %                 no_trials=size(per_file_fractional_lick_time_on_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+    %                 these_per_file_lick_prob_sp=[];
+    %                 these_per_file_lick_prob_sp=per_file_fractional_lick_time_on_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
+    %
+    %                 if size(these_per_file_lick_prob_sp,1)<3
+    %                     if hM4DNo==1
+    %                         plot(time_licks,mean_prob_Sp','-r','LineWidth', 3);
+    %                     else
+    %                         plot(time_licks,mean_prob_Sp','-m','LineWidth', 3);
+    %                     end
+    %                 else
+    %                     CIprob = bootci(1000, {@mean, these_per_file_lick_prob_sp})';
+    %                     CIprob(:,1)=mean_prob_Sp'-CIprob(:,1);
+    %                     CIprob(:,2)=CIprob(:,2)-mean_prob_Sp';
+    %
+    %                     if hM4DNo==1
+    %                         [hlCR, hpCR] = boundedline(time_licks,mean_prob_Sp', CIprob, 'r');
+    %                     else
+    %                         [hlCR, hpCR] = boundedline(time_licks,mean_prob_Sp', CIprob, 'm');
+    %                     end
+    %                 end
+    %             end
+    %         end
+    %
+    %         %Plot the thick lines and calcualte the glm
+    %         for hM4DNo=3:4
+    %             mean_prob_Sm=mean(per_file_fractional_lick_time_on_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+    %             no_trials=size(per_file_fractional_lick_time_on_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+    %             these_per_file_lick_prob_sm=[];
+    %             these_per_file_lick_prob_sm=per_file_fractional_lick_time_on_sm((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
+    %             for ii=1:no_trials
+    %                 glm_lick_prob.data(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=these_per_file_lick_prob_sm(ii,:);
+    %                 if hM4DNo==3
+    %                     glm_lick_prob.CNO(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=1;
+    %                     glm_lick_prob.spm(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=1;
+    %                     glm_lick_prob.genotype(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=2;
+    %                 else
+    %                     glm_lick_prob.CNO(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=0;
+    %                     glm_lick_prob.spm(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=1;
+    %                     glm_lick_prob.genotype(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=2;
+    %                 end
+    %                 glm_lick_prob.time(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=time_licks;
+    %                 glm_lick_prob_ii=glm_lick_prob_ii+180;
+    %             end
+    %             if hM4DNo==3
+    %                 p1=plot(time_licks,mean_prob_Sm,'-b','LineWidth',2);
+    %             else
+    %                 p3=plot(time_licks,mean_prob_Sm,'-c','LineWidth',2);
+    %             end
+    %             mean_prob_Sp=mean(per_file_fractional_lick_time_on_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+    %             no_trials=size(per_file_fractional_lick_time_on_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+    %             these_per_file_lick_prob_sp=[];
+    %             these_per_file_lick_prob_sp=per_file_fractional_lick_time_on_sp((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
+    %             for ii=1:no_trials
+    %                 glm_lick_prob.data(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=these_per_file_lick_prob_sp(ii,:);
+    %                 if hM4DNo==3
+    %                     glm_lick_prob.CNO(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=1;
+    %                     glm_lick_prob.spm(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=2;
+    %                     glm_lick_prob.genotype(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=2;
+    %                 else
+    %                     glm_lick_prob.CNO(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=0;
+    %                     glm_lick_prob.spm(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=2;
+    %                     glm_lick_prob.genotype(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=2;
+    %                 end
+    %                 glm_lick_prob.time(glm_lick_prob_ii+1:glm_lick_prob_ii+180)=time_licks;
+    %                 glm_lick_prob_ii=glm_lick_prob_ii+180;
+    %             end
+    %             if hM4DNo==3
+    %                 p2=plot(time_licks,mean_prob_Sp,'-r','LineWidth',2);
+    %             else
+    %                 p4=plot(time_licks,mean_prob_Sp,'-m','LineWidth',2);
+    %             end
+    %         end
+    %         legend([p1 p2 p3 p4],{'CNO Sm','CNO Sp','No CNO Sm','No CNO Sp'})
+    %         title('Control')
+    %         ylabel('Probability')
+    %         xlabel('Time (sec)')
+    %
+    %         suptitle(['Lick probability ' supertitle_description{trial_window_no}])
+    %
+    %         %Perform the glm
+    %         fprintf(1, ['\n\nglm for lick probability timecourse for ' trial_window_description{trial_window_no} '\n'])
+    %         tbl = table(glm_lick_prob.data',glm_lick_prob.spm',glm_lick_prob.CNO',glm_lick_prob.genotype',glm_lick_prob.time',...
+    %             'VariableNames',{'lick_probability','spm','CNO','genotype','time'});
+    %         mdl = fitglm(tbl,'lick_probability~spm+CNO+genotype+time+spm*CNO*genotype*time'...
+    %             ,'CategoricalVars',[2,3,4])
+    %     end
+    
+    %     %Plot p value timecourses for lick decision
+    %     for trial_window_no=1:total_trial_windows
+    %         figNo=figNo+1;
+    %         try
+    %             close(figNo)
+    %         catch
+    %         end
+    %
+    %         hFig=figure(figNo);
+    %         set(hFig, 'units','normalized','position',[.1 .4 .6 .25])
+    %
+    %         subplot(1,2,1)
+    %         hold on
+    %
+    %         %Plot the bounded lines
+    %         if show_CI==1
+    %             for hM4DNo=1:2
+    %                 mean_log10_pval=mean(per_file_lick_log10_p_val((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+    %                 no_trials=size(per_file_lick_log10_p_val((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+    %                 these_per_file_lick_log10_p_val=[];
+    %                 these_per_file_lick_log10_p_val=per_file_lick_log10_p_val((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
+    %
+    %                 if size(these_per_file_lick_log10_p_val,1)<3
+    %                     if hM4DNo==1
+    %                         plot(time_p_lick_log10_pval','-r','LineWidth', 3);
+    %                     else
+    %                         plot(time_p_lick,mean_log10_pval','-b','LineWidth', 3);
+    %                     end
+    %                 else
+    %                     CIpval = bootci(1000, {@mean, these_per_file_lick_log10_p_val})';
+    %                     CIpval(:,1)=mean_log10_pval'-CIpval(:,1);
+    %                     CIpval(:,2)=CIpval(:,2)-mean_log10_pval';
+    %
+    %                     if hM4DNo==1
+    %                         [hlCR, hpCR] = boundedline(time_p_lick,mean_log10_pval', CIpval, 'r');
+    %                     else
+    %                         [hlCR, hpCR] = boundedline(time_p_lick,mean_log10_pval', CIpval, 'b');
+    %                     end
+    %                 end
+    %
+    %             end
+    %         end
+    %
+    %         %Plot the thick lines and glm
+    %         glm_lick_p=[];
+    %         glm_lick_p_ii=0;
+    %
+    %         for hM4DNo=1:2
+    %             mean_log10_pval=mean(per_file_lick_log10_p_val((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+    %             no_trials=size(per_file_lick_log10_p_val((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+    %             these_per_file_lick_log10_p_val=[];
+    %             these_per_file_lick_log10_p_val=per_file_lick_log10_p_val((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
+    %             for ii=1:no_trials
+    %                 glm_lick_p.data(glm_lick_p_ii+1:glm_lick_p_ii+179)=these_per_file_lick_log10_p_val(ii,:);
+    %                 if hM4DNo==1
+    %                     glm_lick_p.CNO(glm_lick_p_ii+1:glm_lick_p_ii+179)=1;
+    %                     glm_lick_p.genotype(glm_lick_p_ii+1:glm_lick_p_ii+179)=1;
+    %                 else
+    %                     glm_lick_p.CNO(glm_lick_p_ii+1:glm_lick_p_ii+179)=0;
+    %                     glm_lick_p.genotype(glm_lick_p_ii+1:glm_lick_p_ii+179)=1;
+    %                 end
+    %                 glm_lick_p.time(glm_lick_p_ii+1:glm_lick_p_ii+179)=time_p_lick;
+    %                 glm_lick_p_ii=glm_lick_p_ii+179;
+    %             end
+    %             if hM4DNo==1
+    %                 p1=plot(time_p_lick,mean_log10_pval,'-r','LineWidth',2);
+    %             else
+    %                 p2=plot(time_p_lick,mean_log10_pval,'-b','LineWidth',2);
+    %             end
+    %         end
+    %
+    %         plot([time_p_lick(1) time_p_lick(end)],[log10(0.05) log10(0.05)],'-r','LineWidth',1)
+    %
+    %         %Odor on markers
+    %         plot([0 0],[logpmin 0.5],'-k')
+    %         odorhl=plot([0 mean(delta_odor)],[logpmin+0.5 logpmin+0.5],'-k','LineWidth',5);
+    %         plot([mean(delta_odor) mean(delta_odor)],[logpmin 0.5],'-k')
+    %
+    %         %Reinforcement markers
+    %         plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)],[logpmin 0.5],'-r')
+    %         reinfhl=plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[logpmin+0.5 logpmin+0.5],'-r','LineWidth',5);
+    %         plot([mean(delta_odor_on_reinf_on)+mean(delta_reinf) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[logpmin 0.5],'-r')
+    %
+    %
+    %         legend([p1 p2],{'CNO','No CNO'})
+    %         title(['h4DMi'])
+    %         ylim([-20 1])
+    %         ylabel('Log10(pvalue)')
+    %         xlabel('Time (sec)')
+    %
+    %         subplot(1,2,2)
+    %         hold on
+    %
+    %         %Plot the bounded lines
+    %         if show_CI==1
+    %             for hM4DNo=3:4
+    %                 mean_log10_pval=mean(per_file_lick_log10_p_val((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+    %                 no_trials=size(per_file_lick_log10_p_val((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+    %                 these_per_file_lick_log10_p_val=[];
+    %                 these_per_file_lick_log10_p_val=per_file_lick_log10_p_val((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
+    %
+    %                 if size(these_per_file_lick_log10_p_val,1)<3
+    %                     if hM4DNo==1
+    %                         plot(time_p_lick_log10_pval','-r','LineWidth', 3);
+    %                     else
+    %                         plot(time_p_lick,mean_log10_pval','-b','LineWidth', 3);
+    %                     end
+    %                 else
+    %                     CIpval = bootci(1000, {@mean, these_per_file_lick_log10_p_val})';
+    %                     CIpval(:,1)=mean_log10_pval'-CIpval(:,1);
+    %                     CIpval(:,2)=CIpval(:,2)-mean_log10_pval';
+    %
+    %                     if hM4DNo==1
+    %                         [hlCR, hpCR] = boundedline(time_p_lick,mean_log10_pval', CIpval, 'r');
+    %                     else
+    %                         [hlCR, hpCR] = boundedline(time_p_lick,mean_log10_pval', CIpval, 'b');
+    %                     end
+    %                 end
+    %
+    %             end
+    %         end
+    %
+    %         for hM4DNo=3:4
+    %             mean_log10_pval=mean(per_file_lick_log10_p_val((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+    %             no_trials=size(per_file_lick_log10_p_val((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:),1);
+    %             these_per_file_lick_log10_p_val=[];
+    %             these_per_file_lick_log10_p_val=per_file_lick_log10_p_val((per_file_hM4D==hM4DNo)&(per_file_trial_window==trial_window_no),:);
+    %             for ii=1:no_trials
+    %                 glm_lick_p.data(glm_lick_p_ii+1:glm_lick_p_ii+179)=these_per_file_lick_log10_p_val(ii,:);
+    %                 if hM4DNo==3
+    %                     glm_lick_p.CNO(glm_lick_p_ii+1:glm_lick_p_ii+179)=1;
+    %                     glm_lick_p.genotype(glm_lick_p_ii+1:glm_lick_p_ii+179)=2;
+    %                 else
+    %                     glm_lick_p.CNO(glm_lick_p_ii+1:glm_lick_p_ii+179)=0;
+    %                     glm_lick_p.genotype(glm_lick_p_ii+1:glm_lick_p_ii+179)=2;
+    %                 end
+    %                 glm_lick_p.time(glm_lick_p_ii+1:glm_lick_p_ii+179)=time_p_lick;
+    %                 glm_lick_p_ii=glm_lick_p_ii+179;
+    %             end
+    %             if hM4DNo==3
+    %                 p1=plot(time_p_lick,mean_log10_pval,'-r','LineWidth',2);
+    %             else
+    %                 p2=plot(time_p_lick,mean_log10_pval,'-b','LineWidth',2);
+    %             end
+    %         end
+    %
+    %         plot([time_p_lick(1) time_p_lick(end)],[log10(0.05) log10(0.05)],'-r','LineWidth',1)
+    %
+    %         %Odor on markers
+    %         plot([0 0],[logpmin 0.5],'-k')
+    %         odorhl=plot([0 mean(delta_odor)],[logpmin+0.5 logpmin+0.5],'-k','LineWidth',5);
+    %         plot([mean(delta_odor) mean(delta_odor)],[logpmin 0.5],'-k')
+    %
+    %         %Reinforcement markers
+    %         plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)],[logpmin 0.5],'-r')
+    %         reinfhl=plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[logpmin+0.5 logpmin+0.5],'-r','LineWidth',5);
+    %         plot([mean(delta_odor_on_reinf_on)+mean(delta_reinf) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[logpmin 0.5],'-r')
+    %
+    %
+    %         legend([p1 p2],{'CNO','No CNO'})
+    %         ylim([-20 1])
+    %         title(['Control'])
+    %         ylabel('Frequency (Hz)')
+    %         xlabel('Time (sec)')
+    %
+    %         suptitle(['Log10(p value) decision making for ' supertitle_description{trial_window_no}])
+    %
+    %         %Perform the glm
+    %         fprintf(1, ['\n\nglm for decision making p value timecourse for ' trial_window_description{trial_window_no} '\n'])
+    %         tbl = table(glm_lick_p.data',glm_lick_p.CNO',glm_lick_p.genotype',glm_lick_p.time',...
+    %             'VariableNames',{'lick_p_value','CNO','genotype','time'});
+    %         mdl = fitglm(tbl,'lick_p_value~CNO+genotype+time+CNO*genotype*time'...
+    %             ,'CategoricalVars',[2,3])
+    %     end
+    
+    %     %Plot the number of trials per session
+    %     for trial_window_no=1:total_trial_windows
+    %         figNo=figNo+1;
+    %         try
+    %             close(figNo)
+    %         catch
+    %         end
+    %
+    %         hFig=figure(figNo);
+    %         set(hFig, 'units','normalized','position',[.1 .4 .6 .25])
+    %
+    %         %Plot cumultaive histo for S+ trials
+    %         subplot(1,2,1)
+    %         hold on
+    %
+    %         [f_trNo,x_trNo] = drg_ecdf(per_file_noSp((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)));
+    %         plot(x_trNo,f_trNo,'r')
+    %
+    %         [f_trNo,x_trNo] = drg_ecdf(per_file_noSp((per_file_hM4D==2)&(per_file_trial_window==trial_window_no)));
+    %         plot(x_trNo,f_trNo,'b')
+    %
+    %         [f_trNo,x_trNo] = drg_ecdf(per_file_noSp((per_file_hM4D==3)&(per_file_trial_window==trial_window_no)));
+    %         plot(x_trNo,f_trNo,'m')
+    %
+    %         [f_trNo,x_trNo] = drg_ecdf(per_file_noSp((per_file_hM4D==4)&(per_file_trial_window==trial_window_no)));
+    %         plot(x_trNo,f_trNo,'c')
+    %
+    %
+    %         legend('h4DMi CNO','h4DMi no CNO','control CNO','control no CNO')
+    %         title(['S+'])
+    %         ylim([0 1.1])
+    %         ylabel('Probability')
+    %         xlabel('Number of trials')
+    %
+    %         %Plot cumultaive histo for S- trials
+    %         subplot(1,2,2)
+    %         hold on
+    %
+    %         [f_trNo,x_trNo] = drg_ecdf(per_file_noSm((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)));
+    %         plot(x_trNo,f_trNo,'r')
+    %
+    %         [f_trNo,x_trNo] = drg_ecdf(per_file_noSm((per_file_hM4D==2)&(per_file_trial_window==trial_window_no)));
+    %         plot(x_trNo,f_trNo,'b')
+    %
+    %         [f_trNo,x_trNo] = drg_ecdf(per_file_noSm((per_file_hM4D==3)&(per_file_trial_window==trial_window_no)));
+    %         plot(x_trNo,f_trNo,'m')
+    %
+    %         [f_trNo,x_trNo] = drg_ecdf(per_file_noSm((per_file_hM4D==4)&(per_file_trial_window==trial_window_no)));
+    %         plot(x_trNo,f_trNo,'c')
+    %
+    %
+    %         legend('h4DMi CNO','h4DMi no CNO','control CNO','control no CNO')
+    %         title(['S-'])
+    %         ylim([0 1.1])
+    %         ylabel('Probability')
+    %         xlabel('Number of trials')
+    %
+    %         suptitle(['Number of trials per session' trial_window_description{trial_window_no}])
+    %
+    %     end
+    %
+    %     %Now plot decision times
+    %     for trial_window_no=1:total_trial_windows
+    %
+    %         figNo=figNo+1;
+    %         try
+    %             close(figNo)
+    %         catch
+    %         end
+    %
+    %         figure(figNo)
+    %         hold on
+    %
+    %         glm_dt_ii=0;
+    %         glm_dt=[];
+    %
+    %         %Control, no CNO
+    %         these_dts=[];
+    %         these_dts=per_file_decision_time((per_file_hM4D==4)&(per_file_trial_window==trial_window_no));
+    %         bar(1,mean(these_dts),'FaceColor',[0.7 0.7 1],'EdgeColor',[0.7 0.7 1])
+    %         CIdt = bootci(1000, {@mean, these_dts})';
+    %         plot([1 1],CIdt,'-k','LineWidth',2)
+    %         plot(ones(1,length(these_dts)),these_dts,'o','Color',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
+    %
+    %         glm_dt.data(glm_dt_ii+1:glm_dt_ii+length(these_dts))=these_dts;
+    %         glm_dt.genotype(glm_dt_ii+1:glm_dt_ii+length(these_dts))=1;
+    %         glm_dt.CNO(glm_dt_ii+1:glm_dt_ii+length(these_dts))=0;
+    %         glm_dt_ii=glm_dt_ii+length(these_dts);
+    %
+    %         %Control, CNO
+    %         these_dts=[];
+    %         these_dts=per_file_decision_time((per_file_hM4D==3)&(per_file_trial_window==trial_window_no));
+    %         bar(2,mean(these_dts),'FaceColor',[1 0.7 0.7],'EdgeColor',[1 0.7 0.7])
+    %         CIdt = bootci(1000, {@mean, these_dts})';
+    %         plot([2 2],CIdt,'-k','LineWidth',2)
+    %         plot(2*ones(1,length(these_dts)),these_dts,'o','Color',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
+    %
+    %         glm_dt.data(glm_dt_ii+1:glm_dt_ii+length(these_dts))=these_dts;
+    %         glm_dt.genotype(glm_dt_ii+1:glm_dt_ii+length(these_dts))=1;
+    %         glm_dt.CNO(glm_dt_ii+1:glm_dt_ii+length(these_dts))=1;
+    %         glm_dt_ii=glm_dt_ii+length(these_dts);
+    %
+    %         %hM4D, no CNO
+    %         these_dts=[];
+    %         these_dts=per_file_decision_time((per_file_hM4D==2)&(per_file_trial_window==trial_window_no));
+    %         bar(4,mean(these_dts),'FaceColor','b','EdgeColor','b')
+    %         CIdt = bootci(1000, {@mean, these_dts})';
+    %         plot([4 4],CIdt,'-k','LineWidth',2)
+    %         plot(4*ones(1,length(these_dts)),these_dts,'o','Color',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
+    %
+    %         glm_dt.data(glm_dt_ii+1:glm_dt_ii+length(these_dts))=these_dts;
+    %         glm_dt.genotype(glm_dt_ii+1:glm_dt_ii+length(these_dts))=2;
+    %         glm_dt.CNO(glm_dt_ii+1:glm_dt_ii+length(these_dts))=0;
+    %         glm_dt_ii=glm_dt_ii+length(these_dts);
+    %
+    %         %hM4D, CNO
+    %         these_dts=[];
+    %         these_dts=per_file_decision_time((per_file_hM4D==1)&(per_file_trial_window==trial_window_no));
+    %         bar(5,mean(these_dts),'FaceColor','r','EdgeColor','r')
+    %         CIdt = bootci(1000, {@mean, these_dts})';
+    %         plot([5 5],CIdt,'-k','LineWidth',2)
+    %         plot(5*ones(1,length(these_dts)),these_dts,'o','Color',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
+    %
+    %         glm_dt.data(glm_dt_ii+1:glm_dt_ii+length(these_dts))=these_dts;
+    %         glm_dt.genotype(glm_dt_ii+1:glm_dt_ii+length(these_dts))=2;
+    %         glm_dt.CNO(glm_dt_ii+1:glm_dt_ii+length(these_dts))=1;
+    %         glm_dt_ii=glm_dt_ii+length(these_dts);
+    %
+    %         xticks([1 2 4 5])
+    %         ylim([0 15])
+    %         xticklabels({'Ctrl, noCNO','Ctrl, CNO','hM4d, noCNO','hM4d, CNO'})
+    %         title(['Decision times for' trial_window_description{trial_window_no}])
+    %         ylabel('Decision time (sec)')
+    %
+    %         %Perform the glm
+    %         fprintf(1, ['\n\nglm for decision times for ' trial_window_description{trial_window_no} '\n'])
+    %         tbl = table(glm_dt.data',glm_dt.genotype',glm_dt.CNO',...
+    %             'VariableNames',{'decision_times','genotype','CNO'});
+    %         mdl = fitglm(tbl,'decision_times~genotype+CNO+genotype*CNO'...
+    %             ,'CategoricalVars',[2,3])
+    %
+    %         fprintf(1, ['Number of sessions and mice:\n'])
+    %         fprintf(1, ['hM4d CNO: %d, %d\n'],sum((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)),...
+    %             length(unique(per_file_mouse((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)))))
+    %         fprintf(1, ['hM4d no CNO: %d, %d\n'],sum((per_file_hM4D==2)&(per_file_trial_window==trial_window_no)),...
+    %             length(unique(per_file_mouse((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)))))
+    %         fprintf(1, ['control CNO: %d, %d\n'],sum((per_file_hM4D==3)&(per_file_trial_window==trial_window_no)),...
+    %             length(unique(per_file_mouse((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)))))
+    %         fprintf(1, ['control no CNO: %d, %d\n'],sum((per_file_hM4D==4)&(per_file_trial_window==trial_window_no)),...
+    %             length(unique(per_file_mouse((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)))))
+    %
+    %     end
+    %
+    %     %Now plot decision times for water reinforcement
+    %     %This is only done for <65% correct
+    %     for trial_window_no=1:1
+    %
+    %         figNo=figNo+1;
+    %         try
+    %             close(figNo)
+    %         catch
+    %         end
+    %
+    %         figure(figNo)
+    %         hold on
+    %
+    %         glm_dtr_ii=0;
+    %         glm_dtr=[];
+    %
+    %         %Control, no CNO
+    %         these_dtrs=[];
+    %         these_dtrs=per_file_decision_time_reinf((per_file_hM4D==4)&(per_file_trial_window==trial_window_no));
+    %         bar(1,mean(these_dtrs),'FaceColor',[0.7 0.7 1],'EdgeColor',[0.7 0.7 1])
+    %         CIdt = bootci(1000, {@mean, these_dtrs})';
+    %         plot([1 1],CIdt,'-k','LineWidth',2)
+    %         plot(1*ones(1,length(these_dtrs)),these_dtrs,'o','Color',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
+    %
+    %         glm_dtr.data(glm_dtr_ii+1:glm_dtr_ii+length(these_dtrs))=these_dtrs;
+    %         glm_dtr.genotype(glm_dtr_ii+1:glm_dtr_ii+length(these_dtrs))=1;
+    %         glm_dtr.CNO(glm_dtr_ii+1:glm_dtr_ii+length(these_dtrs))=0;
+    %         glm_dtr_ii=glm_dtr_ii+length(these_dtrs);
+    %
+    %         %Control, CNO
+    %         these_dtrs=[];
+    %         these_dtrs=per_file_decision_time_reinf((per_file_hM4D==3)&(per_file_trial_window==trial_window_no));
+    %         bar(2,mean(these_dtrs),'FaceColor',[1 0.7 0.7],'EdgeColor',[1 0.7 0.7])
+    %         CIdt = bootci(1000, {@mean, these_dtrs})';
+    %         plot([2 2],CIdt,'-k','LineWidth',2)
+    %         plot(2*ones(1,length(these_dtrs)),these_dtrs,'o','Color',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
+    %
+    %         glm_dtr.data(glm_dtr_ii+1:glm_dtr_ii+length(these_dtrs))=these_dtrs;
+    %         glm_dtr.genotype(glm_dtr_ii+1:glm_dtr_ii+length(these_dtrs))=1;
+    %         glm_dtr.CNO(glm_dtr_ii+1:glm_dtr_ii+length(these_dtrs))=1;
+    %         glm_dtr_ii=glm_dtr_ii+length(these_dtrs);
+    %
+    %         %hM4D, no CNO
+    %         these_dtrs=[];
+    %         these_dtrs=per_file_decision_time_reinf((per_file_hM4D==2)&(per_file_trial_window==trial_window_no));
+    %         bar(4,mean(these_dtrs),'FaceColor','b','EdgeColor','b')
+    %         CIdt = bootci(1000, {@mean, these_dtrs})';
+    %         plot([4 4],CIdt,'-k','LineWidth',2)
+    %         plot(4*ones(1,length(these_dtrs)),these_dtrs,'o','Color',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
+    %
+    %         glm_dtr.data(glm_dtr_ii+1:glm_dtr_ii+length(these_dtrs))=these_dtrs;
+    %         glm_dtr.genotype(glm_dtr_ii+1:glm_dtr_ii+length(these_dtrs))=2;
+    %         glm_dtr.CNO(glm_dtr_ii+1:glm_dtr_ii+length(these_dtrs))=0;
+    %         glm_dtr_ii=glm_dtr_ii+length(these_dtrs);
+    %
+    %         %hM4D, CNO
+    %         these_dtrs=[];
+    %         these_dtrs=per_file_decision_time_reinf((per_file_hM4D==1)&(per_file_trial_window==trial_window_no));
+    %         bar(5,mean(these_dtrs),'FaceColor','r','EdgeColor','r')
+    %         CIdt = bootci(1000, {@mean, these_dtrs})';
+    %         plot([5 5],CIdt,'-k','LineWidth',2)
+    %         plot(5*ones(1,length(these_dtrs)),these_dtrs,'o','Color',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
+    %
+    %         glm_dtr.data(glm_dtr_ii+1:glm_dtr_ii+length(these_dtrs))=these_dtrs;
+    %         glm_dtr.genotype(glm_dtr_ii+1:glm_dtr_ii+length(these_dtrs))=2;
+    %         glm_dtr.CNO(glm_dtr_ii+1:glm_dtr_ii+length(these_dtrs))=1;
+    %         glm_dtr_ii=glm_dtr_ii+length(these_dtrs);
+    %
+    %         xticks([1 2 4 5])
+    %         xticklabels({'Ctrl, noCNO','Ctrl, CNO','hM4d, noCNO','hM4d, CNO'})
+    %         ylim([0 15])
+    %         title(['Decision times for water detection for ' trial_window_description{trial_window_no}])
+    %         ylabel('Decision time (sec)')
+    %
+    %         %Perform the glm
+    %         fprintf(1, ['\n\nglm for decision times for water detection for ' trial_window_description{trial_window_no} '\n'])
+    %         tbl = table(glm_dtr.data',glm_dtr.genotype',glm_dtr.CNO',...
+    %             'VariableNames',{'decision_time_reinf','genotype','CNO'});
+    %         mdl = fitglm(tbl,'decision_time_reinf~genotype+CNO+genotype*CNO'...
+    %             ,'CategoricalVars',[2,3])
+    %
+    %     end
+    %
+    %
+    %     %Now plot bar graphs for fraction of the time that the animl is licking
+    %     for trial_window_no=1:total_trial_windows
+    %
+    %         figNo=figNo+1;
+    %         try
+    %             close(figNo)
+    %         catch
+    %         end
+    %
+    %         figure(figNo)
+    %
+    %         glm_flt_ii=0;
+    %         glm_flt=[];
+    %
+    %         %S+ trials
+    %         subplot(1,2,1)
+    %         hold on
+    %
+    %         %Control, no CNO
+    %         flt_timecourses=per_file_fractional_lick_time_on_sp((per_file_hM4D==4)&(per_file_trial_window==trial_window_no),:);
+    %         flts=mean(flt_timecourses(:,(time_licks>=0.8)&(time_licks<=1.8)),2);
+    %         mean_prob=mean(flts);
+    %         CIprob = bootci(1000, {@mean, flts})';;
+    %         bar(1,mean_prob,'FaceColor',[0.7 0.7 1],'EdgeColor',[0.7 0.7 1])
+    %         plot([1 1],CIprob,'-k','LineWidth',2)
+    %         plot(ones(1,length(flts)),flts,'ok')
+    %
+    %         glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
+    %         glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
+    %         glm_flt.CNO(glm_flt_ii+1:glm_flt_ii+length(flts))=0;
+    %         glm_flt_ii=glm_flt_ii+length(flts);
+    %
+    %         %Control, CNO
+    %         flt_timecourses=per_file_fractional_lick_time_on_sp((per_file_hM4D==3)&(per_file_trial_window==trial_window_no),:);
+    %         flts=mean(flt_timecourses(:,(time_licks>=0.8)&(time_licks<=1.8)),2);
+    %         mean_prob=mean(flts);
+    %         CIprob = bootci(1000, {@mean, flts})';
+    %         bar(2,mean_prob,'FaceColor',[1 0.7 0.7],'EdgeColor',[1 0.7 0.7])
+    %         plot([2 2],CIprob,'-k','LineWidth',2)
+    %         plot(2*ones(1,length(flts)),flts,'ok')
+    %
+    %         glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
+    %         glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
+    %         glm_flt.CNO(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
+    %         glm_flt_ii=glm_flt_ii+length(flts);
+    %
+    %         %hM4D, no CNO
+    %         flt_timecourses=per_file_fractional_lick_time_on_sp((per_file_hM4D==2)&(per_file_trial_window==trial_window_no),:);
+    %         flts=mean(flt_timecourses(:,(time_licks>=0.8)&(time_licks<=1.8)),2);
+    %         mean_prob=mean(flts);
+    %         CIprob = bootci(1000, {@mean, flts})';
+    %         bar(4,mean_prob,'b')
+    %         plot([4 4],CIprob,'-k','LineWidth',2)
+    %         plot(4*ones(1,length(flts)),flts,'ok')
+    %
+    %         glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
+    %         glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=2;
+    %         glm_flt.CNO(glm_flt_ii+1:glm_flt_ii+length(flts))=0;
+    %         glm_flt_ii=glm_flt_ii+length(flts);
+    %
+    %         %hM4D, CNO
+    %         flt_timecourses=per_file_fractional_lick_time_on_sp((per_file_hM4D==1)&(per_file_trial_window==trial_window_no),:);
+    %         flts=mean(flt_timecourses(:,(time_licks>=0.8)&(time_licks<=1.8)),2);
+    %         mean_prob=mean(flts);
+    %         CIprob = bootci(1000, {@mean, flts})';
+    %         bar(5,mean_prob,'r')
+    %         plot([5 5],CIprob,'-k','LineWidth',2)
+    %         plot(5*ones(1,length(flts)),flts,'ok')
+    %
+    %         glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
+    %         glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=2;
+    %         glm_flt.CNO(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
+    %         glm_flt_ii=glm_flt_ii+length(flts);
+    %
+    %         xticks([1 2 4 5])
+    %         ylim([0 1.1])
+    %         xticklabels({'Ctrl, noCNO','Ctrl, CNO','hM4d, noCNO','hM4d, CNO'})
+    %         title('S+')
+    %         ylabel('Lick on time')
+    %
+    %         %Perform the glm
+    %         fprintf(1, ['\n\nglm for lick on time for S+ for ' trial_window_description{trial_window_no} '\n'])
+    %         tbl = table(glm_flt.data',glm_flt.genotype',glm_flt.CNO',...
+    %             'VariableNames',{'lick_on_time','genotype','CNO'});
+    %         mdl = fitglm(tbl,'lick_on_time~genotype+CNO+genotype*CNO'...
+    %             ,'CategoricalVars',[2,3])
+    %
+    %
+    %
+    %         glm_flt_ii=0;
+    %         glm_flt=[];
+    %
+    %         %S- trials
+    %         subplot(1,2,2)
+    %          hold on
+    %
+    %         %Control, no CNO
+    %         flt_timecourses=per_file_fractional_lick_time_on_sm((per_file_hM4D==4)&(per_file_trial_window==trial_window_no),:);
+    %         flts=mean(flt_timecourses(:,(time_licks>=0.8)&(time_licks<=1.8)),2);
+    %         mean_prob=mean(flts);
+    %         CIprob = bootci(1000, {@mean, flts})';;
+    %         bar(1,mean_prob,'FaceColor',[0.7 0.7 1],'EdgeColor',[0.7 0.7 1])
+    %         plot([1 1],CIprob,'-k','LineWidth',2)
+    %         plot(ones(1,length(flts)),flts,'ok')
+    %
+    %         glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
+    %         glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
+    %         glm_flt.CNO(glm_flt_ii+1:glm_flt_ii+length(flts))=0;
+    %         glm_flt_ii=glm_flt_ii+length(flts);
+    %
+    %         %Control, CNO
+    %         flt_timecourses=per_file_fractional_lick_time_on_sm((per_file_hM4D==3)&(per_file_trial_window==trial_window_no),:);
+    %         flts=mean(flt_timecourses(:,(time_licks>=0.8)&(time_licks<=1.8)),2);
+    %         mean_prob=mean(flts);
+    %         CIprob = bootci(1000, {@mean, flts})';
+    %         bar(2,mean_prob,'FaceColor',[1 0.7 0.7],'EdgeColor',[1 0.7 0.7])
+    %         plot([2 2],CIprob,'-k','LineWidth',2)
+    %         plot(2*ones(1,length(flts)),flts,'ok')
+    %
+    %         glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
+    %         glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
+    %         glm_flt.CNO(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
+    %         glm_flt_ii=glm_flt_ii+length(flts);
+    %
+    %         %hM4D, no CNO
+    %         flt_timecourses=per_file_fractional_lick_time_on_sm((per_file_hM4D==2)&(per_file_trial_window==trial_window_no),:);
+    %         flts=mean(flt_timecourses(:,(time_licks>=0.8)&(time_licks<=1.8)),2);
+    %         mean_prob=mean(flts);
+    %         CIprob = bootci(1000, {@mean, flts})';
+    %         bar(4,mean_prob,'b')
+    %         plot([4 4],CIprob,'-k','LineWidth',2)
+    %         plot(4*ones(1,length(flts)),flts,'ok')
+    %
+    %         glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
+    %         glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=2;
+    %         glm_flt.CNO(glm_flt_ii+1:glm_flt_ii+length(flts))=0;
+    %         glm_flt_ii=glm_flt_ii+length(flts);
+    %
+    %         %hM4D, CNO
+    %         flt_timecourses=per_file_fractional_lick_time_on_sm((per_file_hM4D==1)&(per_file_trial_window==trial_window_no),:);
+    %         flts=mean(flt_timecourses(:,(time_licks>=0.8)&(time_licks<=1.8)),2);
+    %         mean_prob=mean(flts);
+    %         CIprob = bootci(1000, {@mean, flts})';
+    %         bar(5,mean_prob,'r')
+    %         plot([5 5],CIprob,'-k','LineWidth',2)
+    %         plot(5*ones(1,length(flts)),flts,'ok')
+    %
+    %         glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
+    %         glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=2;
+    %         glm_flt.CNO(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
+    %         glm_flt_ii=glm_flt_ii+length(flts);
+    %
+    %         xticks([1 2 4 5])
+    %         ylim([0 1.1])
+    %         xticklabels({'Ctrl, noCNO','Ctrl, CNO','hM4d, noCNO','hM4d, CNO'})
+    %         title('S-')
+    %         ylabel('Lick on time')
+    %
+    %         suptitle(['Lick on time for' trial_window_description{trial_window_no}])
+    %
+    %         %Perform the glm
+    %         fprintf(1, ['\n\nglm for lick on time for ' trial_window_description{trial_window_no} '\n'])
+    %         tbl = table(glm_flt.data',glm_flt.genotype',glm_flt.CNO',...
+    %             'VariableNames',{'lick_on_time','genotype','CNO'});
+    %         mdl = fitglm(tbl,'lick_on_time~genotype+CNO+genotype*CNO'...
+    %             ,'CategoricalVars',[2,3])
+    %
+    %
+    %
+    %         fprintf(1, ['Number of sessions and mice:\n'])
+    %         fprintf(1, ['hM4d CNO: %d, %d\n'],sum((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)),...
+    %             length(unique(per_file_mouse((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)))))
+    %         fprintf(1, ['hM4d no CNO: %d, %d\n'],sum((per_file_hM4D==2)&(per_file_trial_window==trial_window_no)),...
+    %             length(unique(per_file_mouse((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)))))
+    %         fprintf(1, ['control CNO: %d, %d\n'],sum((per_file_hM4D==3)&(per_file_trial_window==trial_window_no)),...
+    %             length(unique(per_file_mouse((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)))))
+    %         fprintf(1, ['control no CNO: %d, %d\n'],sum((per_file_hM4D==4)&(per_file_trial_window==trial_window_no)),...
+    %             length(unique(per_file_mouse((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)))))
+    %
+    %     end
     
     %Now plot bar graphs for lick frequency
     %0.8-1.8 sec
@@ -2495,229 +2568,232 @@ if display_choice==2
     t_end=[1.8 6.2];
     t_win_label{1}='odor';
     t_win_label{2}='reward';
-   
     
-    for trial_window_no=1:total_trial_windows
-        for ii_t_win=1:2
-            figNo=figNo+1;
-            try
-                close(figNo)
-            catch
-            end
-            
-            figure(figNo)
-            
-            glm_flt_ii=0;
-            glm_flt=[];
-            rst_ii=0;
-            rst_data=[];
-            
-            %S+ trials
-            subplot(1,2,1)
-            hold on
-            
-            %Control, no CNO
-            flt_timecourses=per_file_lick_freq_sp((per_file_hM4D==4)&(per_file_trial_window==trial_window_no),:);
-            flts=mean(flt_timecourses(:,(time_licks>=t_start(ii_t_win))&(time_licks<=t_end(ii_t_win))),2);
-            mean_prob=mean(flts);
-            CIprob = bootci(1000, {@mean, flts})';
-            bar(1,mean_prob,'FaceColor',[0.7 0.7 1],'EdgeColor',[0.7 0.7 1])
-            plot([1 1],CIprob,'-k','LineWidth',2)
-            plot(ones(1,length(flts)),flts,'ok')
-            
-            glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
-            glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
-            glm_flt.CNO(glm_flt_ii+1:glm_flt_ii+length(flts))=0;
-            glm_flt_ii=glm_flt_ii+length(flts);
-            
-            rst_ii=rst_ii+1;
-            rst_data(rst_ii).data=flts;
-            rst_data(rst_ii).description='Control, no CNO';
-            
-            %Control, CNO
-            flt_timecourses=per_file_lick_freq_sp((per_file_hM4D==3)&(per_file_trial_window==trial_window_no),:);
-            flts=mean(flt_timecourses(:,(time_licks>=t_start(ii_t_win))&(time_licks<=t_end(ii_t_win))),2);
-            mean_prob=mean(flts);
-            CIprob = bootci(1000, {@mean, flts})';
-            bar(2,mean_prob,'FaceColor',[1 0.7 0.7],'EdgeColor',[1 0.7 0.7])
-            plot([2 2],CIprob,'-k','LineWidth',2)
-            plot(2*ones(1,length(flts)),flts,'ok')
-            
-            glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
-            glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
-            glm_flt.CNO(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
-            glm_flt_ii=glm_flt_ii+length(flts);
-            
-            rst_ii=rst_ii+1;
-            rst_data(rst_ii).data=flts;
-            rst_data(rst_ii).description='Control, CNO';
-            
-            %hM4D, no CNO
-            flt_timecourses=per_file_lick_freq_sp((per_file_hM4D==2)&(per_file_trial_window==trial_window_no),:);
-            flts=mean(flt_timecourses(:,(time_licks>=t_start(ii_t_win))&(time_licks<=t_end(ii_t_win))),2);
-            mean_prob=mean(flts);
-            CIprob = bootci(1000, {@mean, flts})';
-            bar(4,mean_prob,'b')
-            plot([4 4],CIprob,'-k','LineWidth',2)
-            plot(4*ones(1,length(flts)),flts,'ok')
-            
-            glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
-            glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=2;
-            glm_flt.CNO(glm_flt_ii+1:glm_flt_ii+length(flts))=0;
-            glm_flt_ii=glm_flt_ii+length(flts);
-            
-            rst_ii=rst_ii+1;
-            rst_data(rst_ii).data=flts;
-            rst_data(rst_ii).description='hM4Di, no CNO';
-            
-            %hM4D, CNO
-            flt_timecourses=per_file_lick_freq_sp((per_file_hM4D==1)&(per_file_trial_window==trial_window_no),:);
-            flts=mean(flt_timecourses(:,(time_licks>=t_start(ii_t_win))&(time_licks<=t_end(ii_t_win))),2);
-            mean_prob=mean(flts);
-            CIprob = bootci(1000, {@mean, flts})';
-            bar(5,mean_prob,'r')
-            plot([5 5],CIprob,'-k','LineWidth',2)
-            plot(5*ones(1,length(flts)),flts,'ok')
-            
-            glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
-            glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=2;
-            glm_flt.CNO(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
-            glm_flt_ii=glm_flt_ii+length(flts);
-            
-            rst_ii=rst_ii+1;
-            rst_data(rst_ii).data=flts;
-            rst_data(rst_ii).description='HM4Di, CNO';
-            
-            xticks([1 2 4 5])
-            ylim([0 20])
-            xticklabels({'Ctrl, noCNO','Ctrl, CNO','hM4d, noCNO','hM4d, CNO'})
-            title('S+')
-            ylabel('Frequency (Hz)')
-            
-            %Perform the glm
-            fprintf(1, ['\n\nglm for frequency for S+ for ' t_win_label{ii_t_win} ' ' trial_window_description{trial_window_no} '\n'])
-            tbl = table(glm_flt.data',glm_flt.genotype',glm_flt.CNO',...
-                'VariableNames',{'frequency','genotype','CNO'});
-            mdl = fitglm(tbl,'frequency~genotype+CNO+genotype*CNO'...
-                ,'CategoricalVars',[2,3])
-            
-            %Do the ranksum/t-test
-            fprintf(1, ['\n\nRanksum or t-test p values for frequency S+ for ' t_win_label{ii_t_win} ' ' trial_window_description{trial_window_no} '\n'])
-            [output_data] = drgMutiRanksumorTtest(rst_data);
-            
-            glm_flt_ii=0;
-            glm_flt=[];
-            rst_ii=0;
-            rst_data=[];
-            
-            %S- trials
-            subplot(1,2,2)
-            hold on
-            
-            %Control, no CNO
-            flt_timecourses=per_file_lick_freq_sm((per_file_hM4D==4)&(per_file_trial_window==trial_window_no),:);
-            flts=mean(flt_timecourses(:,(time_licks>=t_start(ii_t_win))&(time_licks<=t_end(ii_t_win))),2);
-            mean_prob=mean(flts);
-            CIprob = bootci(1000, {@mean, flts})';;
-            bar(1,mean_prob,'FaceColor',[0.7 0.7 1],'EdgeColor',[0.7 0.7 1])
-            plot([1 1],CIprob,'-k','LineWidth',2)
-            plot(ones(1,length(flts)),flts,'ok')
-            
-            glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
-            glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
-            glm_flt.CNO(glm_flt_ii+1:glm_flt_ii+length(flts))=0;
-            glm_flt_ii=glm_flt_ii+length(flts);
-            
-            rst_ii=rst_ii+1;
-            rst_data(rst_ii).data=flts;
-            rst_data(rst_ii).description='Control, no CNO';
-            
-            %Control, CNO
-            flt_timecourses=per_file_lick_freq_sm((per_file_hM4D==3)&(per_file_trial_window==trial_window_no),:);
-            flts=mean(flt_timecourses(:,(time_licks>=t_start(ii_t_win))&(time_licks<=t_end(ii_t_win))),2);
-            mean_prob=mean(flts);
-            CIprob = bootci(1000, {@mean, flts})';
-            bar(2,mean_prob,'FaceColor',[1 0.7 0.7],'EdgeColor',[1 0.7 0.7])
-            plot([2 2],CIprob,'-k','LineWidth',2)
-            plot(2*ones(1,length(flts)),flts,'ok')
-            
-            glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
-            glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
-            glm_flt.CNO(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
-            glm_flt_ii=glm_flt_ii+length(flts);
-            
-            rst_ii=rst_ii+1;
-            rst_data(rst_ii).data=flts;
-            rst_data(rst_ii).description='Control, CNO';
-            
-            %hM4D, no CNO
-            flt_timecourses=per_file_lick_freq_sm((per_file_hM4D==2)&(per_file_trial_window==trial_window_no),:);
-            flts=mean(flt_timecourses(:,(time_licks>=t_start(ii_t_win))&(time_licks<=t_end(ii_t_win))),2);
-            mean_prob=mean(flts);
-            CIprob = bootci(1000, {@mean, flts})';
-            bar(4,mean_prob,'b')
-            plot([4 4],CIprob,'-k','LineWidth',2)
-            plot(4*ones(1,length(flts)),flts,'ok')
-            
-            glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
-            glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=2;
-            glm_flt.CNO(glm_flt_ii+1:glm_flt_ii+length(flts))=0;
-            glm_flt_ii=glm_flt_ii+length(flts);
-            
-            rst_ii=rst_ii+1;
-            rst_data(rst_ii).data=flts;
-            rst_data(rst_ii).description='hM4Di, no CNO';
-            
-            %hM4D, CNO
-            flt_timecourses=per_file_lick_freq_sm((per_file_hM4D==1)&(per_file_trial_window==trial_window_no),:);
-            flts=mean(flt_timecourses(:,(time_licks>=t_start(ii_t_win))&(time_licks<=t_end(ii_t_win))),2);
-            mean_prob=mean(flts);
-            CIprob = bootci(1000, {@mean, flts})';
-            bar(5,mean_prob,'r')
-            plot([5 5],CIprob,'-k','LineWidth',2)
-            plot(5*ones(1,length(flts)),flts,'ok')
-            
-            glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
-            glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=2;
-            glm_flt.CNO(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
-            glm_flt_ii=glm_flt_ii+length(flts);
-            
-            rst_ii=rst_ii+1;
-            rst_data(rst_ii).data=flts;
-            rst_data(rst_ii).description='HM4Di, CNO';
-            
-            xticks([1 2 4 5])
-            ylim([0 20])
-            xticklabels({'Ctrl, noCNO','Ctrl, CNO','hM4d, noCNO','hM4d, CNO'})
-            title('S-')
-            ylabel('Frequency (Hz)')
-            
-            suptitle(['Lick frequency for ' t_win_label{ii_t_win} ' ' trial_window_description{trial_window_no}])
-            
-            %Perform the glm
-            fprintf(1, ['\n\nglm for lick frequency for S- for ' t_win_label{ii_t_win} ' ' trial_window_description{trial_window_no} '\n'])
-            tbl = table(glm_flt.data',glm_flt.genotype',glm_flt.CNO',...
-                'VariableNames',{'frequency','genotype','CNO'});
-            mdl = fitglm(tbl,'frequency~genotype+CNO+genotype*CNO'...
-                ,'CategoricalVars',[2,3])
-            
-            %Do the ranksum/t-test
-            fprintf(1, ['\n\nRanksum or t-test p values for frequency S- for ' t_win_label{ii_t_win} ' ' trial_window_description{trial_window_no} '\n'])
-            [output_data] = drgMutiRanksumorTtest(rst_data);
-            
-        end
-        
-        fprintf(1, ['Number of sessions and mice:\n'])
-        fprintf(1, ['hM4d CNO: %d, %d\n'],sum((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)),...
-            length(unique(per_file_mouse((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)))))
-        fprintf(1, ['hM4d no CNO: %d, %d\n'],sum((per_file_hM4D==2)&(per_file_trial_window==trial_window_no)),...
-            length(unique(per_file_mouse((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)))))
-        fprintf(1, ['control CNO: %d, %d\n'],sum((per_file_hM4D==3)&(per_file_trial_window==trial_window_no)),...
-            length(unique(per_file_mouse((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)))))
-        fprintf(1, ['control no CNO: %d, %d\n'],sum((per_file_hM4D==4)&(per_file_trial_window==trial_window_no)),...
-            length(unique(per_file_mouse((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)))))
-        
+    
+    %     for trial_window_no=1:total_trial_windows
+    trial_window_no=3; %Doing only >80%
+    %         for ii_t_win=1:2
+    ii_t_win=1;   %Doing only odor
+    
+    figNo=figNo+1;
+    try
+        close(figNo)
+    catch
     end
+    
+    figure(figNo)
+    
+    glm_flt_ii=0;
+    glm_flt=[];
+    rst_ii=0;
+    rst_data=[];
+    
+    %S+ trials
+    subplot(1,2,1)
+    hold on
+    
+    %Control, reversed
+    flt_timecourses=per_file_lick_freq_sp((per_file_hM4D==4)&(per_file_trial_window==trial_window_no),:);
+    flts=mean(flt_timecourses(:,(time_licks>=t_start(ii_t_win))&(time_licks<=t_end(ii_t_win))),2);
+    mean_prob=mean(flts);
+    CIprob = bootci(1000, {@mean, flts})';
+    bar(4,mean_prob,'FaceColor',[0.7 0.7 1],'EdgeColor',[0.7 0.7 1])
+    plot([4 4],CIprob,'-k','LineWidth',2)
+    plot(4*ones(1,length(flts)),flts,'ok')
+    
+    glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
+    glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
+    glm_flt.fwdrev(glm_flt_ii+1:glm_flt_ii+length(flts))=2;
+    glm_flt_ii=glm_flt_ii+length(flts);
+    
+    rst_ii=rst_ii+1;
+    rst_data(rst_ii).data=flts;
+    rst_data(rst_ii).description='Ctrl, rev';
+    
+    %h4DMi, reversed
+    flt_timecourses=per_file_lick_freq_sp((per_file_hM4D==3)&(per_file_trial_window==trial_window_no),:);
+    flts=mean(flt_timecourses(:,(time_licks>=t_start(ii_t_win))&(time_licks<=t_end(ii_t_win))),2);
+    mean_prob=mean(flts);
+    CIprob = bootci(1000, {@mean, flts})';
+    bar(5,mean_prob,'FaceColor',[1 0.7 0.7],'EdgeColor',[1 0.7 0.7])
+    plot([5 5],CIprob,'-k','LineWidth',2)
+    plot(5*ones(1,length(flts)),flts,'ok')
+    
+    glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
+    glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=2;
+    glm_flt.fwdrev(glm_flt_ii+1:glm_flt_ii+length(flts))=2;
+    glm_flt_ii=glm_flt_ii+length(flts);
+    
+    rst_ii=rst_ii+1;
+    rst_data(rst_ii).data=flts;
+    rst_data(rst_ii).description='h4DMi, rev';
+    
+    %Cntrl, forward
+    flt_timecourses=per_file_lick_freq_sp((per_file_hM4D==2)&(per_file_trial_window==trial_window_no),:);
+    flts=mean(flt_timecourses(:,(time_licks>=t_start(ii_t_win))&(time_licks<=t_end(ii_t_win))),2);
+    mean_prob=mean(flts);
+    CIprob = bootci(1000, {@mean, flts})';
+    bar(1,mean_prob,'b')
+    plot([1 1],CIprob,'-k','LineWidth',2)
+    plot(1*ones(1,length(flts)),flts,'ok')
+    
+    glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
+    glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
+    glm_flt.fwdrev(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
+    glm_flt_ii=glm_flt_ii+length(flts);
+    
+    rst_ii=rst_ii+1;
+    rst_data(rst_ii).data=flts;
+    rst_data(rst_ii).description='Ctrl, fwd';
+    
+    %hM4D, forward
+    flt_timecourses=per_file_lick_freq_sp((per_file_hM4D==1)&(per_file_trial_window==trial_window_no),:);
+    flts=mean(flt_timecourses(:,(time_licks>=t_start(ii_t_win))&(time_licks<=t_end(ii_t_win))),2);
+    mean_prob=mean(flts);
+    CIprob = bootci(1000, {@mean, flts})';
+    bar(2,mean_prob,'r')
+    plot([2 2],CIprob,'-k','LineWidth',2)
+    plot(2*ones(1,length(flts)),flts,'ok')
+    
+    glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
+    glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=2;
+    glm_flt.fwdrev(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
+    glm_flt_ii=glm_flt_ii+length(flts);
+    
+    rst_ii=rst_ii+1;
+    rst_data(rst_ii).data=flts;
+    rst_data(rst_ii).description='HM4Di, fwd';
+    
+    xticks([1 2 4 5])
+    ylim([0 6])
+    xticklabels({'Ctrl, fwd','hM4d, fwd','Ctrl, rev','hM4d, rev'})
+    title('S+')
+    ylabel('Frequency (Hz)')
+    
+    %Perform the glm
+    fprintf(1, ['\n\nglm for frequency for S+ for ' t_win_label{ii_t_win} ' ' trial_window_description{trial_window_no} '\n'])
+    tbl = table(glm_flt.data',glm_flt.genotype',glm_flt.fwdrev',...
+        'VariableNames',{'frequency','genotype','fwdrev'});
+    mdl = fitglm(tbl,'frequency~genotype+fwdrev+genotype*fwdrev'...
+        ,'CategoricalVars',[2,3])
+    
+    %Do the ranksum/t-test
+    fprintf(1, ['\n\nRanksum or t-test p values for frequency S+ for ' t_win_label{ii_t_win} ' ' trial_window_description{trial_window_no} '\n'])
+    [output_data] = drgMutiRanksumorTtest(rst_data);
+    
+    glm_flt_ii=0;
+    glm_flt=[];
+    rst_ii=0;
+    rst_data=[];
+    
+    %S- trials
+    subplot(1,2,2)
+    hold on
+    
+    %Control, reversed
+    flt_timecourses=per_file_lick_freq_sm((per_file_hM4D==4)&(per_file_trial_window==trial_window_no),:);
+    flts=mean(flt_timecourses(:,(time_licks>=t_start(ii_t_win))&(time_licks<=t_end(ii_t_win))),2);
+    mean_prob=mean(flts);
+    CIprob = bootci(1000, {@mean, flts})';;
+    bar(4,mean_prob,'FaceColor',[0.7 0.7 1],'EdgeColor',[0.7 0.7 1])
+    plot([4 4],CIprob,'-k','LineWidth',2)
+    plot(4*ones(1,length(flts)),flts,'ok')
+    
+    glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
+    glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
+    glm_flt.fwdrev(glm_flt_ii+1:glm_flt_ii+length(flts))=2;
+    glm_flt_ii=glm_flt_ii+length(flts);
+    
+    rst_ii=rst_ii+1;
+    rst_data(rst_ii).data=flts;
+    rst_data(rst_ii).description='Cntrl, rev';
+    
+    %h4DMi, reversed
+    flt_timecourses=per_file_lick_freq_sm((per_file_hM4D==3)&(per_file_trial_window==trial_window_no),:);
+    flts=mean(flt_timecourses(:,(time_licks>=t_start(ii_t_win))&(time_licks<=t_end(ii_t_win))),2);
+    mean_prob=mean(flts);
+    CIprob = bootci(1000, {@mean, flts})';
+    bar(5,mean_prob,'FaceColor',[1 0.7 0.7],'EdgeColor',[1 0.7 0.7])
+    plot([5 5],CIprob,'-k','LineWidth',2)
+    plot(5*ones(1,length(flts)),flts,'ok')
+    
+    glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
+    glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=2;
+    glm_flt.fwdrev(glm_flt_ii+1:glm_flt_ii+length(flts))=2;
+    glm_flt_ii=glm_flt_ii+length(flts);
+    
+    rst_ii=rst_ii+1;
+    rst_data(rst_ii).data=flts;
+    rst_data(rst_ii).description='h4DMi, rev';
+    
+    %Cntrl, forward
+    flt_timecourses=per_file_lick_freq_sm((per_file_hM4D==2)&(per_file_trial_window==trial_window_no),:);
+    flts=mean(flt_timecourses(:,(time_licks>=t_start(ii_t_win))&(time_licks<=t_end(ii_t_win))),2);
+    mean_prob=mean(flts);
+    CIprob = bootci(1000, {@mean, flts})';
+    bar(1,mean_prob,'b')
+    plot([1 1],CIprob,'-k','LineWidth',2)
+    plot(1*ones(1,length(flts)),flts,'ok')
+    
+    glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
+    glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
+    glm_flt.fwdrev(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
+    glm_flt_ii=glm_flt_ii+length(flts);
+    
+    rst_ii=rst_ii+1;
+    rst_data(rst_ii).data=flts;
+    rst_data(rst_ii).description='Cntrl, fwd';
+    
+    %hM4D, forward
+    flt_timecourses=per_file_lick_freq_sm((per_file_hM4D==1)&(per_file_trial_window==trial_window_no),:);
+    flts=mean(flt_timecourses(:,(time_licks>=t_start(ii_t_win))&(time_licks<=t_end(ii_t_win))),2);
+    mean_prob=mean(flts);
+    CIprob = bootci(1000, {@mean, flts})';
+    bar(2,mean_prob,'r')
+    plot([2 2],CIprob,'-k','LineWidth',2)
+    plot(2*ones(1,length(flts)),flts,'ok')
+    
+    glm_flt.data(glm_flt_ii+1:glm_flt_ii+length(flts))=flts;
+    glm_flt.genotype(glm_flt_ii+1:glm_flt_ii+length(flts))=2;
+    glm_flt.fwdrev(glm_flt_ii+1:glm_flt_ii+length(flts))=1;
+    glm_flt_ii=glm_flt_ii+length(flts);
+    
+    rst_ii=rst_ii+1;
+    rst_data(rst_ii).data=flts;
+    rst_data(rst_ii).description='HM4Di, fwd';
+    
+    xticks([1 2 4 5])
+    ylim([0 6])
+    xticklabels({'Ctrl, fwd','hM4d, fwd','Ctrl, rev','hM4d, rev'})
+    title('S-')
+    ylabel('Frequency (Hz)')
+    
+    suptitle(['Lick frequency for ' t_win_label{ii_t_win} ' ' trial_window_description{trial_window_no}])
+    
+    %Perform the glm
+    fprintf(1, ['\n\nglm for lick frequency for S- for ' t_win_label{ii_t_win} ' ' trial_window_description{trial_window_no} '\n'])
+    tbl = table(glm_flt.data',glm_flt.genotype',glm_flt.fwdrev',...
+        'VariableNames',{'frequency','genotype','fwdrev'});
+    mdl = fitglm(tbl,'frequency~genotype+fwdrev+genotype*fwdrev'...
+        ,'CategoricalVars',[2,3])
+    
+    %Do the ranksum/t-test
+    fprintf(1, ['\n\nRanksum or t-test p values for frequency S- for ' t_win_label{ii_t_win} ' ' trial_window_description{trial_window_no} '\n'])
+    [output_data] = drgMutiRanksumorTtest(rst_data);
+    
+    
+    
+    fprintf(1, ['Number of sessions and mice:\n'])
+    fprintf(1, ['hM4D forward: %d, %d\n'],sum((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)),...
+        length(unique(per_file_mouse((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)))))
+    fprintf(1, ['Control forward: %d, %d\n'],sum((per_file_hM4D==2)&(per_file_trial_window==trial_window_no)),...
+        length(unique(per_file_mouse((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)))))
+    fprintf(1, ['hM4D reversed: %d, %d\n'],sum((per_file_hM4D==3)&(per_file_trial_window==trial_window_no)),...
+        length(unique(per_file_mouse((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)))))
+    fprintf(1, ['Control reversed: %d, %d\n'],sum((per_file_hM4D==4)&(per_file_trial_window==trial_window_no)),...
+        length(unique(per_file_mouse((per_file_hM4D==1)&(per_file_trial_window==trial_window_no)))))
+    
+    
 end
 
 

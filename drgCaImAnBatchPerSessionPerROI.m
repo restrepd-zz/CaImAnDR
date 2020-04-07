@@ -24,7 +24,7 @@ clear all
 tic
  
 [choiceFileName,choiceBatchPathName] = uigetfile({'drgCaImAnChoices*.m'},'Select the .m file with all the choices for analysis');
-fprintf(1, ['\ndrgCaImAnBatchPerSessionPerTrial run for ' choiceFileName '\n\n']);
+fprintf(1, ['\ndrgCaImAnBatchPerSessionPerROI run for ' choiceFileName '\n\n']);
 
 addpath(choiceBatchPathName)
 eval(['handles=' choiceFileName(1:end-2) ';'])

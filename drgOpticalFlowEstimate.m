@@ -22,7 +22,7 @@ frame_rate=vidReader.FrameRate;
 %% Compute the z stack projection
 %Note: Sometimes the first image is blank, and we discard it
 exclude_images=1:10;
-
+ 
 first_image=1;
 ii=0;
 jj=0;

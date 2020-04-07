@@ -1027,6 +1027,7 @@ xlim([-0.5 35])
 
 xlabel('Reward volume (ul)')
 ylabel('dF/F peak')
+title('dF/F peak vs. reward volume for wet vs dry')
 
 
 %Perform the glm for dFF for ul and wet vs dry
