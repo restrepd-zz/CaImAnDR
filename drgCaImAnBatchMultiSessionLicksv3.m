@@ -358,7 +358,7 @@ for filNum=1:caimanhandles.caimandr_choices.no_files
                 total_trial_windows=3;
                 supertitle_description{1}=' percent correct <65';
                 supertitle_description{2}=' percent correct >=65&<80';
-                supertitle_description{3}=' percent correct >=80';
+                supertitle_description{3}=' percent correct >=75';
             else
                 %Forward and reverse
                 total_trial_windows=2;
@@ -370,7 +370,7 @@ for filNum=1:caimanhandles.caimandr_choices.no_files
             
             trial_window_description{1}='percent correct <65';
             trial_window_description{2}='percent correct >=65&<80';
-            trial_window_description{3}='percent correct >=80';
+            trial_window_description{3}='percent correct >=75';
             
             
             
