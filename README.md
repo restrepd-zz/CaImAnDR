@@ -218,7 +218,11 @@ Then, using the output from drgCaImAnBatchPerSessionEventsPerTriallickvsdFFOptFl
 
 summary_glm_recalc.m uses the output from drgCaImAn_glm.m to calculate Figs. 6c,d
 
-### Fig. 7
+### Fig. 7aii,bii
+
+Percent_correct_dreadds.m calculates the statistics for Figs. 7aii and 7bii
+
+### Fig. 7c,d
 
 Run drgCalmAn_batch_dropc_no_microscope run with 
 drgCaImAn_dropc_choices_PVhM4Di_081519.m

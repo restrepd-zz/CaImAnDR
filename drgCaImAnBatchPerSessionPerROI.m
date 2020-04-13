@@ -468,20 +468,20 @@ for filNum=1:caimanhandles.caimandr_choices.no_files
     
 end
 
-dFF_stats(1).description=['Pre-odor <65% S- '];
-dFF_stats(2).description=['Pre-odor <65% S+ '];
-dFF_stats(1).description=['Pre-odor >80% S- '];
-dFF_stats(2).description=['Pre-odor >80% S+ '];
+dFF_stats(1).description='Pre-odor naive S- ';
+dFF_stats(3).description='Pre-odor naive S+ ';
+dFF_stats(2).description='Pre-odor proficient S- ';
+dFF_stats(4).description='Pre-odor proficient S+ ';
 
-dFF_stats(1).description=['Odor <65% S- '];
-dFF_stats(2).description=['Odor <65% S+ '];
-dFF_stats(1).description=['Odor >80% S- '];
-dFF_stats(2).description=['Odor >80% S+ '];
+dFF_stats(5).description='Odor naive S- ';
+dFF_stats(7).description='Odor naive S+ ';
+dFF_stats(6).description='Odor proficient S- ';
+dFF_stats(8).description='Odor proficient S+ ';
 
-dFF_stats(1).description=['Reinforcement <65% S- '];
-dFF_stats(2).description=['Reinforcement <65% S+ '];
-dFF_stats(1).description=['Reinforcement >80% S- '];
-dFF_stats(2).description=['Reinforcement >80% S+ '];
+dFF_stats(9).description='Reinforcement naive S- ';
+dFF_stats(11).description='Reinforcement naive S+ ';
+dFF_stats(10).description='Reinforcement proficient S- ';
+dFF_stats(12).description='Reinforcement proficient S+ ';
 
 
 %Violin plot the dfFs

@@ -1,5 +1,6 @@
-%This program generates a summary figure for the LDA analysis for Fig. 3
-%This uses the output produced by drgCaImAnBatchPerSessionReversalPerTrialLDA
+%This program generates a summary figure for the LDA analysis for
+%Supplemental FIg. 7
+%This uses the output produced by drgCaImAnBatchPerSessionEventsPerTrialDimensionality
 close all
 clear all
 
@@ -62,16 +63,16 @@ for pc_ii=1:ii_pc
     end
 end
 
-%Perform the glm for LDA percent correct 
-fprintf(1, ['\n\nglm for LDA percent correct\n'])
+%Perform the glm for dimensionality 
+fprintf(1, ['\n\nglm for dimensionality\n'])
 tbl = table(glm_dim.data',glm_dim.time_win',glm_dim.pcorr_win',...
-    'VariableNames',{'percent_correct_LDA','time_window','naive_proficient'});
-mdl = fitglm(tbl,'percent_correct_LDA~time_window+naive_proficient+time_window*naive_proficient'...
+    'VariableNames',{'dimensionality','time_window','naive_proficient'});
+mdl = fitglm(tbl,'dimensionality~time_window+naive_proficient+time_window*naive_proficient'...
     ,'CategoricalVars',[2,3])
 
 
 % Do ranksum/t test
-fprintf(1, ['\n\nRanksum or t-test p values for for LDA percent correct\n'])
+fprintf(1, ['\n\nRanksum or t-test p values for dimensionality\n'])
 try
     [output_data] = drgMutiRanksumorTtest(dim_stats);
     fprintf(1, '\n\n')
