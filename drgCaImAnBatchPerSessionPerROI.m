@@ -509,7 +509,7 @@ for perCorrNo=1:2
                     bar(x_pos,mean(dFFavg_per_ROI.win(winNo).spm(spmNo).perCorr(perCorrNo).dFF),'EdgeColor',[1 0.7 0.7],'FaceColor',[1 0.7 0.7])
                 end
                 
-                [mean_out, CIout]=drgViolinPoint(dFFavg_per_ROI.win(winNo).spm(spmNo).perCorr(perCorrNo).dFF,edges,x_pos,rand_offset,'k','k',2);
+                [mean_out, CIout]=drgViolinPoint(dFFavg_per_ROI.win(winNo).spm(spmNo).perCorr(perCorrNo).dFF,edges,x_pos,rand_offset,'k','k',0.2);
                 x_pos=x_pos+1;
             end
         else
@@ -519,7 +519,7 @@ for perCorrNo=1:2
                 else
                     bar(x_pos,mean(dFFavg_per_ROI.win(winNo).spm(spmNo).perCorr(perCorrNo).dFF),'r')
                 end
-                [mean_out, CIout]=drgViolinPoint(dFFavg_per_ROI.win(winNo).spm(spmNo).perCorr(perCorrNo).dFF,edges,x_pos,rand_offset,'k','k',2);
+                [mean_out, CIout]=drgViolinPoint(dFFavg_per_ROI.win(winNo).spm(spmNo).perCorr(perCorrNo).dFF,edges,x_pos,rand_offset,'k','k',0.2);
                 x_pos=x_pos+1;
             end
         end

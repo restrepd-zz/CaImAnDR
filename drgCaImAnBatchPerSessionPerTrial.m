@@ -1217,6 +1217,7 @@ if caimanhandles.caimandr_choices.start_reversal>caimanhandles.caimandr_choices.
             this_CI_snip_dFF(:,1)=this_mean_snip_dFF-this_CI_snip_dFF(:,1);
             this_CI_snip_dFF(:,2)=(this_CI_snip_dFF(:,2)-this_mean_snip_dFF);
             boundedline(this_time,this_mean_snip_dFF, this_CI_snip_dFF, 'b');
+            this_mean_snip_dFFsp=this_mean_snip_dFF;
             
             %S+
             this_mean_snip_dFF=zeros(timepoints,1);
@@ -1227,6 +1228,7 @@ if caimanhandles.caimandr_choices.start_reversal>caimanhandles.caimandr_choices.
             this_CI_snip_dFF(:,1)=this_mean_snip_dFF-this_CI_snip_dFF(:,1);
             this_CI_snip_dFF(:,2)=(this_CI_snip_dFF(:,2)-this_mean_snip_dFF);
             boundedline(this_time,this_mean_snip_dFF, this_CI_snip_dFF, 'r');
+            this_mean_snip_dFFsm=this_mean_snip_dFF;
             
             %Odor on markers
             plot([0 0],[lowdFF highdFF],'-k')
@@ -1245,6 +1247,10 @@ if caimanhandles.caimandr_choices.start_reversal>caimanhandles.caimandr_choices.
             ylabel('dF/F')
             title(['Trials with percent correct ' per_description{pct_win_ii}])
             
+            if pct_win_ii==3
+                save([caimanhandles.caimandr_choices.outPathName caimanhandles.caimandr_choices.outFileName(1:end-4) 'gcamp.mat'],'this_time','this_mean_snip_dFFsm','this_mean_snip_dFFsp')
+            end
+                
         end
     
 end

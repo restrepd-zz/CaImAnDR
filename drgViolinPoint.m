@@ -29,3 +29,5 @@ plot(x_val,mean_points,['o' which_color_mean],'MarkerFaceColor',which_color_mean
 %Plot CI
 CI_points=bootci(1000, @mean, points);
 plot([x_val x_val],CI_points,['-' which_color_mean],'LineWidth',3)
+
+pffft=1;
