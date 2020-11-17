@@ -1159,7 +1159,7 @@ else
         
     end
 end
-
+ 
 %Plot bounded lines for S+ and S- snips for the different percent windows
 if caimanhandles.caimandr_choices.start_reversal>caimanhandles.caimandr_choices.no_files
     
@@ -1183,7 +1183,7 @@ if caimanhandles.caimandr_choices.start_reversal>caimanhandles.caimandr_choices.
                 all_mean_snip_dFFs(1,pct_win_ii,:)=mean(mean_snip_dFF(dFF_percent_mask&dFF_epoch_mask,1:timepoints),1);
                 all_CI_snip_dFFs(1,pct_win_ii,:,:)=bootci(1000, @mean, mean_snip_dFF(dFF_percent_mask&dFF_epoch_mask,1:timepoints));
             end
-            
+             
             %S-
             dFF_epoch_mask=(epochs_per_trial_dFF==3)|(epochs_per_trial_dFF==4);
             if sum(dFF_percent_mask&dFF_epoch_mask)>2

@@ -24,7 +24,7 @@ plot(violin_x_val,points,'o','MarkerSize',point_size,'MarkerFaceColor',which_col
 
 %Plot the mean
 mean_points=mean(points);
-plot(x_val,mean_points,['o' which_color_mean],'MarkerFaceColor',which_color_mean,'MarkerSize',10)
+% plot(x_val,mean_points,['o' which_color_mean],'MarkerFaceColor',which_color_mean,'MarkerSize',10)
 
 %Plot CI
 CI_points=bootci(1000, @mean, points);

@@ -104,13 +104,17 @@ plot(time,meanPIDtraces','r','LineWidth',3)
 %Fit PID increase with two exponentials
 expriseEqn = '(a/2)*(1-exp(-x/b) + 1 -exp(-x/c))';
 f1 = fit(time((time>0)&(time<2.5))',meanPIDtraces((time>0)&(time<2.5))',expriseEqn)
+f_before=f1;
 plot(time((time>0)&(time<2.5))',(f1.a/2)*(1-exp(-time((time>0)&(time<2.5))'/f1.b)+1-exp(-time((time>0)&(time<2.5))'/f1.c) ),'-k','LineWidth',2)
 
 %Fit PID decrease with two exponentials
 t_end=2.83;
 expriseEqn = '(a/3)*(exp(-x/b) + exp(-x/c)+ exp(-x/d))';
 f1 = fit((time(time>t_end)-t_end)',meanPIDtraces(time>t_end)',expriseEqn)
+f_after=f1;
 plot(time(time>t_end)',(f1.a/3)*(exp(-(time(time>t_end)-t_end)'/f1.b)+exp(-(time(time>t_end)-t_end)'/f1.c) +exp(-(time(time>t_end)-t_end)'/f1.d) ),'-k','LineWidth',2)
 
+%Save the fit
+save([inputPathrhd(1:end-4) '_out.mat'],'f_before','f_after','time','t_end');
 pffft=1;
 

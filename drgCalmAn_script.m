@@ -19,11 +19,11 @@ else
 end
 
 nam=[pname fname];
-
+ 
 sframe=1;						% user input: first frame to read (optional, default 1)
 num2read=10000;					% user input: how many frames to read   (optional, default until the end)
 Y = read_file(nam,sframe,num2read);
-
+ 
 %Y = Y - min(Y(:)); 
 if ~isa(Y,'single');    Y = single(Y);  end         % convert to single
 
@@ -75,13 +75,14 @@ d = d1*d2;                                          % total number of pixels
 %     'init_method', 'greedy'...              % initialization method ('greedy','greedy_corr','sparse_NMF','HALS') (default: 'greedy')
 %     ); 
 
-% Cerebellum parameters       
-K=200;               % number of components to be found
+%Fabio's parameters       
+K=500;               % number of components to be found
 tau = 5;            % 5 std of gaussian kernel (size of neuron) 
-p = 2;
-fr=1/0.19125; %Acquisition rate of the microscope in log file (1/seconds)
+p = 2;           % order of AR dynamics
+fr=1/0.29815; %Acquisition rate of the microscope in log file (1/seconds)
+decay_time=0.14;    % GCaMP6f decay time
 
-decay_time=1.8;     %GCaMP6s decay time
+% decay_time=1.8;     %GCaMP6s decay time
 
 options = CNMFSetParms(...   
     'd1',d1,'d2',d2,...                         % dimensionality of the FOV

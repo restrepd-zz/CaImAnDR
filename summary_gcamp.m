@@ -32,8 +32,8 @@ plot(this_time,this_mean_snip_dFFsm/norm_fact,'--k','LineWidth',2)
 
 %GCaMP7f
 %mmG7f09
-% load('/Users/restrepd/Documents/Projects/MOM slidebook/mmG7f09/20180702_mmG7f09-Cerebellum new analysis/20180702_05_mmG7f09-Cerebellum_outgcamp.mat')
-load('/Users/restrepd/Documents/Projects/MOM slidebook/mmG7f09/20180608_mmG7f09_Cerebellum new analysis/20180608shortmmG7f09_Cerebellumgcamp.mat')
+load('/Users/restrepd/Documents/Projects/MOM slidebook/mmG7f09/20180702_mmG7f09-Cerebellum new analysis/20180702_05_mmG7f09-Cerebellum_outgcamp.mat')
+%load('/Users/restrepd/Documents/Projects/MOM slidebook/mmG7f09/20180608_mmG7f09_Cerebellum new analysis/20180608shortmmG7f09_Cerebellumgcamp.mat')
 norm_fact=mean(this_mean_snip_dFFsm((this_time>4.9)&(this_time<5.1)));
 plot(this_time,this_mean_snip_dFFsm/norm_fact,'-.k','LineWidth',2)
 
