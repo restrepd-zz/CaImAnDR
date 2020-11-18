@@ -38,7 +38,7 @@ num_odor_trials=0;
 epochs_per_trial=[];
 num_odor_trials_dFF=0;
 files_per_trial=[];
-
+ 
 all_lda_events=[]; 
 all_lda_input_timecourse=[];
 

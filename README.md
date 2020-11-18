@@ -13,7 +13,7 @@ The code uses the following MATLAB toolboxes:
 
 Image
 Parallel Computing
-Signal 
+Signal
 Statistics
 
 
@@ -23,17 +23,19 @@ https://github.com/flatironinstitute/CaImAn-MATLAB
 
 And some functions from GitHub/restrepd/drgMaster
 
-All the data will be deposited in GigaDB once the manuscript is accepted (doing the data transfer nowÉ).
+All the data will be deposited in GigaDB once the manuscript is accepted (doing the data transfer nowï¿½).
 
 ## Running the code to generate the figures in Ma et al. 2020
 
 The image files were processed with CaImAn by running drgCalmAn_script.m
 
-The output was then processed using drgCaImAn_batch_dropc.m that creates per trial analysis and saves an intermediary file with a suffix pre_per.mat used for the rest of the analysis.
+The output from experiments acquired with dropcspm_hf.m was then processed using drgCaImAn_batch_dropc.m that creates per trial analysis and saves an intermediary file with a suffix pre_per.mat used for the rest of the analysis. drgCaImAn_batch_dropc.m needs as input the INTAN .rhd files, the olfactometer .mat files and the CaImAn-processed .mat files. The location of these files is saved in a drgCaImAn_dropc_choices file such as drgCaImAn_dropc_choices_GRIN1_CA1.m.
 
 drgCalmAn_script.m Finds components (ROIs) using CaImAn code. It ouputs a file called file_name_CalmAn.mat. It is important to enter the CaImAn parameters using options = CNMFSetParms
 
 drgCaImAn_batch_dropc.m This code takes as input the output of drgCalmAn_script (file_name_CalmAn.mat), an output file from the INTAN RHD2000 board (.rhd) that has digital output sent by the olfactometer and lick recordings and a .mat file from the olfactometer with metadata on each trial. The code generates and intermediary file called file_name_CalmAn_batch_pre_per.mat.
+
+readdropcspm_hf.m computes percent correct behavior as a function of trial number using a window of 20 trials. It takes as input several olfactometer output files (please name files 1-textID_spm.mat, 2-textID_spm.mat, etc).
 
 Most of the code is not well commented (sorry), but we provide a well-documented file (drgCaImAnLDAtimecourse.m)that has been used outside our group (yes!) by David Protter and Zoe Donaldson to implement our LDA algorithm.
 
@@ -43,7 +45,7 @@ Below are per figure instructions on how we generated each panel. For this code 
 
 ### Fig. 1c
 
-For Fig.1c (and Supplementary Fig. 4e) use drgCaImAn_curate_components.m using: 
+For Fig.1c (and Supplementary Fig. 4e) use drgCaImAn_curate_components.m using:
 5-cerebellum-mmg04-spm_180910_180910_161628.rhd
 20180910_mmPVG04_Cerebellum-5-Registered_CalmAn.mat
 5-mmPVG04-cerebellum-spm20180910T161640spm.mat
@@ -64,7 +66,7 @@ For Fig. 2e use drgCaImAnBatchPerSessionPerROI.m to generate a violin plot using
 
 For Figs. 2f,g first process data with drgCaImAnBatchPerSession.m
 
-Using the following choices files: 
+Using the following choices files:
 
 drgCaImAnChoicesDiego20180910_mmPVG04_Cerebellum.m
 that yields 20180910_mmPVG04_Cerebellum_bpsout.mat
@@ -135,7 +137,7 @@ with choice file drgCaImAnChoicesDiego20180917and19_mmPVG04_Cerebellum.m
 
 ### Fig. 4d
 
-Run All_mice_reversal_recalc.m that uses data processed by drgCaImAnBatchPerSessionReversalPerTrial.m 
+Run All_mice_reversal_recalc.m that uses data processed by drgCaImAnBatchPerSessionReversalPerTrial.m
 
 ### Fig. 4e
 
@@ -158,7 +160,7 @@ Then run All_mice_lda_reversal_recalc.m
 
 ### Figs. 5a-c
 
-Run drgCaImAnBatchPerSessionEventsPerTriallickvsdFF.m with choices file 
+Run drgCaImAnBatchPerSessionEventsPerTriallickvsdFF.m with choices file
 drgCaImAnChoicesDiego20180917_mmPVG04_Cerebellum_licks.m
 
 ### Fig. 5d
@@ -170,13 +172,13 @@ For Miss run drgCaImAnBatchPerSessionEventsPerTriallickvsdFF.m with choices file
 ### Fig. 5e,f
 
 Run drgCaImAnBatchPerSessionEventsPerTriallickvsdFF.m with choices file
-drgCaImAnChoicesDiego20180917_mmPVG04_Cerebellum_licks.m 
+drgCaImAnChoicesDiego20180917_mmPVG04_Cerebellum_licks.m
 
 ### Fig. 5g,h
 
-First run drgCaImAnBatchPerSessionEventsPerTriallickvsdFF.m with the following choices filesÓ
+First run drgCaImAnBatchPerSessionEventsPerTriallickvsdFF.m with the following choices filesï¿½
 
-drgCaImAnChoicesDiego20180917_mmPVG04_Cerebellum_licks.m 
+drgCaImAnChoicesDiego20180917_mmPVG04_Cerebellum_licks.m
 drgCaImAnChoicesDiego20180910_mmPVG04_Cerebellum.m
 drgCaImAnChoices_20180515_18_mmPVG02_Cerebellum.m
 drgCaImAnChoicesDiego20180702_05_mmG7f09_CerebellumLDA.m
@@ -185,7 +187,7 @@ drgCaImAnChoicesDiego20180419_mmG06_cerebellum_LDA_events.m
 
 Then run summary_derivativesdFFlick_recalc.m
 
-### Figs 6c,d 
+### Figs 6c,d
 
 First run drgCaImAnBatchPerSessionEventsPerTriallickvsdFFOptFlow.m with the following choices files:
 
@@ -224,7 +226,7 @@ Percent_correct_dreadds.m calculates the statistics for Figs. 7aii and 7bii
 
 ### Fig. 7c,d
 
-Run drgCalmAn_batch_dropc_no_microscope run with 
+Run drgCalmAn_batch_dropc_no_microscope run with
 drgCaImAn_dropc_choices_PVhM4Di_081519.m
 Generates *_batch_licks.mat
 
@@ -245,5 +247,3 @@ This project is licensed under the GNU General Public License v3.0
 ## Acknowledgments
 
 * Thanks to Jesse Gilmer for help with the code for dimensionality
-
-

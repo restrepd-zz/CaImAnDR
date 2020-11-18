@@ -45,7 +45,9 @@ eval(['handles_choice=' choiceFileName(1:end-2) ';'])
 handles_choice.choiceFileName=choiceFileName;
 handles_choice.choiceBatchPathName=choiceBatchPathName;
 
-cd(handles_choice.PathName)
+if ischar(handles_choice.PathName)
+    cd(handles_choice.PathName)
+end
 
 
 for fileNo=handles_choice.first_file:handles_choice.no_files
@@ -54,7 +56,12 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     
     fprintf(1, ['\nProcessing  ' num2str(fileNo) '\n']);
     
-     
+    
+    if ~ischar(handles_choice.PathName)
+        cd(handles_choice.PathName{fileNo})
+    end
+    
+    
     Yr=[];
     A_or=[];
     C_or=[];
@@ -318,6 +325,16 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
         [min_del min_jj]=min(sum_delta);
         odor_on_times_rhd=odor_on_times_rhd(min_jj:min_jj+length(odor_on_times)-1);
     end
+    
+    if length(odor_on_times)>length(odor_on_times_rhd)
+        sum_delta=[];
+        for ii=0:length(odor_on_times)-length(odor_on_times_rhd)
+            sum_delta(ii+1)=abs(sum(odor_on_times(1+ii:ii+length(odor_on_times_rhd))-odor_on_times_rhd));
+        end
+        [min_del min_jj]=min(sum_delta);
+        odor_on_times=odor_on_times(min_jj:min_jj+length(odor_on_times_rhd)-1);
+    end
+    
     delta_t_rhd=mean(odor_on_times-odor_on_times_rhd);
     
     %Plot the licks recorded by the INTAN (adc_in)
@@ -341,7 +358,7 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     
     xlabel('time (s)')
     ylabel('deltaF/F')
-    title(fnameca(1:end-4))
+    title(fnameca(1:end-4), 'Interpreter', 'none')
     
     if do_warp==1
         savefig([fnameca(1:end-4) '_dropc_warp_Fig1.fig'])
