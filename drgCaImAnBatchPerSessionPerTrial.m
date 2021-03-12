@@ -50,7 +50,7 @@ for filNum=1:caimanhandles.caimandr_choices.no_files
     else
         load([caimanhandles.caimandr_choices.PathName{filNum} caimanhandles.caimandr_choices.FileName{filNum}])
     end
-     
+      
      
     first_num_odor_trials(filNum)=num_odor_trials+1;
     
@@ -241,6 +241,7 @@ for filNum=1:caimanhandles.caimandr_choices.no_files
                     win=(time_to_event>=caimanhandles.caimandr_choices.wins(winNo,1))&(time_to_event<=caimanhandles.caimandr_choices.wins(winNo,2));
                     win_dFF=[];
                     win_dFF=mean(CR_traces(which_trial_CR==trNo,win),2);
+                    szCR=size(CR_traces(which_trial_CR==trNo,win));
 %                     norm_dFF=win_dFF./ref_dFF;
                     all_win_dFF(winNo,num_odor_trials_dFF,1:length(win_dFF))=win_dFF;
                     no_traces_win_dFF(winNo,num_odor_trials_dFF)=length(win_dFF);
@@ -275,7 +276,7 @@ for filNum=1:caimanhandles.caimandr_choices.no_files
         end
   
     end
-    noROIs(filNum)=szhit(1);
+    noROIs(filNum)=szCR(1);
     
 end
 
@@ -293,12 +294,13 @@ for ii=1:num_odor_trials-sliding_window+1
     perCorr(ii+sliding_window-1)=100*(no_Hits+no_CRs)/sliding_window;
 end
 
-
-perCorr(1:sliding_window)=perCorr(2*sliding_window+1);
-
-%Note, this is here so that perCorr=0 is included in the 0-10 % bin.
-perCorr(perCorr==0)=0.00001;
-
+try
+    perCorr(1:sliding_window)=perCorr(2*sliding_window+1);
+    
+    %Note, this is here so that perCorr=0 is included in the 0-10 % bin.
+    perCorr(perCorr==0)=0.00001;
+catch
+end
 
 
 

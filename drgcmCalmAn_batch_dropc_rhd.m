@@ -178,7 +178,7 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
             end
         else
             %Python input
-            dt=0.25984;
+            dt=handles_choice.CaImAn_dt;
             raw=readmatrix(handles_choice.CaImAn_rawFileName{fileNo});
             inferred=readmatrix(handles_choice.CaImAn_inferredFileName{fileNo});
             coms=readmatrix(handles_choice.CaImAn_comsFileName{fileNo});
@@ -217,6 +217,10 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
         
         
         %Align the rhd times with the olfactometer
+        %Note: The olfactometer is triggered by image acquisition
+        %This calculation yields delta_t_rhd that is used to offset the rhd traces
+        %to the imaging traces
+        
         %Get odor on times for the spm
         odor_on_times=[];
         ootii=0;
@@ -354,7 +358,7 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
                     
                 end
         end
-        
+         
         %Plot the licks recorded by the INTAN (adc_in)
         if handles_choice.No_rhd~=1
             time_rhd=([1:length(digital_in)]/acq_rate)+delta_t_rhd;
@@ -378,7 +382,7 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
         
         xlabel('time (s)')
         ylabel('deltaF/F')
-        title(['dFF traces for file No ' num2str(fileNo)])
+        title(['Raw dFF traces for file No ' num2str(fileNo)])
         
         if do_warp==1
             savefig([fnameca(1:end-4) '_dropc_warp_Fig1.fig'])
@@ -457,7 +461,7 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
         else
             savefig([fnameca(1:end-4) '_infdropc_batch_Fig1.fig'])
         end
-        
+         
         
         handles_per_file.file(handles_per_file.no_files).dFFtraces=traces;
         handles_per_file.file(handles_per_file.no_files).dFFtraces_inferred=traces_inferred;
@@ -534,7 +538,7 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
             % for trNo=1:20
             plot(decimate(time_rhd(time_rhd>0),100),decimate(amplifier_data(elecNo,time_rhd>0)+y_shift*elecNo,100),'-k','LineWidth',1)
         end
-        
+         
         handles_per_file.file(handles_per_file.no_files).LFPtraces=amplifier_data;
         handles_per_file.file(handles_per_file.no_files).LFP_time=time_rhd;
         handles_per_file.file(handles_per_file.no_files).no_electrodes=no_electrodes;
@@ -554,8 +558,9 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
         end
         
         %Do the wavelet analysis
-        dec_n=100;
-        dectim=decimate(time_rhd(time_rhd>0),100);
+        dec_n=handles_choice.dec_n; %100
+        dectim=decimate(time_rhd(time_rhd>0),dec_n);
+        
         %Setup the wavelet scales
         %   scales = helperCWTTimeFreqVector(minfreq,maxfreq,f0,dt,NumVoices)
         %   f0 - center frequency of the wavelet in cycles/unit time
@@ -563,9 +568,10 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
         %   NumVoices - number of voices per octave
         
         NumVoices=5;
-        minfreq=1;
-        maxfreq=100;
-        dt_rhd=1/acq_rate;
+        minfreq=handles_choice.minfreq; %1
+        maxfreq=handles_choice.maxfreq; %100
+%         dt_rhd=1/acq_rate; %Note: this is what we used before
+        dt_rhd=1/(acq_rate/dec_n);
         f0=5/(2*pi);
         
         a0 = 2^(1/NumVoices);
@@ -806,8 +812,8 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
             ylim([min_logP(bwii)-0.2*(max_logP(bwii)-min_logP(bwii)) max_logP(bwii)+0.2*(max_logP(bwii)-min_logP(bwii))])
             title(['delta power ' handles_choice.bw_names(bwii)])
         end
-        
-        
+         
+       
     end
     
     %Plot the event lines

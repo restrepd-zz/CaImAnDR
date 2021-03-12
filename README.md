@@ -235,6 +235,12 @@ Then run drgCaImAnBatchMultiSessionLicksv3.m which uses the output file from the
 
 If you would like to get information on how to generate the Supplementary Figures we will be glad to add those to readme.md
 
+## For processing Fabio's CA1 data
+
+drgCaImAn_batch_dropc_fsdz loads dF/F from csv files generated through ImageJ
+drgCaImAn_pre_per_to_pydec reads the pre_per file and saves data for Kording's lab python neural_decoding
+drgCaImAnBatchPerSessionReversalPerTrialLDA_fsdz reads the pre_per file  and does an LDA analysis
+
 ## Authors
 
 * Diego Restrepo (diego.restrepo@cuanschutz.edu) with help from the authors of the manuscript.
