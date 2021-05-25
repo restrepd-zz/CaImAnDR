@@ -162,7 +162,7 @@ caxis([mindFF maxdFF]);
 xlabel('Time (sec)')
 ylabel('ROI');
 title('delta F/F vs time for all ROIs for CR')
-
+ 
 %Do pseudocolor for FA
 try
     close 3

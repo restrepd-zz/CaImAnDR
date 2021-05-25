@@ -75,11 +75,18 @@ d = d1*d2;                                          % total number of pixels
 %     'init_method', 'greedy'...              % initialization method ('greedy','greedy_corr','sparse_NMF','HALS') (default: 'greedy')
 %     ); 
 
-%Fabio's parameters       
+% %Fabio's parameters       
+% K=500;               % number of components to be found
+% tau = 5;            % 5 std of gaussian kernel (size of neuron) 
+% p = 2;           % order of AR dynamics
+% fr=1/0.29815; %Acquisition rate of the microscope in log file (1/seconds)
+% decay_time=0.14;    % GCaMP6f decay time
+
+%Fabio's confocal parameters       
 K=500;               % number of components to be found
 tau = 5;            % 5 std of gaussian kernel (size of neuron) 
 p = 2;           % order of AR dynamics
-fr=1/0.29815; %Acquisition rate of the microscope in log file (1/seconds)
+fr=2; %Acquisition rate of the microscope in log file (1/seconds)
 decay_time=0.14;    % GCaMP6f decay time
 
 % decay_time=1.8;     %GCaMP6s decay time

@@ -107,16 +107,16 @@ for trialNo=1:handles_out.no_sm_trials
     trNo=trNo+1;
 end
 
-%Shuffle the order of the S+/S- trials (important for the python decoding)
- shuffled_ii=randperm(length(decisions));
- shuffled_decisions=decisions(shuffled_ii);
- shiffled_neural_recordings=neural_recordings;
- for ii=1:length(decisions)
-     shuffled_neural_recordings(ii,:,:)=neural_recordings(shuffled_ii(ii),:,:);
- end
-
- neural_recordings=shuffled_neural_recordings;
- decisions=shuffled_decisions;
+% %Shuffle the order of the S+/S- trials (important for the python decoding)
+%  shuffled_ii=randperm(length(decisions));
+%  shuffled_decisions=decisions(shuffled_ii);
+%  shiffled_neural_recordings=neural_recordings;
+%  for ii=1:length(decisions)
+%      shuffled_neural_recordings(ii,:,:)=neural_recordings(shuffled_ii(ii),:,:);
+%  end
+% 
+%  neural_recordings=shuffled_neural_recordings;
+%  decisions=shuffled_decisions;
  
  %save the data for python
 save([pre_perBatchPathName pre_perFileName(1:end-4) '_py.mat'],'neural_recordings','decisions','time')

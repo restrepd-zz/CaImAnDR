@@ -19,9 +19,9 @@ for ii=1:length(points)
         ii_histo=length(normval);
     end
     violin_x_val(ii)=random_offsets(ii)*rand_offset*normval(ii_histo)+x_val;
-end
+end 
 plot(violin_x_val,points,'o','MarkerSize',point_size,'MarkerFaceColor',which_color_mean,'MarkerEdgeColor',which_color_point)
-
+ 
 %Plot the mean
 mean_points=mean(points);
 % plot(x_val,mean_points,['o' which_color_mean],'MarkerFaceColor',which_color_mean,'MarkerSize',10)

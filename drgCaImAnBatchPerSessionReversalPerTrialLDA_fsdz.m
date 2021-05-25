@@ -340,74 +340,75 @@ sliding_window=20; %Trials for determination of behavioral performance
 min_precent_high_beh=80; %Minimum percent correct for good behavior blocks
 max_percent_low_beh=65;
 
+%Note: This is here for Fabio's data
 perCorr=99*ones(1,num_odor_trials_dFF);
 
 %Note: Because this is a reversal I am moving the window for calculation of perCorr to the right by nine points
 try
-for ii=1:num_odor_trials-sliding_window+1  
-    no_Hits=sum(epochs_per_trial(1,ii:ii+sliding_window-1)==1);
-    no_CRs=sum(epochs_per_trial(4,ii:ii+sliding_window-1)==1);
-    perCorr(ii+sliding_window-1)=100*(no_Hits+no_CRs)/sliding_window;
-end
-
-
-perCorr(1:sliding_window)=perCorr(2*sliding_window+1);
-
-%Note, this is here so that perCorr=0 is included in the 0-10 % bin.
-perCorr(perCorr==0)=0.00001;
-
-
-
-
-%Plot percent correct vs trial
-figNo=1;
-
-try
-    close(figNo)
-catch
-end
-
-hFig1 = figure(figNo);
-set(hFig1, 'units','normalized','position',[.25 .65 .5 .25])
-
-jj_low=find(perCorr<max_percent_low_beh);
-plot(jj_low,perCorr(jj_low),'ob')
-hold on
-jj_high=find(perCorr>min_precent_high_beh);
-plot(jj_high,perCorr(jj_high),'or')
-
-jj_mid=find((perCorr<=min_precent_high_beh)&(perCorr>=max_percent_low_beh));
-plot(jj_mid,perCorr(jj_mid),'o','MarkerEdgeColor',[0.7 0.7 0.7],'MarkerFaceColor',[0.7 0.7 0.7])
-hold on
-plot([0 num_odor_trials],[50 50],'-k')
-
-%Draw the boundaries of each file
-for filNum=2:caimanhandles.caimandr_choices.no_files
-    %     plot([first_num_odor_trials(filNum) first_num_odor_trials(filNum)],[0 100],'-k')
-    if isfield(caimanhandles.caimandr_choices,'start_reversal')
-        if caimanhandles.caimandr_choices.start_reversal==filNum
-            plot([first_num_odor_trials(filNum) first_num_odor_trials(filNum)],[0 100],'-k','LineWidth',4)
-            text(first_num_odor_trials(filNum)+2,80,'Reversal','Color','k','FontSize',18)
+    for ii=1:num_odor_trials-sliding_window+1
+        no_Hits=sum(epochs_per_trial(1,ii:ii+sliding_window-1)==1);
+        no_CRs=sum(epochs_per_trial(4,ii:ii+sliding_window-1)==1);
+        perCorr(ii+sliding_window-1)=100*(no_Hits+no_CRs)/sliding_window;
+    end
+    
+    
+    perCorr(1:sliding_window)=perCorr(2*sliding_window+1);
+    
+    %Note, this is here so that perCorr=0 is included in the 0-10 % bin.
+    perCorr(perCorr==0)=0.00001;
+    
+    
+    
+    
+    %Plot percent correct vs trial
+    figNo=1;
+    
+    try
+        close(figNo)
+    catch
+    end
+    
+    hFig1 = figure(figNo);
+    set(hFig1, 'units','normalized','position',[.25 .65 .5 .25])
+    
+    jj_low=find(perCorr<max_percent_low_beh);
+    plot(jj_low,perCorr(jj_low),'ob')
+    hold on
+    jj_high=find(perCorr>min_precent_high_beh);
+    plot(jj_high,perCorr(jj_high),'or')
+    
+    jj_mid=find((perCorr<=min_precent_high_beh)&(perCorr>=max_percent_low_beh));
+    plot(jj_mid,perCorr(jj_mid),'o','MarkerEdgeColor',[0.7 0.7 0.7],'MarkerFaceColor',[0.7 0.7 0.7])
+    hold on
+    plot([0 num_odor_trials],[50 50],'-k')
+    
+    %Draw the boundaries of each file
+    for filNum=2:caimanhandles.caimandr_choices.no_files
+        %     plot([first_num_odor_trials(filNum) first_num_odor_trials(filNum)],[0 100],'-k')
+        if isfield(caimanhandles.caimandr_choices,'start_reversal')
+            if caimanhandles.caimandr_choices.start_reversal==filNum
+                plot([first_num_odor_trials(filNum) first_num_odor_trials(filNum)],[0 100],'-k','LineWidth',4)
+                text(first_num_odor_trials(filNum)+2,80,'Reversal','Color','k','FontSize',18)
+            end
+        end
+        if isfield(caimanhandles.caimandr_choices,'start_gogo')
+            if caimanhandles.caimandr_choices.start_gogo==filNum
+                plot([first_num_odor_trials(filNum) first_num_odor_trials(filNum)],[0 100],'-k','LineWidth',4)
+                text(first_num_odor_trials(filNum)+2,80,'Go-go','Color','k','FontSize',18)
+            end
+        end
+        if isfield(caimanhandles.caimandr_choices,'start_session')
+            if sum(caimanhandles.caimandr_choices.start_session==filNum)>0
+                plot([first_num_odor_trials(filNum) first_num_odor_trials(filNum)],[0 100],'-k')
+                %             text(first_num_odor_trials(filNum)+2,80,'Reversal','Color','k','FontSize',18)
+            end
         end
     end
-    if isfield(caimanhandles.caimandr_choices,'start_gogo')
-        if caimanhandles.caimandr_choices.start_gogo==filNum
-            plot([first_num_odor_trials(filNum) first_num_odor_trials(filNum)],[0 100],'-k','LineWidth',4)
-            text(first_num_odor_trials(filNum)+2,80,'Go-go','Color','k','FontSize',18)
-        end
-    end
-    if isfield(caimanhandles.caimandr_choices,'start_session')
-        if sum(caimanhandles.caimandr_choices.start_session==filNum)>0
-            plot([first_num_odor_trials(filNum) first_num_odor_trials(filNum)],[0 100],'-k')
-            %             text(first_num_odor_trials(filNum)+2,80,'Reversal','Color','k','FontSize',18)
-        end
-    end
-end
-
-title(['Percent correct vs. trial number ' choiceFileName(18:end-2)])
-xlabel('Trial number')
-ylabel('Percent correct')
-ylim([0 100])
+    
+    title(['Percent correct vs. trial number ' choiceFileName(18:end-2)])
+    xlabel('Trial number')
+    ylabel('Percent correct')
+    ylim([0 100])
 catch
 end
 
