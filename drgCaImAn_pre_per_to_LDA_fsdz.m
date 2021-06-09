@@ -287,7 +287,7 @@ if handles_out2.decoding_processed==1
         z_neural_recordings(:,ii_neurons,:)=(neural_recordings(:,ii_neurons,:)-mean_per_neuron(ii_neurons))/STD_per_neuron(ii_neurons);
     end
     
-    if sum(p<p_threshold)>0
+    if sum(p<=p_threshold)>0
         
         gcp;
         handles_out2.decoding_processed=1;
