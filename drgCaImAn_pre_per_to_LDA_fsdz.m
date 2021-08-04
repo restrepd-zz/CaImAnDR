@@ -1,11 +1,12 @@
-function handles_out2=drgCaImAn_pre_per_to_LDA_fsdz(pre_perBatchPathName, pre_perFileName, p_threshold, MLalgo, show_figures)
+function handles_out2=drgCaImAn_pre_per_to_LDA_fsdz(pre_perBatchPathName, pre_perFileName, p_threshold, MLalgo, show_figures,no_sp_sm_trials_to_use,first_sp_sm_trial_no)
 %
 % reads the pre_per file and saves .mat files to process with
 % Kording's lab
 %
 
 close all
-clearvars -except pre_perBatchPathName pre_perFileName p_threshold MLalgo show_figures
+clearvars -except pre_perBatchPathName pre_perFileName p_threshold MLalgo show_figures no_sp_sm_trials_to_use
+warning('off')
 
 simulation=0;
 
@@ -114,15 +115,33 @@ if ~iscell(pre_perFileName)
         pffft=1;
         
         time_bins=length(handles_out.time_to_eventSp);
-        neural_recordings=zeros(handles_out.no_sp_trials+handles_out.no_sm_trials,handles_out.no_components,time_bins);
-        decisions=zeros(1,handles_out.no_sp_trials+handles_out.no_sm_trials);
+        
+        
         time=time_to_eventSp;
         
-        %Save S+
+        
         
         trNo=1;
         ii=1;
-        for trialNo=1:handles_out.no_sp_trials
+        if no_sp_sm_trials_to_use>handles_out.no_sp_trials
+            last_sp_trial=handles_out.no_sp_trials;
+        else
+            last_sp_trial=no_sp_sm_trials_to_use;
+        end
+        
+        
+        if no_sp_sm_trials_to_use>handles_out.no_sm_trials
+            last_sm_trial=handles_out.no_sm_trials;
+        else
+            last_sm_trial=no_sp_sm_trials_to_use;
+        end
+        
+        decisions=zeros(1,last_sm_trial+last_sp_trial);
+        neural_recordings=zeros(last_sm_trial+last_sp_trial,handles_out.no_components,time_bins);
+        
+        %Save S+
+        ii=1;
+        for trialNo=1:last_sp_trial
             for traceNo=1:handles_out.no_components
                 neural_recordings(trialNo,traceNo,:)=splus_traces(ii,:);
                 ii=ii+1;
@@ -133,9 +152,9 @@ if ~iscell(pre_perFileName)
         
         %Save S-
         ii=1;
-        for trialNo=1:handles_out.no_sm_trials
+        for trialNo=1:last_sm_trial
             for traceNo=1:handles_out.no_components
-                neural_recordings(trialNo+handles_out.no_sp_trials,traceNo,:)=sminus_traces(ii,:);
+                neural_recordings(trialNo+last_sp_trial,traceNo,:)=sminus_traces(ii,:);
                 ii=ii+1;
             end
             decisions(trNo)=0;
@@ -149,16 +168,16 @@ if ~iscell(pre_perFileName)
         
         p=[];
         for ii_neuron=1:handles_out.no_components
-            these_recordings_sp=zeros(handles_out.no_sp_trials,no_timepoints);
+            these_recordings_sp=zeros(last_sp_trial,no_timepoints);
             these_recordings_sp=neural_recordings(logical(decisions),ii_neuron,:);
             
-            these_recordings_sm=zeros(handles_out.no_sm_trials,no_timepoints);
+            these_recordings_sm=zeros(last_sm_trial,no_timepoints);
             these_recordings_sm=neural_recordings(~logical(decisions),ii_neuron,:);
             
-            mean_sp_odor=zeros(handles_out.no_sp_trials,1);
+            mean_sp_odor=zeros(last_sp_trial,1);
             mean_sp_odor(:,1)=mean(these_recordings_sp(:,time_to_eventLDA>0),2);
             
-            mean_sm_odor=zeros(handles_out.no_sm_trials,1);
+            mean_sm_odor=zeros(last_sm_trial,1);
             mean_sm_odor(:,1)=mean(these_recordings_sm(:,time_to_eventLDA>0),2);
             
             [h,p(ii_neuron)]=ttest2(mean_sp_odor,mean_sm_odor);
@@ -282,7 +301,7 @@ if handles_out2.decoding_processed==1
         STD_per_neuron(ii_neurons)=std(all_pre);
     end
     
-    z_neural_recordings=zeros(handles_out.no_sp_trials+handles_out.no_sm_trials,handles_out.no_components,no_timepoints);
+    z_neural_recordings=zeros(Nall,handles_out.no_components,no_timepoints);
     for ii_neurons=1:no_neurons
         z_neural_recordings(:,ii_neurons,:)=(neural_recordings(:,ii_neurons,:)-mean_per_neuron(ii_neurons))/STD_per_neuron(ii_neurons);
     end

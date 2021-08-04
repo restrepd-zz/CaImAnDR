@@ -57,135 +57,147 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     fprintf(1, ['\nProcessing  ' num2str(fileNo) '\n']);
     
     dt=handles_choice.dt(fileNo);
- 
-%     
-%     
-%     Yr=[];
-%     A_or=[];
-%     C_or=[];
-%     b2=[];
-%     f2=[];
-%     Cn=[];
-%     options=[];
-%     if do_warp==1
-%         [Yr,A_or,C_or,b2,f2,Cn,options] = drgCaImAn_get_warped_components(handles_choice.CaImAn_scriptFileName{fileNo},handles_choice.CaImAn_referenceFileName);
-%     else
-%         load(handles_choice.CaImAn_scriptFileName{fileNo})
-%     end
-%     
-%     fnameca=handles_choice.CaImAn_scriptFileName{fileNo};
-%     
-%     close all
-%     
-%     %Calculate the center of mass (coms) for each component
-%     %and draw the components and  their locations
-%     thr = 0.95;
-%     d1 = options.d1;
-%     d2 = options.d2;
-%     dt=1/options.fr;
-%     
-%     %Draw the components for the first image
-%     figNo=figNo+1;
-%     try
-%         close(figNo)
-%     catch
-%     end
-%     
-%     hFig = figure(figNo);
-%     
-%     
-%     cla
-%     imagesc(2*Cn); axis equal; axis tight; axis off; hold on;
-%     Cn1x2=2*Cn;
-%     
-%     
-%     %Find the number of components
-%     szA_or=size(A_or);
-%     coms=[];
-%     num_coms=0;
-%     num_diameters=0;
-%     diameter=[];
-%     
-%     for i=1:szA_or(2)
-%         A_temp = full(reshape(A_or(:,i),d1,d2));
-%         A_temp = medfilt2(A_temp,[3,3]);
-%         A_temp = A_temp(:);
-%         [temp,ind] = sort(A_temp(:).^2,'ascend');
-%         temp =  cumsum(temp);
-%         ff = find(temp > (1-thr)*temp(end),1,'first');
-%         if ~isempty(ff)
-%             [contour_properties,ww] = contour(reshape(A_temp,d1,d2),[0,0]+A_temp(ind(ff)),'LineColor','k');
-%             ww.LineWidth = 2;
-%             num_coms=num_coms+1;
-%             coms(1,num_coms)=mean(contour_properties(1,2:end));
-%             coms(2,num_coms)=mean(contour_properties(2,2:end));
-%             plot(coms(1,num_coms),coms(2,num_coms),'.r')
-%             %Note: we need to calculate the area within the contour
-%             szctr=size(contour_properties);
-%             lngth=0;
-%             for jj=2:szctr(2)-1
-%                 lngth=lngth+sqrt((contour_properties(1,jj+1)-contour_properties(1,jj))^2 +(contour_properties(2,jj+1)-contour_properties(2,jj))^2);
-%             end
-%             area=polyarea(contour_properties(1,2:end),contour_properties(2,2:end))-0.5*lngth;
-%             
-%             if imag(um_per_pixel*sqrt(4*area/pi)) == 0
-%                 %This is here because some contours have a point WAY off
-%                 num_diameters=num_diameters+1;
-%                 diameter(num_diameters)=um_per_pixel*sqrt(4*area/pi);
-%             end
-%         end
-%     end
-%     
-%     
-%     figNo=figNo+1;
-%     try
-%         close(figNo)
-%     catch
-%     end
-%     
-%     hFig = figure(figNo);
-%     
-%     
-%     edges=[0:25];
-%     histogram(diameter,edges)
-%     
-%     xlabel('Diameter (um)')
-%     ylabel('Counts')
-%     
-%     ROIs.median(fileNo)=median(diameter);
-%     ROIs.mean(fileNo)=mean(diameter);
-%     ROIs.std(fileNo)=std(diameter);
-%     ROIs.file(fileNo).diameter=diameter;
-%     ROIs.num_coms(fileNo)=num_coms;
-% 
-%     
-%     fprintf(1, ['\nMedian diameter (um) is %d\n\n'],median(diameter));
-%     fprintf(1, ['\nMean diameter (um) is %d\n\n'],mean(diameter));
-%     fprintf(1, ['\nStndard deviation (um) is %d\n\n'],std(diameter));
-%     
-%      
-    traces=readmatrix([handles_choice.PathNamecsv{fileNo} handles_choice.csvFileName{fileNo}]);
+    
+    %
+    %
+    %     Yr=[];
+    %     A_or=[];
+    %     C_or=[];
+    %     b2=[];
+    %     f2=[];
+    %     Cn=[];
+    %     options=[];
+    %     if do_warp==1
+    %         [Yr,A_or,C_or,b2,f2,Cn,options] = drgCaImAn_get_warped_components(handles_choice.CaImAn_scriptFileName{fileNo},handles_choice.CaImAn_referenceFileName);
+    %     else
+    %         load(handles_choice.CaImAn_scriptFileName{fileNo})
+    %     end
+    %
+    %     fnameca=handles_choice.CaImAn_scriptFileName{fileNo};
+    %
+    %     close all
+    %
+    %     %Calculate the center of mass (coms) for each component
+    %     %and draw the components and  their locations
+    %     thr = 0.95;
+    %     d1 = options.d1;
+    %     d2 = options.d2;
+    %     dt=1/options.fr;
+    %
+    %     %Draw the components for the first image
+    %     figNo=figNo+1;
+    %     try
+    %         close(figNo)
+    %     catch
+    %     end
+    %
+    %     hFig = figure(figNo);
+    %
+    %
+    %     cla
+    %     imagesc(2*Cn); axis equal; axis tight; axis off; hold on;
+    %     Cn1x2=2*Cn;
+    %
+    %
+    %     %Find the number of components
+    %     szA_or=size(A_or);
+    %     coms=[];
+    %     num_coms=0;
+    %     num_diameters=0;
+    %     diameter=[];
+    %
+    %     for i=1:szA_or(2)
+    %         A_temp = full(reshape(A_or(:,i),d1,d2));
+    %         A_temp = medfilt2(A_temp,[3,3]);
+    %         A_temp = A_temp(:);
+    %         [temp,ind] = sort(A_temp(:).^2,'ascend');
+    %         temp =  cumsum(temp);
+    %         ff = find(temp > (1-thr)*temp(end),1,'first');
+    %         if ~isempty(ff)
+    %             [contour_properties,ww] = contour(reshape(A_temp,d1,d2),[0,0]+A_temp(ind(ff)),'LineColor','k');
+    %             ww.LineWidth = 2;
+    %             num_coms=num_coms+1;
+    %             coms(1,num_coms)=mean(contour_properties(1,2:end));
+    %             coms(2,num_coms)=mean(contour_properties(2,2:end));
+    %             plot(coms(1,num_coms),coms(2,num_coms),'.r')
+    %             %Note: we need to calculate the area within the contour
+    %             szctr=size(contour_properties);
+    %             lngth=0;
+    %             for jj=2:szctr(2)-1
+    %                 lngth=lngth+sqrt((contour_properties(1,jj+1)-contour_properties(1,jj))^2 +(contour_properties(2,jj+1)-contour_properties(2,jj))^2);
+    %             end
+    %             area=polyarea(contour_properties(1,2:end),contour_properties(2,2:end))-0.5*lngth;
+    %
+    %             if imag(um_per_pixel*sqrt(4*area/pi)) == 0
+    %                 %This is here because some contours have a point WAY off
+    %                 num_diameters=num_diameters+1;
+    %                 diameter(num_diameters)=um_per_pixel*sqrt(4*area/pi);
+    %             end
+    %         end
+    %     end
+    %
+    %
+    %     figNo=figNo+1;
+    %     try
+    %         close(figNo)
+    %     catch
+    %     end
+    %
+    %     hFig = figure(figNo);
+    %
+    %
+    %     edges=[0:25];
+    %     histogram(diameter,edges)
+    %
+    %     xlabel('Diameter (um)')
+    %     ylabel('Counts')
+    %
+    %     ROIs.median(fileNo)=median(diameter);
+    %     ROIs.mean(fileNo)=mean(diameter);
+    %     ROIs.std(fileNo)=std(diameter);
+    %     ROIs.file(fileNo).diameter=diameter;
+    %     ROIs.num_coms(fileNo)=num_coms;
+    %
+    %
+    %     fprintf(1, ['\nMedian diameter (um) is %d\n\n'],median(diameter));
+    %     fprintf(1, ['\nMean diameter (um) is %d\n\n'],mean(diameter));
+    %     fprintf(1, ['\nStndard deviation (um) is %d\n\n'],std(diameter));
+    %
+    %
+    
+    this_filename=handles_choice.csvFileName{fileNo};
+    if strcmp(this_filename(end-3:end),'.mat')
+        %This reads the extract file
+        load([handles_choice.PathNamecsv{fileNo} handles_choice.csvFileName{fileNo}])
+        for traceNo=1:size(output.temporal_weights,2)
+            traces(:,traceNo)=output.temporal_weights(:,traceNo);
+        end
+    else
+        %This reasd a csv file created from ImageJ
+        traces=readmatrix([handles_choice.PathNamecsv{fileNo} handles_choice.csvFileName{fileNo}]);
+    end
+    
     traces=traces';
     fnameca=handles_choice.csvFileName{fileNo};
-%     raw=[];
-%     inferred=[];
-%     try
-%         [raw,inferred]=drgGetCAtraces(Yr,A_or,C_or,b2,f2,Cn,options);
-%     catch
-%         pffft=1
-%     end
+    %     raw=[];
+    %     inferred=[];
+    %     try
+    %         [raw,inferred]=drgGetCAtraces(Yr,A_or,C_or,b2,f2,Cn,options);
+    %     catch
+    %         pffft=1
+    %     end
     
-%     % Should we use raw or inferred?
-%     if isfield(handles_choice,'plot_raw')
-%         plot_raw=handles_choice.plot_raw;
-%     end
-%      
-%     if plot_raw==1
-%         traces=raw;
-%     else
-%         traces=inferred;
-%     end
-    
+    %     % Should we use raw or inferred?
+    %     if isfield(handles_choice,'plot_raw')
+    %         plot_raw=handles_choice.plot_raw;
+    %     end
+    %
+    %     if plot_raw==1
+    %         traces=raw;
+    %     else
+    %         traces=inferred;
+    %     end
+      
     sz_traces=size(traces);
     no_traces=sz_traces(1);
     no_images=sz_traces(2);
@@ -194,7 +206,7 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     
     %Read the dropc file
     handles=[];
-    load(handles_choice.spmFileName{fileNo})
+    load([handles_choice.PathName{fileNo} handles_choice.spmFileName{fileNo}])
     
     %Read the rhd file
     adc_in=[];
@@ -550,7 +562,7 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
             no_spm_odor_trials=0;
             epoch_per_trial=[];
             epoch_time=[];
-             
+            
             %Find Hits, CRs, etc
             for epoch=1:handles.dropcData.epochIndex
                 if ((handles.dropcData.epochTime(epoch)-dt_before)>0)&(handles.dropcData.epochTime(epoch)+dt_after<=max(time))
@@ -587,7 +599,7 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
                         dt_rhd_trace=min([dt_rhd_trace (1/acq_rate)*sum(rhd_mask)]);
                     end
                     handles_out.no_fv_trials=fvii_lick;
-                       
+                    
                     %Now do S+ and S-
                     if (handles.dropcData.epochEvent(epoch)==2)
                         %Odor on
@@ -1238,8 +1250,8 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
         save_name=[handles_choice.PathNamecsv{1} fnameca(1:end-4) '_batch_pre_per.mat']
     end
     
-   %splus_traces(handles_out.no_sp_trials*no_traces,no_timepoints), order is  for trial 1: ROI1, ROI2, etc.. ROIend, trial 2:
-   
+    %splus_traces(handles_out.no_sp_trials*no_traces,no_timepoints), order is  for trial 1: ROI1, ROI2, etc.. ROIend, trial 2:
+    
     save(save_name,'per_ii','per_input_timecourse','per_targets',...
         'Hitii','Hitii_lick','no_Hit_traces','Hit_traces','which_trace_Hit','which_trial_Hit',...
         'Missii','Missii_lick','no_Miss_traces','Miss_traces','which_trace_Miss','which_trial_Miss',...
