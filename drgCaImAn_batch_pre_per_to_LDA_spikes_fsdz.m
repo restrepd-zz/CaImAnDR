@@ -1,6 +1,8 @@
-function drgCaImAn_batch_pre_per_to_LDA_fsdz(choiceBatchPathName,choiceFileName)
+function drgCaImAn_batch_pre_per_to_LDA_spikes_fsdz(choiceBatchPathName,choiceFileName)
 %Note: fitcnet will not work in Matlab versions earlier than 2021a
 
+close all
+clear all
 
 first_file=1;
 
@@ -64,7 +66,7 @@ if all_files_present==1
                 handles_out.ii_out(ii_out).grNo=handles.group(fileNo);
                 handles_out.ii_out(ii_out).pre_per_PathName=pre_per_PathName;
                 handles_out.ii_out(ii_out).pre_per_FileName=pre_per_FileName;
-                handles_out.ii_out(ii_out).handles=drgCaImAn_pre_per_to_LDA_fsdz_new(pre_per_PathName, pre_per_FileName,handles.p_thr_less_than(ii_p_thr),handles.p_thr_more_than(ii_p_thr)...
+                handles_out.ii_out(ii_out).handles=drgCaImAn_pre_per_to_LDA_spikes_fsdz_new(pre_per_PathName, pre_per_FileName,handles.p_thr_less_than(ii_p_thr),handles.p_thr_more_than(ii_p_thr)...
                     ,MLalgo,handles.show_figures,handles.no_sp_sm_trials_to_use, handles.first_sp_sm_trial_no,figNo,fileNo,handles.this_cost);
                 figNo=figNo+3;
                 fprintf(1, ['Data processed for file number %d, p_threshold from %d to %d and MLalgo %d\n'],fileNo,handles.p_thr_more_than(ii_p_thr),handles.p_thr_less_than(ii_p_thr),MLalgo);

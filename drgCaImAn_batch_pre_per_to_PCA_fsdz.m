@@ -1,4 +1,4 @@
-function drgCaImAn_batch_pre_per_to_LDA_fsdz(choiceBatchPathName,choiceFileName)
+function drgCaImAn_batch_pre_per_to_PCA_fsdz(choiceBatchPathName,choiceFileName)
 %Note: fitcnet will not work in Matlab versions earlier than 2021a
 
 
@@ -35,7 +35,7 @@ for filNum=first_file:handles.no_files
     end
     
     if exist([pre_per_PathName pre_per_FileName])==0
-        fprintf(1, ['Program will be terminated because file No %d, ' pre_per_PathName pre_per_FileName ' does not exist\n'],filNum);
+        fprintf(1, ['Program will be terminated because file No %d, ' per_per_PathName pre_per_FileName ' does not exist\n'],filNum);
         all_files_present=0;
     end
     
@@ -43,6 +43,8 @@ end
 
 handles_out=[];
 ii_out=0;
+MLalgo=1;
+p_threshold=1;
 figNo=0;
 
 if all_files_present==1
@@ -53,23 +55,21 @@ if all_files_present==1
         
         pre_per_PathName=handles.PathName_pre_per{fileNo};
         pre_per_FileName=handles.FileName_pre_per{fileNo};
-         
         
-        for ii_p_thr=1:length(handles.p_thr_less_than)
-            for MLalgo=handles.MLalgo
-                ii_out=ii_out+1;
-                handles_out.ii_out(ii_out).p_thr_less_than=handles.p_thr_less_than(ii_p_thr);
-                handles_out.ii_out(ii_out).p_thr_more_than=handles.p_thr_more_than(ii_p_thr);
-                handles_out.ii_out(ii_out).MLalgo=MLalgo;
-                handles_out.ii_out(ii_out).grNo=handles.group(fileNo);
-                handles_out.ii_out(ii_out).pre_per_PathName=pre_per_PathName;
-                handles_out.ii_out(ii_out).pre_per_FileName=pre_per_FileName;
-                handles_out.ii_out(ii_out).handles=drgCaImAn_pre_per_to_LDA_fsdz_new(pre_per_PathName, pre_per_FileName,handles.p_thr_less_than(ii_p_thr),handles.p_thr_more_than(ii_p_thr)...
-                    ,MLalgo,handles.show_figures,handles.no_sp_sm_trials_to_use, handles.first_sp_sm_trial_no,figNo,fileNo,handles.this_cost);
-                figNo=figNo+3;
-                fprintf(1, ['Data processed for file number %d, p_threshold from %d to %d and MLalgo %d\n'],fileNo,handles.p_thr_more_than(ii_p_thr),handles.p_thr_less_than(ii_p_thr),MLalgo);
-            end
-        end
+        
+        %         for p_threshold=handles.p_thresholds
+        %             for MLalgo=handles.MLalgo
+        ii_out=ii_out+1;
+        handles_out.ii_out(ii_out).p_threshold=p_threshold;
+        handles_out.ii_out(ii_out).MLalgo=MLalgo;
+        handles_out.ii_out(ii_out).grNo=handles.group(fileNo);
+        handles_out.ii_out(ii_out).pre_per_PathName=pre_per_PathName;
+        handles_out.ii_out(ii_out).pre_per_FileName=pre_per_FileName;
+        handles_out.ii_out(ii_out).handles=drgCaImAn_pre_per_to_PCA_fsdz_new(pre_per_PathName, pre_per_FileName,figNo,handles.show_figures,handles.no_sp_sm_trials_to_use, handles.first_sp_sm_trial_no);
+        fprintf(1, ['Data processed for file number %d, p_threshold %d and MLalgo %d\n'],fileNo,p_threshold,MLalgo);
+        %             end
+        %         end
+        figNo=figNo+3;
     end
     
     %Save output file
@@ -80,7 +80,7 @@ if all_files_present==1
     
 end
 
-
+pffft=1;
 
 
 

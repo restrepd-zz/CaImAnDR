@@ -1,35 +1,14 @@
-function handles_out2=drgCaImAn_pre_per_to_LDA_fsdz_new(pre_perBatchPathName, pre_perFileName, p_thr_less_than,p_thr_more_than, MLalgo, show_figures...
-    ,no_sp_sm_trials_to_use,first_sp_sm_trial_no,figNo,fileNo,this_cost)
+function handles_out2=drgCaImAn_pre_per_to_LDA_fsdz_newv2(pre_perBatchPathName, pre_perFileName, p_thr_less_than,p_thr_more_than, MLalgo,...
+    show_figures,no_sp_sm_trials_to_use,first_sp_sm_trial_no,figNo,fileNo)
 %
 % reads the pre_per file and saves .mat files to process with
 % Kording's lab
-%Create input and target vectors leaving one trial out
 %
 
 
+clearvars -except pre_perBatchPathName pre_perFileName p_thr_less_than p_thr_more_than MLalgo show_figures no_sp_sm_trials_to_use first_sp_sm_trial_no figNo fileNo
 
-close all
-clearvars -except pre_perBatchPathName pre_perFileName p_thr_less_than p_thr_more_than MLalgo show_figures no_sp_sm_trials_to_use first_sp_sm_trial_no this_cost
 warning('off')
-
-%Set the cost
-handles_out2.cost=this_cost;
-% this_cost=[0 5;5 0];
-
-
-% What is the meaning of 1 and 2 in example ([0,1;2,0])?
-%
-% This matrix is of form
-%
-% 0 1
-% 2 0
-%
-% thus it means:
-%
-% if point has class 1 and we assign it class 1, penalty is 0 (correct classification)
-% if point has class 1 and we assign it class 2, penalty is 1
-% if point has class 2 and we assign it class 1, penalty is 2
-% if point has class 2 and we assign it class 2, penalty is 0 (correct classification)
 
 % simulation=0;
 
@@ -43,7 +22,7 @@ handles_out2.classifier_names=classifier_names;
 
 
 min_no_trials=10;
- 
+
 
 handles_out2.pre_perBatchPathName=pre_perBatchPathName;
 handles_out2.pre_perFileName=pre_perFileName;
@@ -71,7 +50,7 @@ for ii_trials=1:no_odor_trials
        handles_out2.trialNo_sm(ii_sm)=ii_trials;
     end
 end
-
+ 
 handles_out2.no_odor_trials=no_odor_trials;
 
 if (handles_out.no_sp_trials>=min_no_trials)&(handles_out.no_sm_trials>=min_no_trials)
@@ -145,37 +124,28 @@ if (handles_out.no_sp_trials>=min_no_trials)&(handles_out.no_sm_trials>=min_no_t
     trNo=0;
     tr_trNo=0;
     
-    if (no_sp_sm_trials_to_use>handles_out.no_sp_trials)||(no_sp_sm_trials_to_use>handles_out.no_sm_trials)
-        no_sp_sm_trials_to_use=min([handles_out.no_sp_trials handles_out.no_sm_trials]);
-    end
     %First and last sp trial numbers
-    %     if (first_sp_sm_trial_no<handles_out.no_sp_trials)&(first_sp_sm_trial_no+no_sp_sm_trials_to_use-1<=handles_out.no_sp_trials)
-    first_sp_trial=first_sp_sm_trial_no;
-    last_sp_trial=first_sp_sm_trial_no+no_sp_sm_trials_to_use-1;
-    %     else
-    %         if first_sp_sm_trial_no+no_sp_sm_trials_to_use-1>handles_out.no_sp_trials
-    %             first_sp_trial=handles_out.no_sp_trials-no_sp_sm_trials_to_use+1;
-    %             if first_sp_trial<1
-    %                 first_sp_trial=1;
-    %             end
-    %             last_sp_trial=handles_out.no_sp_trials;
-    %         end
-    %     end
-
+    if (first_sp_sm_trial_no<handles_out.no_sp_trials)&(first_sp_sm_trial_no+no_sp_sm_trials_to_use-1<=handles_out.no_sp_trials)
+        first_sp_trial=first_sp_sm_trial_no;
+        last_sp_trial=first_sp_sm_trial_no+no_sp_sm_trials_to_use-1;
+    else
+        if first_sp_sm_trial_no+no_sp_sm_trials_to_use-1>handles_out.no_sp_trials
+            first_sp_trial=handles_out.no_sp_trials-no_sp_sm_trials_to_use+1;
+            last_sp_trial=handles_out.no_sp_trials;
+        end
+    end
+    
     %First and last sm trial numbers
-    %     if (first_sp_sm_trial_no<handles_out.no_sm_trials)&(first_sp_sm_trial_no+no_sp_sm_trials_to_use-1<handles_out.no_sm_trials)
-    first_sm_trial=first_sp_sm_trial_no;
-    last_sm_trial=first_sp_sm_trial_no+no_sp_sm_trials_to_use-1;
-    %     else
-    %         if first_sp_sm_trial_no+no_sp_sm_trials_to_use-1>handles_out.no_sm_trials
-    %             first_sm_trial=handles_out.no_sm_trials-no_sp_sm_trials_to_use+1;
-    %              if first_sm_trial<1
-    %                 first_sm_trial=1;
-    %             end
-    %             last_sm_trial=handles_out.no_sm_trials;
-    %         end
-    %     end
-
+    if (first_sp_sm_trial_no<handles_out.no_sm_trials)&(first_sp_sm_trial_no+no_sp_sm_trials_to_use-1<handles_out.no_sm_trials)
+        first_sm_trial=first_sp_sm_trial_no;
+        last_sm_trial=first_sp_sm_trial_no+no_sp_sm_trials_to_use-1;
+    else
+        if first_sp_sm_trial_no+no_sp_sm_trials_to_use-1>handles_out.no_sm_trials
+            first_sm_trial=handles_out.no_sm_trials-no_sp_sm_trials_to_use+1;
+            last_sm_trial=handles_out.no_sm_trials;
+        end
+    end
+    
     %Note: Training is done with no_sp_sm_trials_to_use and outcome is
     %calculated for all trials
     all_trials=handles_out.no_sm_trials+handles_out.no_sp_trials;
@@ -258,7 +228,7 @@ else
     handles_out2.decoding_processed=0;
 end
 
-
+ 
 
 if handles_out2.decoding_processed==1
 
@@ -311,47 +281,113 @@ if handles_out2.decoding_processed==1
         end
     end
 
+    if show_figures==1
+        
+        Splus_z=zeros(sum(training_decisions==1)*size(z_training_neural_recordings,2),size(z_training_neural_recordings,3));
+        ii_trace=0;
+        for ii_tr=1:length(training_decisions)
+            if training_decisions(ii_tr)==1
+                for ii_comp=1:size(z_training_neural_recordings,2)
+                    ii_trace=ii_trace+1;
+                    Splus_z(ii_trace,:)=z_training_neural_recordings(ii_tr,ii_comp,:);
+                end
+            end
+        end
+        
+         Sminus_z=zeros(sum(training_decisions==0)*size(z_training_neural_recordings,2),size(z_training_neural_recordings,3));
+        ii_trace=0;
+        for ii_tr=1:length(training_decisions)
+            if training_decisions(ii_tr)==0
+                for ii_comp=1:size(z_training_neural_recordings,2)
+                    ii_trace=ii_trace+1;
+                    Sminus_z(ii_trace,:)=z_training_neural_recordings(ii_tr,ii_comp,:);
+                end
+            end
+        end
+
+        %S+, S-, all snips
+        CIsm = bootci(1000, @mean, Sminus_z);
+        meansm=mean(Sminus_z(:),1);
+        CIsm(1,:)=meansm-CIsm(1,:);
+        CIsm(2,:)=CIsm(2,:)-meansm;
+        
+        CIsp = bootci(1000, @mean, Splus_z);
+        meansp=mean(Splus_z,1);
+        CIsp(1,:)=meansp-CIsp(1,:);
+        CIsp(2,:)=CIsp(2,:)-meansp;
+        
+        
+        %First plot the average Splus and Sminus
+        figNo=figNo+1;
+        try
+            close(figNo)
+        catch
+        end
+        
+        hFig = figure(figNo);
+        
+        hold on
+        
+        
+        
+        
+        
+        
+        [hlsm, hpsm] = boundedline(time_to_eventSm',mean(Sminus_z,1)', CIsm', 'b');
+        [hlsp, hpsp] = boundedline(time_to_eventSp',mean(Splus_z,1)', CIsp', 'r');
+        
+%         %Odor on markers
+%         plot([0 0],[pct1-0.1*(pct99-pct1) pct99+0.1*(pct99-pct1)],'-k')
+%         odorhl=plot([0 mean(delta_odor)],[pct1-0.1*(pct99-pct1) pct1-0.1*(pct99-pct1)],'-k','LineWidth',5);
+%         plot([mean(delta_odor) mean(delta_odor)],[pct1-0.1*(pct99-pct1) pct99+0.1*(pct99-pct1)],'-k')
+%         
+%         %Reinforcement markers
+%         plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)],[pct1-0.1*(pct99-pct1) pct99+0.1*(pct99-pct1)],'-r')
+%         reinfhl=plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[pct1-0.1*(pct99-pct1) pct1-0.1*(pct99-pct1)],'-r','LineWidth',5);
+%         plot([mean(delta_odor_on_reinf_on)+mean(delta_reinf) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[pct1-0.1*(pct99-pct1) pct99+0.1*(pct99-pct1)],'-r')
+%         
+        
+        
+        title("z normalized Ca changes aligned to odor onset")
+        legend([hlsp hlsm odorhl reinfhl],'S+','S-','Odor','Reinforcement')
+        xlabel('Time (sec)')
+        ylabel('dF/F')
+%         ylim([pct1-0.2*(pct99-pct1) pct99+0.2*(pct99-pct1)])
+        xlim([-10 19.8])
+    end
+    
     handles_out2.time_to_eventLDA=time_to_eventLDA;
 
     if sum((p<=p_thr_less_than)&(p>=p_thr_more_than))>0
 
         gcp;
+        no_repeats=50;
+        partition_fraction=0.2;
         handles_out2.decoding_processed=1;
         handles_out2.decisions=decisions;
         handles_out2.correct_predict=zeros(no_timepoints,all_trials);
         handles_out2.correct_predict_shuffled=zeros(no_timepoints,all_trials);
-        training_output_labels=zeros(no_timepoints,Nall);
-        handles_out2.this_cost=this_cost;
-
-        %         What is clear meaning of 1 and 2 in example ([0,1;2,0])?
-        %
-        % This matrix is of form
-        %
-        % 0 1
-        % 2 0
-        % thus it means:
-        %
-        % if point has class 1 and we assign it class 1, penalty is 0 (correct classification)
-        % if point has class 1 and we assign it class 2, penalty is 1
-        % if point has class 2 and we assign it class 1, penalty is 2
-        % if point has class 2 and we assign it class 2, penalty is 0 (correct classification)
-
+        training_output_labels=zeros(no_timepoints,no_repeats*(Nall*partition_fraction));
+        training_output_decisions=zeros(no_timepoints,no_repeats*(Nall*partition_fraction));
+        votes_for_odor_per_trial=zeros(Nall,2);
+        
         for time_point=1:no_timepoints
 
             %dFF per trial per component
             measurements=zeros(Nall,sum((p<=p_thr_less_than)&(p>=p_thr_more_than)));
             measurements(:,:)=z_training_neural_recordings(:,:,time_point);
 
-
-            labels=[];
-            timepoint_processed=[];
-            correct_predict=[];
-            correct_predict_shuffled=[];
-
-
-
-            parfor ii=1:Nall
-%                 for ii=1:Nall
+            
+            labels=zeros(no_repeats,partition_fraction*Nall);
+            decisions=zeros(no_repeats,partition_fraction*Nall);
+            correct_predict=zeros(no_repeats,partition_fraction*Nall);
+            correct_predict_shuffled=zeros(no_repeats,partition_fraction*Nall);
+            test_iis=zeros(no_repeats,partition_fraction*Nall);
+            repeat_processed=zeros(1,no_repeats);
+            no_test_trials=partition_fraction*Nall;
+            
+            parfor ii=1:no_repeats
+%             for ii=1:no_repeats
 
                 %Partition the data into training and test sets.
 
@@ -360,88 +396,117 @@ if handles_out2.decoding_processed==1
                 %each row is a single time point for dF/F for one of the cells
                 %For per_target the top row is 1 if the odor is S+ and 0 if it is
                 %S-, and row 2 has 1 for S-
-                idxTrn=ones(Nall,1);
-                idxTrn(ii)=0;
-                idxTest=zeros(Nall,1);
-                idxTest(ii)=1;
-
+%                 idxTrn=ones(Nall,1);
+%                 idxTrn(ii)=0;
+%                 idxTest=zeros(Nall,1);
+%                 idxTest(ii)=1;
+%                 
+                cvp = cvpartition(Nall,'Holdout',partition_fraction);
+                idxTrn = training(cvp); % Training set indices
+                idxTest = test(cvp);    % Test set indices
+                
                 %Store the training data in a table.
                 tblTrn=[];
                 tblTrn = array2table(measurements(logical(idxTrn),:));
 
                 %Store the decisions in Y
-                Y=training_decisions(logical(idxTrn));
+                tblTrn.Y=training_decisions(logical(idxTrn))';
 
                 %Train a discriminant analysis model using the training set and default options.
                 %By default this is a regularized linear discriminant analysis (LDA)
-                timepoint_processed(ii)=1;
-
+                repeat_processed(ii)=1;
+                
+                these_test_ii=find(idxTest);
+                decisions(ii,:)=training_decisions(these_test_ii);
+                test_iis(ii,:)=these_test_ii;
+                
                 try
-                    
                     switch MLalgo
                         case 1
-                            Mdl = fitcdiscr(tblTrn,Y,'Cost',this_cost);
+                            Mdl = fitcdiscr(tblTrn,'Y');
                         case 2
-                            Mdl = fitcsvm(tblTrn,Y,'Cost',this_cost);
+                            Mdl = fitcsvm(tblTrn,'Y');
                         case 3
-                            Mdl = fitcnb(tblTrn,Y,'Cost',this_cost);
+                            Mdl = fitcnb(tblTrn,'Y');
                         case 4
-                            Mdl = fitcnet(tblTrn,Y,'Cost',this_cost);
+                            Mdl = fitcnet(tblTrn,'Y');
                         case 5
-                            Mdl = fitctree(tblTrn,Y,'Cost',this_cost);
+                            Mdl = fitctree(tblTrn,'Y');
                     end
                     
-%                     if MLalgo==2
-%                         pffft=1;
-%                     end
-%                     Mdl.Cost(1,2) = 10;
+                    Mdl.Cost(1,2) = 10;
 
                     %Predict labels for the test set. You trained Mdl using a table of data, but you can predict labels using a matrix.
                     [label,score] = predict(Mdl,measurements(logical(idxTest),:));
-                    labels(ii)=label;
+                    
+                    labels(ii,:)=label;
 
-                    %label is the predicted label, and score is the predicted class
-                    %posterior probability
-
-                    if label==training_decisions(ii)
-                        correct_predict(ii)=1;
-                    else
-                        correct_predict(ii)=0;
-                    end
-
-                    ii_shuffled=randperm(Nall);
-
-                    if label==training_decisions(ii_shuffled(ii))
-                        correct_predict_shuffled(ii)=1;
-                    else
-                        correct_predict_shuffled(ii)=0;
+                    for kk=1:no_test_trials
+                        
+ 
+                        %label is the predicted label, and score is the predicted class
+                        %posterior probability
+                        
+                        
+                        if label(kk)==training_decisions(these_test_ii(kk))
+                            correct_predict(ii,kk)=1;
+                        else
+                            correct_predict(ii,kk)=0;
+                        end
+                        
+                        ii_shuffled=randperm(Nall);
+                        
+                        if label(kk)==training_decisions(ii_shuffled(these_test_ii(kk)))
+                            correct_predict_shuffled(ii,kk)=1;
+                        else
+                            correct_predict_shuffled(ii,kk)=0;
+                        end
                     end
                 catch
-                    %fit did not work
-                    timepoint_processed(ii)=0;
-                    correct_predict(ii)=-1;
-                    correct_predict_shuffled(ii)=-1;
-                    labels(ii)=-1;
+                    %fit did not work, enter -1
+                    repeat_processed(ii)=0;
+                    for kk=1:no_test_trials
+                        correct_predict(ii,kk)=-1;
+                        correct_predict_shuffled(ii,kk)=-1;
+                    end
+                    labels(ii,:)=-1;
                 end
             end
-            if (p_thr_less_than==1.1)&(p_thr_more_than==0.5)
-                pffft=1;
+            
+            v_correct_predict=zeros(1,no_test_trials*no_repeats);
+            v_correct_predict(1,:)=correct_predict(:);
+            accuracy(time_point)=mean(v_correct_predict(v_correct_predict~=-1));
+            v_correct_predict_shuffled=zeros(1,no_test_trials*no_repeats);
+            v_correct_predict_shuffled(1,:)=correct_predict_shuffled(:);
+            sh_accuracy(time_point)=mean(v_correct_predict_shuffled(v_correct_predict_shuffled~=-1));
+            v_labels=zeros(1,no_test_trials*no_repeats);
+            v_labels(1,:)=labels(:);
+            training_output_labels(time_point,:)=v_labels;
+            v_decisions=zeros(1,no_test_trials*no_repeats);
+            v_decisions(1,:)=decisions(:);
+            training_output_decisions(time_point,:)=v_decisions;
+            
+            if time(time_point)>=0
+                for ii=1:no_repeats
+                    for kk=1:no_test_trials
+                        if labels(ii,kk)==0
+                            votes_for_odor_per_trial(test_iis(ii,kk),1)=votes_for_odor_per_trial(test_iis(ii,kk),1)+1;
+                        else
+                            votes_for_odor_per_trial(test_iis(ii,kk),2)=votes_for_odor_per_trial(test_iis(ii,kk),2)+1;
+                        end
+                    end
+                end
             end
-            accuracy(time_point)=mean(correct_predict(correct_predict~=-1));
-            sh_accuracy(time_point)=mean(correct_predict_shuffled(correct_predict_shuffled~=-1));
-            training_output_labels(time_point,:)=labels;
-
-
 
             for jj=1:Nall
-                handles_out2.timepoint_processed(time_point,ii_all(jj))=timepoint_processed(jj);
-                handles_out2.correct_predict(time_point,ii_all(jj))=correct_predict(jj);
-                handles_out2.correct_predict_shuffled(time_point,ii_all(jj))=correct_predict_shuffled(jj);
+                handles_out2.repeat_processed(time_point,ii_all(jj))=repeat_processed(jj);
+%                 handles_out2.correct_predict(time_point,ii_all(jj))=correct_predict(jj);
+%                 handles_out2.correct_predict_shuffled(time_point,ii_all(jj))=correct_predict_shuffled(jj);
             end
 
-            if show_figures==1
-                fprintf(1, ['For timepoint %d accuracy= %d and shuffled accuracy= %d\n'],time_point,accuracy(time_point),sh_accuracy(time_point));
-            end
+%             if show_figures==1
+%                 fprintf(1, ['For timepoint %d accuracy= %d and shuffled accuracy= %d\n'],time_point,accuracy(time_point),sh_accuracy(time_point));
+%             end
         end
 
 
@@ -456,41 +521,39 @@ if handles_out2.decoding_processed==1
         handles_out2.delta_reinf=mean(delta_reinf);
         handles_out2.no_sp_trials=handles_out.no_sp_trials;
         handles_out2.no_sm_trials=handles_out.no_sm_trials;
- 
-        if sum(correct_predict==-1)>0
-            pffft=1;
-        end
+
+    
 
         %Now use Bishop's (2006) majority rule
         if handles_out2.decoding_processed==1
-            winning_label=zeros(1,Nall);
-            for this_tr_No=1:Nall
-                these_labels=zeros(1,sum(time>=0));
-                these_labels(1,:)=training_output_labels(time>=0,this_tr_No);
-                if sum(these_labels==1)>sum(these_labels==0)
-                    winning_label(this_tr_No)=1;
+            bishop_choice=zeros(1,Nall);
+            for ii=1:Nall
+                if votes_for_odor_per_trial(ii,1)>votes_for_odor_per_trial(ii,2)
+                    bishop_choice(ii)=0;
                 else
-                    if sum(these_labels==0)>sum(these_labels==1)
-                        winning_label(this_tr_No)=0;
-                    else
+                    if votes_for_odor_per_trial(ii,1)==votes_for_odor_per_trial(ii,2)
                         if rand>0.5
-                            winning_label(this_tr_No)=1;
+                            bishop_choice(ii)=1;
                         else
-                            winning_label(this_tr_No)=0;
+                            bishop_choice(ii)=0;
                         end
+                    else
+                        bishop_choice(ii)=1;
                     end
                 end
             end
+            
+     
 
-            handles_out2.bishop_accuracy=sum(winning_label==training_decisions)/Nall;
+            handles_out2.bishop_accuracy=sum(bishop_choice==training_decisions)/Nall;
             these_bishop_sh_accuracy=[];
             for ii_no=1:5
                 shuffled_training_decisions=training_decisions(randperm(Nall));
-                these_bishop_sh_accuracy(ii_no)=sum(winning_label==shuffled_training_decisions)/Nall;
+                these_bishop_sh_accuracy(ii_no)=sum(bishop_choice==shuffled_training_decisions)/Nall;
             end
             handles_out2.bishop_sh_accuracy=mean(these_bishop_sh_accuracy);
 
-            handles_out2.winning_label=winning_label;
+            handles_out2.bishop_choice=bishop_choice;
             handles_out2.training_decisions=training_decisions;
         else
             handles_out2.bishop_accuracy=[];
@@ -503,95 +566,7 @@ if handles_out2.decoding_processed==1
         handles_out2.decoding_processed=0;
     end
     
-%     %Now decode for the rest of the trials using the entire training set for training
-%     if sum((p<=p_thr_less_than)&(p>=p_thr_more_than))>0
-%         
-%         
-%         %Calculate the z values
-%         z_neural_recordings=zeros(all_trials,handles_out.no_components,no_timepoints);
-%         for ii_neurons=1:no_neurons
-%             z_neural_recordings(:,ii_neurons,:)=(neural_recordings(:,ii_neurons,:)-mean_per_neuron(ii_neurons))/STD_per_neuron(ii_neurons);
-%         end
-%         
-%         
-%         
-%         
-%         for time_point=1:no_timepoints
-%             
-%             %dFF per trial per component
-%             measurements=zeros(Nall,sum((p<=p_thr_less_than)&(p>=p_thr_more_than)));
-%             measurements(:,:)=z_training_neural_recordings(:,(p<=p_thr_less_than)&(p>=p_thr_more_than),time_point);
-%             
-%             
-%             
-%             correct_predict=[];
-%             correct_predict_shuffled=[];
-%             
-%             
-%             
-%             %Now train the decoder with all trials in the decoding data set
-%             
-%             
-%             
-%             %Store the training data in a table.
-%             tblTrn=[];
-%             tblTrn = array2table(measurements);
-%             
-%             %Store the decisions in Y
-%             Y=training_decisions;
-%             
-%             %Train a discriminant analysis model using the training set and default options.
-%             %By default this is a regularized linear discriminant analysis (LDA)
-%             switch MLalgo
-%                 case 1
-%                     Mdl = fitcdiscr(tblTrn,Y);
-%                 case 2
-%                     Mdl = fitcsvm(tblTrn,Y);
-%                 case 3
-%                     Mdl = fitcnb(tblTrn,Y);
-%                 case 4
-%                     Mdl = fitcnet(tblTrn,Y);
-%                 case 5
-%                     Mdl = fitctree(tblTrn,Y);
-%             end
-%             
-%             %Now predict the outcome for all trials excluding the training set
-%             all_measurements=zeros(all_trials,sum(p<(p<=p_thr_less_than)&(p>=p_thr_more_than)));
-%             all_measurements(:,:)=z_neural_recordings(:,(p<=p_thr_less_than)&(p>=p_thr_more_than),time_point);
-%             
-%             %Predict labels for all trials excluding the training set
-%             for jj=1:all_trials
-%                 if sum(jj==ii_all)>0
-%                     [label,score] = predict(Mdl,all_measurements(jj,:));
-%                     
-%                     %label is the predicted label, and score is the predicted class
-%                     %posterior probability
-%                     
-%                     if label==decisions(jj)
-%                         handles_out2.correct_predict(time_point,jj)=1;
-%                     else
-%                         handles_out2.correct_predict(time_point,jj)=0;
-%                     end
-%                     
-%                     jj_shuffled=randperm(all_trials);
-%                     
-%                     if label==decisions(jj_shuffled(jj))
-%                         handles_out2.correct_predict_shuffled(time_point,jj)=1;
-%                     else
-%                         handles_out2.correct_predict_shuffled(time_point,jj)=0;
-%                     end
-%                     
-%                 end
-%             end
-%             
-%             
-%             if show_figures==1
-%                 fprintf(1, ['For timepoint %d accuracy= %d and shuffled accuracy= %d\n'],time_point,accuracy(time_point),sh_accuracy(time_point));
-%             end
-%         end
-%         
-%         
-%     end
+
     
     if show_figures==1
         figNo=figNo+1;
@@ -622,6 +597,9 @@ if handles_out2.decoding_processed==1
         bar_offset=max(time)+1;
         plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
         plot([bar_offset],mean(accuracy(time>=0)),'ok')
+        bar_offset=bar_offset+1;
+        plot([bar_offset],handles_out2.bishop_accuracy,'om')
+        
         
         %For the shuffled accuracy use all points
         CI = bootci(1000, {@mean, sh_accuracy},'type','cper');
@@ -644,7 +622,10 @@ if handles_out2.decoding_processed==1
         
         xlabel('Time (sec)')
         ylabel('Accuracy')
+        
+        title(['Accuracy timecourse for file number ' num2str(fileNo) ' and algorithm number ' num2str(MLalgo)])
     end
+    pffft=1;
 end
 pffft=1;
 

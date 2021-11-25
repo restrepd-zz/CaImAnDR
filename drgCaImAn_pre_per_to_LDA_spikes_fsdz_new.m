@@ -1,4 +1,4 @@
-function handles_out2=drgCaImAn_pre_per_to_LDA_fsdz_new(pre_perBatchPathName, pre_perFileName, p_thr_less_than,p_thr_more_than, MLalgo, show_figures...
+function handles_out2=drgCaImAn_pre_per_to_LDA_spikes_fsdz_new(pre_perBatchPathName, pre_perFileName, p_thr_less_than,p_thr_more_than, MLalgo, show_figures...
     ,no_sp_sm_trials_to_use,first_sp_sm_trial_no,figNo,fileNo,this_cost)
 %
 % reads the pre_per file and saves .mat files to process with
@@ -9,7 +9,7 @@ function handles_out2=drgCaImAn_pre_per_to_LDA_fsdz_new(pre_perBatchPathName, pr
 
 
 close all
-clearvars -except pre_perBatchPathName pre_perFileName p_thr_less_than p_thr_more_than MLalgo show_figures no_sp_sm_trials_to_use first_sp_sm_trial_no this_cost
+clearvars -except pre_perBatchPathName pre_perFileName p_thr_less_than p_thr_more_than MLalgo show_figures no_sp_sm_trials_to_use first_sp_sm_trial_no this_cost figNo this_cost
 warning('off')
 
 %Set the cost
@@ -149,32 +149,14 @@ if (handles_out.no_sp_trials>=min_no_trials)&(handles_out.no_sm_trials>=min_no_t
         no_sp_sm_trials_to_use=min([handles_out.no_sp_trials handles_out.no_sm_trials]);
     end
     %First and last sp trial numbers
-    %     if (first_sp_sm_trial_no<handles_out.no_sp_trials)&(first_sp_sm_trial_no+no_sp_sm_trials_to_use-1<=handles_out.no_sp_trials)
     first_sp_trial=first_sp_sm_trial_no;
     last_sp_trial=first_sp_sm_trial_no+no_sp_sm_trials_to_use-1;
-    %     else
-    %         if first_sp_sm_trial_no+no_sp_sm_trials_to_use-1>handles_out.no_sp_trials
-    %             first_sp_trial=handles_out.no_sp_trials-no_sp_sm_trials_to_use+1;
-    %             if first_sp_trial<1
-    %                 first_sp_trial=1;
-    %             end
-    %             last_sp_trial=handles_out.no_sp_trials;
-    %         end
-    %     end
+   
 
     %First and last sm trial numbers
-    %     if (first_sp_sm_trial_no<handles_out.no_sm_trials)&(first_sp_sm_trial_no+no_sp_sm_trials_to_use-1<handles_out.no_sm_trials)
     first_sm_trial=first_sp_sm_trial_no;
     last_sm_trial=first_sp_sm_trial_no+no_sp_sm_trials_to_use-1;
-    %     else
-    %         if first_sp_sm_trial_no+no_sp_sm_trials_to_use-1>handles_out.no_sm_trials
-    %             first_sm_trial=handles_out.no_sm_trials-no_sp_sm_trials_to_use+1;
-    %              if first_sm_trial<1
-    %                 first_sm_trial=1;
-    %             end
-    %             last_sm_trial=handles_out.no_sm_trials;
-    %         end
-    %     end
+
 
     %Note: Training is done with no_sp_sm_trials_to_use and outcome is
     %calculated for all trials
@@ -262,54 +244,63 @@ end
 
 if handles_out2.decoding_processed==1
 
+    %Threshold out the spikes
+    std_traces=std(training_neural_recordings(:));
+    thr=5*std_traces;
+    
+    %These is the placeholders for the spike counts     
+    training_neural_spikes=zeros(2*no_sp_sm_trials_to_use,handles_out.no_components,time_bins);
+
+    for ii_comps=1:handles_out.no_components
+        
+        these_recordings=zeros(length(training_decisions),no_timepoints);
+        these_recordings(:,:)=training_neural_recordings(:,ii_comps,:);
+        baseline_dF=prctile(these_recordings(:),5);
+         
+        for ii_t=1:no_timepoints
+            for trNo=1:2*no_sp_sm_trials_to_use
+                if training_neural_recordings(trNo,ii_comps,ii_t)-baseline_dF>thr
+                    training_neural_spikes(trNo,ii_comps,ii_t)=1;
+                end
+            end
+        end
+        
+    end
 
     %First decode for the training trials leaving one trial out
     Nall=length(training_decisions);
     accuracy=zeros(1,no_timepoints);
     sh_accuracy=zeros(1,no_timepoints);
 
-    %     %These are used to calculate the z values
-    %     %I use time<0
-    %     mean_per_neuron=zeros(1,no_neurons);
-    %     STD_per_neuron=zeros(1,no_neurons);
-    %     for ii_neurons=1:no_neurons
-    %         all_pre=[];
-    %         for ii_trials=1:tr_no_trials
-    %             these_pre=zeros(1,sum(time_to_eventLDA<0));
-    %             these_pre(1,:)=training_neural_recordings(ii_trials,ii_neuron,time_to_eventLDA<0);
-    %             all_pre=[all_pre these_pre];
-    %         end
-    %         mean_per_neuron(ii_neurons)=mean(all_pre);
-    %         STD_per_neuron(ii_neurons)=std(all_pre);
-    %     end
-    %
-    %     z_training_neural_recordings=zeros(Nall,handles_out.no_components,no_timepoints);
-    %     for ii_neurons=1:no_neurons
-    %         z_training_neural_recordings(:,ii_neurons,:)=(training_neural_recordings(:,ii_neurons,:)-mean_per_neuron(ii_neurons))/STD_per_neuron(ii_neurons);
-    %     end
+    
 
     %Calculate z from dFF
     mean_per_neuron=zeros(1,sum((p<=p_thr_less_than)&(p>=p_thr_more_than)));
     STD_per_neuron=zeros(1,sum((p<=p_thr_less_than)&(p>=p_thr_more_than)));
-    z_training_neural_recordings=zeros(Nall,sum((p<=p_thr_less_than)&(p>=p_thr_more_than)),no_timepoints);
+    
+    z_training_neural_spikes=zeros(Nall,sum((p<=p_thr_less_than)&(p>=p_thr_more_than)),no_timepoints);
     jj_neurons=0;
+    all_pre=[];
     for ii_neurons=1:no_neurons
         if (p(ii_neurons)<=p_thr_less_than)&(p(ii_neurons)>=p_thr_more_than)
             jj_neurons=jj_neurons+1;
-            all_pre=[];
+            
             for ii_trials=1:tr_no_trials
                 these_pre=zeros(1,sum((time_to_eventLDA<0)&(time_to_eventLDA>=-5)));
-                these_pre(1,:)=training_neural_recordings(ii_trials,ii_neurons,(time_to_eventLDA<0)&(time_to_eventLDA>=-5));
+                these_pre(1,:)=training_neural_spikes(ii_trials,ii_neurons,(time_to_eventLDA<0)&(time_to_eventLDA>=-5));
                 all_pre=[all_pre these_pre];
             end
-            STD_per_neuron(jj_neurons)=std(all_pre);
+            
             for ii_trials=1:tr_no_trials
-                these_dFFs=[];
-                these_dFFs=training_neural_recordings(ii_trials,ii_neurons,(time_to_eventLDA<0)&(time_to_eventLDA>=-5));
-                z_training_neural_recordings(ii_trials,jj_neurons,:)=(training_neural_recordings(ii_trials,ii_neurons,:)-mean(these_dFFs))/STD_per_neuron(jj_neurons);
+                these_spikes=[];
+                these_spikes=training_neural_spikes(ii_trials,ii_neurons,(time_to_eventLDA<0)&(time_to_eventLDA>=-5));
+                z_training_neural_spikes(ii_trials,jj_neurons,:)=(training_neural_spikes(ii_trials,ii_neurons,:)-mean(these_spikes));
             end
         end
     end
+    
+    STD_all_neurons=std(all_pre);
+    z_training_neural_spikes=z_training_neural_spikes/STD_all_neurons;
 
     handles_out2.time_to_eventLDA=time_to_eventLDA;
 
@@ -340,7 +331,7 @@ if handles_out2.decoding_processed==1
 
             %dFF per trial per component
             measurements=zeros(Nall,sum((p<=p_thr_less_than)&(p>=p_thr_more_than)));
-            measurements(:,:)=z_training_neural_recordings(:,:,time_point);
+            measurements(:,:)=z_training_neural_spikes(:,:,time_point);
 
 
             labels=[];
@@ -502,96 +493,6 @@ if handles_out2.decoding_processed==1
     else
         handles_out2.decoding_processed=0;
     end
-    
-%     %Now decode for the rest of the trials using the entire training set for training
-%     if sum((p<=p_thr_less_than)&(p>=p_thr_more_than))>0
-%         
-%         
-%         %Calculate the z values
-%         z_neural_recordings=zeros(all_trials,handles_out.no_components,no_timepoints);
-%         for ii_neurons=1:no_neurons
-%             z_neural_recordings(:,ii_neurons,:)=(neural_recordings(:,ii_neurons,:)-mean_per_neuron(ii_neurons))/STD_per_neuron(ii_neurons);
-%         end
-%         
-%         
-%         
-%         
-%         for time_point=1:no_timepoints
-%             
-%             %dFF per trial per component
-%             measurements=zeros(Nall,sum((p<=p_thr_less_than)&(p>=p_thr_more_than)));
-%             measurements(:,:)=z_training_neural_recordings(:,(p<=p_thr_less_than)&(p>=p_thr_more_than),time_point);
-%             
-%             
-%             
-%             correct_predict=[];
-%             correct_predict_shuffled=[];
-%             
-%             
-%             
-%             %Now train the decoder with all trials in the decoding data set
-%             
-%             
-%             
-%             %Store the training data in a table.
-%             tblTrn=[];
-%             tblTrn = array2table(measurements);
-%             
-%             %Store the decisions in Y
-%             Y=training_decisions;
-%             
-%             %Train a discriminant analysis model using the training set and default options.
-%             %By default this is a regularized linear discriminant analysis (LDA)
-%             switch MLalgo
-%                 case 1
-%                     Mdl = fitcdiscr(tblTrn,Y);
-%                 case 2
-%                     Mdl = fitcsvm(tblTrn,Y);
-%                 case 3
-%                     Mdl = fitcnb(tblTrn,Y);
-%                 case 4
-%                     Mdl = fitcnet(tblTrn,Y);
-%                 case 5
-%                     Mdl = fitctree(tblTrn,Y);
-%             end
-%             
-%             %Now predict the outcome for all trials excluding the training set
-%             all_measurements=zeros(all_trials,sum(p<(p<=p_thr_less_than)&(p>=p_thr_more_than)));
-%             all_measurements(:,:)=z_neural_recordings(:,(p<=p_thr_less_than)&(p>=p_thr_more_than),time_point);
-%             
-%             %Predict labels for all trials excluding the training set
-%             for jj=1:all_trials
-%                 if sum(jj==ii_all)>0
-%                     [label,score] = predict(Mdl,all_measurements(jj,:));
-%                     
-%                     %label is the predicted label, and score is the predicted class
-%                     %posterior probability
-%                     
-%                     if label==decisions(jj)
-%                         handles_out2.correct_predict(time_point,jj)=1;
-%                     else
-%                         handles_out2.correct_predict(time_point,jj)=0;
-%                     end
-%                     
-%                     jj_shuffled=randperm(all_trials);
-%                     
-%                     if label==decisions(jj_shuffled(jj))
-%                         handles_out2.correct_predict_shuffled(time_point,jj)=1;
-%                     else
-%                         handles_out2.correct_predict_shuffled(time_point,jj)=0;
-%                     end
-%                     
-%                 end
-%             end
-%             
-%             
-%             if show_figures==1
-%                 fprintf(1, ['For timepoint %d accuracy= %d and shuffled accuracy= %d\n'],time_point,accuracy(time_point),sh_accuracy(time_point));
-%             end
-%         end
-%         
-%         
-%     end
     
     if show_figures==1
         figNo=figNo+1;

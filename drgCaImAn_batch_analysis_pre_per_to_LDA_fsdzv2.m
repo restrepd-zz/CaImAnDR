@@ -1,4 +1,4 @@
-function drgCaImAn_batch_analysis_pre_per_to_LDA_fsdz
+function drgCaImAn_batch_analysis_pre_per_to_LDA_fsdzv2
 
 close all
 clear all
@@ -31,8 +31,14 @@ sh_accuracy=[];
 bishop_accuracy=[];
 bishop_sh_accuracy=[];
 per_trial=[];
-  
-for ii_thr=1:length(handles_out.handles.p_thresholds)
+
+if isfield(handles_out.handles,'p_threshold')
+    no_thr=length(handles_out.handles.p_thresholds);
+else
+    no_thr=length(handles_out.handles.p_thr_more_than);
+end
+
+for ii_thr=1:no_thr
     for ii_MLalgo=1:5
         accuracy.thr(ii_thr).MLalgo(ii_MLalgo).accuracy=[];
         accuracy.thr(ii_thr).MLalgo(ii_MLalgo).gr_no=[];
@@ -42,7 +48,6 @@ for ii_thr=1:length(handles_out.handles.p_thresholds)
         sh_accuracy.thr(ii_thr).MLalgo(ii_MLalgo).gr_no=[];
         sh_accuracy.thr(ii_thr).MLalgo(ii_MLalgo).ii_accuracy=0;
         bishop_accuracy.thr(ii_thr).MLalgo(ii_MLalgo).accuracy=[];
-        bishop_accuracy.thr(ii_thr).MLalgo(ii_MLalgo).gr_no=[];
         bishop_accuracy.thr(ii_thr).MLalgo(ii_MLalgo).ii_accuracy=0;
         bishop_sh_accuracy.thr(ii_thr).MLalgo(ii_MLalgo).accuracy=[];
         bishop_sh_accuracy.thr(ii_thr).MLalgo(ii_MLalgo).gr_no=[];
@@ -51,7 +56,7 @@ for ii_thr=1:length(handles_out.handles.p_thresholds)
         per_trial.thr(ii_thr).MLalgo(ii_MLalgo).ii_decisions=0;
     end
 end
-    
+
 ii_05=0;
 ii_MLalgo_05=0;
 
@@ -68,25 +73,39 @@ end
 
 for ii_out=1:length(handles_out.ii_out)
     if handles_out.ii_out(ii_out).handles.decoding_processed==1
-        ii_thr=find(handles_out.handles.p_thresholds==handles_out.ii_out(ii_out).p_threshold);
-        ii_MLalgo=handles_out.ii_out(ii_out).MLalgo;
-        if (handles_out.ii_out(ii_out).p_threshold==1.1)&(handles_out.ii_out(ii_out).MLalgo==2)
-            figure(14)
-            clf('reset')
-            plot(handles_out.ii_out(ii_out).handles.accuracy)
-            hold on
-            plot(handles_out.ii_out(ii_out).handles.sh_accuracy)
-            pffft=1;
+        
+        
+        if isfield(handles_out.handles,'p_threshold')
+            ii_thr=find(handles_out.handles.p_thresholds==handles_out.ii_out(ii_out).p_threshold);
+        else
+            ii_thr_more=find(handles_out.handles.p_thr_more_than==handles_out.ii_out(ii_out).p_thr_more_than);
+            ii_thr_less=find(handles_out.handles.p_thr_less_than==handles_out.ii_out(ii_out).p_thr_less_than);
+            
+            for ii_th_m=1:length(ii_thr_more)
+                for ii_th_l=1:length(ii_thr_less)
+                    if (ii_thr_more(ii_th_m)==ii_thr_less(ii_th_l))
+                        ii_thr=ii_thr_more(ii_th_m);
+                    end
+                end
+            end
         end
+        
+        
+        ii_MLalgo=handles_out.ii_out(ii_out).MLalgo;
+
         accuracy.thr(ii_thr).MLalgo(ii_MLalgo).ii_accuracy=accuracy.thr(ii_thr).MLalgo(ii_MLalgo).ii_accuracy+1;
         ii_accuracy=accuracy.thr(ii_thr).MLalgo(ii_MLalgo).ii_accuracy;
-        
-        accuracy.thr(ii_thr).MLalgo(ii_MLalgo).no_ROIs(ii_accuracy)=sum(handles_out.ii_out(ii_out).handles.p<handles_out.ii_out(ii_out).handles.p_threshold);
+        if ~isfield(handles_out.handles,'p_threshold')
+            accuracy.thr(ii_thr).MLalgo(ii_MLalgo).no_ROIs(ii_accuracy)=sum((handles_out.ii_out(ii_out).handles.p>=handles_out.ii_out(ii_out).p_thr_more_than)&...
+                (handles_out.ii_out(ii_out).handles.p<=handles_out.ii_out(ii_out).p_thr_less_than));
+        else
+            accuracy.thr(ii_thr).MLalgo(ii_MLalgo).no_ROIs(ii_accuracy)=sum(handles_out.ii_out(ii_out).handles.p<handles_out.ii_out(ii_out).handles.p_threshold);
+        end
         accuracy.thr(ii_thr).MLalgo(ii_MLalgo).accuracy(ii_accuracy)=handles_out.ii_out(ii_out).handles.mean_accuracy;
-        accuracy.thr(ii_thr).MLalgo(ii_MLalgo).gr_no(ii_accuracy)=handles_out.ii_out(ii_out).grNo;
         sh_accuracy.thr(ii_thr).MLalgo(ii_MLalgo).accuracy(ii_accuracy)=handles_out.ii_out(ii_out).handles.mean_sh_accuracy;
-        bishop_accuracy.thr(ii_thr).MLalgo(ii_MLalgo).accuracy(ii_accuracy)=handles_out.ii_out(ii_out).handles.bishop_accuracy;
+        accuracy.thr(ii_thr).MLalgo(ii_MLalgo).gr_no(ii_accuracy)=handles_out.ii_out(ii_out).grNo;
         
+        bishop_accuracy.thr(ii_thr).MLalgo(ii_MLalgo).accuracy(ii_accuracy)=handles_out.ii_out(ii_out).handles.bishop_accuracy;
         bii_accuracy=bishop_sh_accuracy.thr(ii_thr).MLalgo(ii_MLalgo).ii_accuracy;
         bishop_sh_accuracy.thr(ii_thr).MLalgo(ii_MLalgo).accuracy(bii_accuracy+1:bii_accuracy+length(handles_out.ii_out(ii_out).handles.bishop_sh_accuracy))=handles_out.ii_out(ii_out).handles.bishop_sh_accuracy;
         bishop_sh_accuracy.thr(ii_thr).MLalgo(ii_MLalgo).ii_accuracy=bishop_sh_accuracy.thr(ii_thr).MLalgo(ii_MLalgo).ii_accuracy+length(handles_out.ii_out(ii_out).handles.bishop_sh_accuracy);
@@ -101,15 +120,29 @@ for ii_out=1:length(handles_out.ii_out)
             these_trials=ii_trial_no:ii_trial_no+trial_window-1;
             these_winning_labels=[];
             these_training_decisions=[];
-            for ttii=1:length(these_trials)
-                if sum(trialNo_sp==these_trials(ttii))
-                    this_ii_sp=find(trialNo_sp==these_trials(ttii));
-                    these_winning_labels(ttii)=handles_out.ii_out(ii_out).handles.winning_label(this_ii_sp);
-                    these_training_decisions(ttii)=handles_out.ii_out(ii_out).handles.training_decisions(this_ii_sp);
-                else
-                    this_ii_sm=find(trialNo_sm==these_trials(ttii))+handles_out.handles.no_sp_sm_trials_to_use;
-                    these_winning_labels(ttii)=handles_out.ii_out(ii_out).handles.winning_label(this_ii_sm);
-                    these_training_decisions(ttii)=handles_out.ii_out(ii_out).handles.training_decisions(this_ii_sm);
+            if isfield(handles_out.ii_out(ii_out).handles,'winning_label')
+                for ttii=1:length(these_trials)
+                    if sum(trialNo_sp==these_trials(ttii))
+                        this_ii_sp=find(trialNo_sp==these_trials(ttii));
+                        these_winning_labels(ttii)=handles_out.ii_out(ii_out).handles.winning_label(this_ii_sp);
+                        these_training_decisions(ttii)=handles_out.ii_out(ii_out).handles.training_decisions(this_ii_sp);
+                    else
+                        this_ii_sm=find(trialNo_sm==these_trials(ttii))+handles_out.handles.no_sp_sm_trials_to_use;
+                        these_winning_labels(ttii)=handles_out.ii_out(ii_out).handles.winning_label(this_ii_sm);
+                        these_training_decisions(ttii)=handles_out.ii_out(ii_out).handles.training_decisions(this_ii_sm);
+                    end
+                end
+            else
+                for ttii=1:length(these_trials)
+                    if sum(trialNo_sp==these_trials(ttii))
+                        this_ii_sp=find(trialNo_sp==these_trials(ttii));
+                        these_winning_labels(ttii)=handles_out.ii_out(ii_out).handles.bishop_choice(this_ii_sp);
+                        these_training_decisions(ttii)=handles_out.ii_out(ii_out).handles.training_decisions(this_ii_sp);
+                    else
+                        this_ii_sm=find(trialNo_sm==these_trials(ttii))+handles_out.handles.no_sp_sm_trials_to_use;
+                        these_winning_labels(ttii)=handles_out.ii_out(ii_out).handles.bishop_choice(this_ii_sm);
+                        these_training_decisions(ttii)=handles_out.ii_out(ii_out).handles.training_decisions(this_ii_sm);
+                    end
                 end
             end
             
@@ -121,11 +154,13 @@ for ii_out=1:length(handles_out.ii_out)
     end
 end
 
+MLalgos=handles_out.ii_out(ii_out).handles.MLalgo;
+
 %Plot bar graphs for bishop
 edges=[0:0.03:1];
 rand_offset=0.5;
 figNo=0;
-for ii_thr=1:length(handles_out.handles.p_thresholds)
+for ii_thr=1:no_thr
     figNo=figNo+1;
     try
         close(figNo)
@@ -142,32 +177,46 @@ for ii_thr=1:length(handles_out.handles.p_thresholds)
     
     bar_offset=0;
     
-    fprintf(1,['t test p values for p<' num2str(handles_out.handles.p_thresholds(ii_thr)) '\n'])
+    if isfield(handles_out.handles,'p_threshold')
+        fprintf(1,['t test p values for p<' num2str(handles_out.handles.p_thresholds(ii_thr)) '\n'])
+    else
+        fprintf(1,['t test p values for p from ' num2str(handles_out.handles.p_thr_more_than(ii_thr))...
+            ' to ' num2str(handles_out.handles.p_thr_less_than(ii_thr)) ])
+    end
+    
     p=[];
     
-    for ii_MLalgo=1:5
-        
+    for ii_MLalgo=MLalgos
+         
         %Shuffled accuracy
-        these_accs=sh_accuracy.thr(ii_thr).MLalgo(ii_MLalgo).accuracy;
-        bar(bar_offset,mean(these_accs),'LineWidth', 3,'EdgeColor','none','FaceColor',[238/255 111/255 179/255])
-        plot(bar_offset*ones(1,length(these_accs)),these_accs,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
-        if length(these_accs)>2
-            CI = bootci(1000, {@mean, these_accs},'type','cper');
-            plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+        %I am adding try catch end because when I increase the cost of
+        %misclassifiaciton as subset of the algorithms crash
+        try
+            these_accs=sh_accuracy.thr(ii_thr).MLalgo(ii_MLalgo).accuracy;
+            bar(bar_offset,mean(these_accs),'LineWidth', 3,'EdgeColor','none','FaceColor',[238/255 111/255 179/255])
+            plot(bar_offset*ones(1,length(these_accs)),these_accs,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+            if length(these_accs)>2
+                CI = bootci(1000, {@mean, these_accs},'type','cper');
+                plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+            end
+            these_accs_sh=these_accs;
+        catch
         end
-        these_accs_sh=these_accs;
         
         bar_offset=bar_offset+1;
         
         %Accuracy
-        these_accs=accuracy.thr(ii_thr).MLalgo(ii_MLalgo).accuracy;
-        bar(bar_offset,mean(these_accs),'LineWidth', 3,'EdgeColor','none','FaceColor',[158/255 31/255 99/255])
-        plot(bar_offset*ones(1,length(these_accs)),these_accs,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
-        if length(these_accs)>2
-            CI = bootci(1000, {@mean, these_accs},'type','cper');
-            plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+        try
+            these_accs=accuracy.thr(ii_thr).MLalgo(ii_MLalgo).accuracy;
+            bar(bar_offset,mean(these_accs),'LineWidth', 3,'EdgeColor','none','FaceColor',[158/255 31/255 99/255])
+            plot(bar_offset*ones(1,length(these_accs)),these_accs,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+            if length(these_accs)>2
+                CI = bootci(1000, {@mean, these_accs},'type','cper');
+                plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+            end
+        catch
         end
-         
+
         bar_offset=bar_offset+2;
         
         [h p(ii_MLalgo)]=ttest(these_accs_sh,these_accs);
@@ -179,7 +228,14 @@ for ii_thr=1:length(handles_out.handles.p_thresholds)
     
     ylim([0 1.1])
     
-    title(['Decoding accuracy for p threshold ' num2str(handles_out.handles.p_thresholds(ii_thr))])
+    if isfield(handles_out.handles,'p_threshold')
+        title(['Decoding accuracy for p threshold ' num2str(handles_out.handles.p_thresholds(ii_thr))])
+    else
+        title(['Decoding accuracy for p threshold from ' num2str(handles_out.handles.p_thr_more_than(ii_thr))...
+            ' to ' num2str(handles_out.handles.p_thr_less_than(ii_thr)) ])
+    end
+    
+    
     
     plot([-1 14],[0.5 0.5],'-k','LineWidth',2)
     xlim([-1 14])
@@ -190,7 +246,7 @@ for ii_thr=1:length(handles_out.handles.p_thresholds)
 end
 
 %Plot bar graphs for accuracy
-for ii_thr=1:length(handles_out.handles.p_thresholds)
+for ii_thr=1:no_thr
     figNo=figNo+1;
     try
         close(figNo)
@@ -207,10 +263,17 @@ for ii_thr=1:length(handles_out.handles.p_thresholds)
     
     bar_offset=0;
     
-    fprintf(1,['t test wta p values for p<' num2str(handles_out.handles.p_thresholds(ii_thr)) '\n'])
+    
+    if isfield(handles_out.handles,'p_threshold')
+        fprintf(1,['t test wta p values for p<' num2str(handles_out.handles.p_thresholds(ii_thr)) '\n'])
+    else
+        fprintf(1,['t test wta p values for p from ' num2str(handles_out.handles.p_thr_more_than(ii_thr))...
+            ' to ' num2str(handles_out.handles.p_thr_less_than(ii_thr)) ])
+    end
+    
     p=[];
     
-    for ii_MLalgo=1:5
+    for ii_MLalgo=MLalgos
         
         %Shuffled accuracy
         these_accs=bishop_sh_accuracy.thr(ii_thr).MLalgo(ii_MLalgo).accuracy;
@@ -220,7 +283,7 @@ for ii_thr=1:length(handles_out.handles.p_thresholds)
             CI = bootci(1000, {@mean, these_accs},'type','cper');
             plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
         end
-%         [mean_out, CIout]=drgViolinPoint(these_accs,edges,bar_offset,rand_offset,'k','k',3);
+        %         [mean_out, CIout]=drgViolinPoint(these_accs,edges,bar_offset,rand_offset,'k','k',3);
         these_accs_sh=these_accs;
         
         bar_offset=bar_offset+1;
@@ -233,23 +296,11 @@ for ii_thr=1:length(handles_out.handles.p_thresholds)
             CI = bootci(1000, {@mean, these_accs},'type','cper');
             plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
         end
-         
+        
         bar_offset=bar_offset+2;
         
         [h p(ii_MLalgo)]=ttest2(these_accs_sh,these_accs);
         fprintf(1,[classifier_names{ii_MLalgo} ' p=' num2str(p(ii_MLalgo)) '\n'])
-        
-        if (ii_MLalgo == 4)&(handles_out.handles.p_thresholds(ii_thr)==0.2)
-            power=0.8;      %power of 0.8
-            testtype='t';   %t-test
-            SD_these_accs=std(these_accs);
-            mean_these_accs=mean(these_accs);
-            parameter_to_comp=0.5;
-            p0=[mean_these_accs SD_these_accs];     %this has the [mean SD] for the null hypothesis
-            p1=parameter_to_comp;         %value of the single parameter tested under the null
-            n = sampsizepwr(testtype,p0,p1,power);
-           fprintf(1,['number of samples from power calculation ' num2str(n) ' for t test p values for p<' num2str(handles_out.handles.p_thresholds(ii_thr)) '\n'])
-        end
         
     end
     
@@ -257,7 +308,13 @@ for ii_thr=1:length(handles_out.handles.p_thresholds)
     
     ylim([0 1.1])
     
-    title(['Decoding accuracy wta for p threshold ' num2str(handles_out.handles.p_thresholds(ii_thr))])
+    
+    if isfield(handles_out.handles,'p_threshold')
+        title(['Decoding accuracy wta for p threshold ' num2str(handles_out.handles.p_thresholds(ii_thr))])
+    else
+        title(['Decoding accuracy wta for p threshold from ' num2str(handles_out.handles.p_thr_more_than(ii_thr))...
+            ' to ' num2str(handles_out.handles.p_thr_less_than(ii_thr)) ])
+    end
     
     plot([-1 14],[0.5 0.5],'-k','LineWidth',2)
     xlim([-1 14])
@@ -269,7 +326,7 @@ end
 
 %Plot timecourses
 time=handles_out.ii_out(ii_out).handles.time_to_eventSm(1:min_timepoints);
-for ii_thr=1:length(handles_out.handles.p_thresholds)
+for ii_thr=1:no_thr
     figNo=figNo+1;
     try
         close(figNo)
@@ -283,17 +340,29 @@ for ii_thr=1:length(handles_out.handles.p_thresholds)
     set(hFig, 'units','normalized','position',[.1 .5 .5 .4])
     
     hold on
-   
     
-    ii_MLalgo=3;
+     
+    ii_MLalgo=2;
     
     %Shuffled accuracy
     these_accs=sh_accuracy.thr(ii_thr).MLalgo(ii_MLalgo).accuracy_timecourse;
-    this_mean_accs=mean(these_accs,1);
     
-    if size(these_accs,1)>2
+
+    pruned_these_accs=[];
+    ii_pruned=0;
+
+    for ii=1:size(these_accs,1)
+        if ~isnan(these_accs(ii,:))
+            ii_pruned=ii_pruned+1;
+            pruned_these_accs(ii_pruned,:)=these_accs(ii,:);
+        end
+    end
+
+    this_mean_accs=mean(pruned_these_accs,1);
+
+    if size(pruned_these_accs,1)>2
         CI=[];
-        CI = bootci(1000, {@mean, these_accs})';
+        CI = bootci(1000, {@mean, pruned_these_accs})';
         CI(:,1)= this_mean_accs'-CI(:,1);
         CI(:,2)=CI(:,2)- this_mean_accs';
         
@@ -303,13 +372,25 @@ for ii_thr=1:length(handles_out.handles.p_thresholds)
         plot(time',this_mean_accs', 'k');
     end
     
-      %Accuracy
+    %Accuracy
     these_accs=accuracy.thr(ii_thr).MLalgo(ii_MLalgo).accuracy_timecourse;
-    this_mean_accs=mean(these_accs,1);
+
+     pruned_these_accs=[];
+    ii_pruned=0;
+
+    for ii=1:size(these_accs,1)
+        if ~isnan(these_accs(ii,:))
+            ii_pruned=ii_pruned+1;
+            pruned_these_accs(ii_pruned,:)=these_accs(ii,:);
+        end
+    end
+
+    this_mean_accs=mean(pruned_these_accs,1);
+   
     
-    if size(these_accs,1)>2
+    if size(pruned_these_accs,1)>2
         CI=[];
-        CI = bootci(1000, {@mean, these_accs})';
+        CI = bootci(1000, {@mean, pruned_these_accs})';
         CI(:,1)= this_mean_accs'-CI(:,1);
         CI(:,2)=CI(:,2)- this_mean_accs';
         
@@ -318,20 +399,27 @@ for ii_thr=1:length(handles_out.handles.p_thresholds)
     else
         plot(time',this_mean_accs', 'r');
     end
-        
+    
     ylim([0 1.1])
     
-    title(['Decoding accuracy for p threshold ' num2str(handles_out.handles.p_thresholds(ii_thr))])
+    
+    
+    if isfield(handles_out.handles,'p_threshold')
+        title(['Decoding accuracy for p threshold ' num2str(handles_out.handles.p_thresholds(ii_thr))])
+    else
+        title(['Decoding accuracy for p threshold from ' num2str(handles_out.handles.p_thr_more_than(ii_thr))...
+            ' to ' num2str(handles_out.handles.p_thr_less_than(ii_thr)) ])
+    end
     
     plot([min(time) max(time)],[0.5 0.5],'-k','LineWidth',2)
-
+    
     
 end
 
 %Now see whether the accuracy decreases as a function of trial number
 %Plot bar graphs for bishop
 C = {'k','b','r','g','m',[.5 .6 .7],[.8 .2 .6]};
-for ii_thr=1:length(handles_out.handles.p_thresholds)
+for ii_thr=1:no_thr
     figNo=figNo+1;
     try
         close(figNo)
@@ -348,10 +436,16 @@ for ii_thr=1:length(handles_out.handles.p_thresholds)
     
     bar_offset=0;
     
-    fprintf(1,['t test p values for p<' num2str(handles_out.handles.p_thresholds(ii_thr)) '\n'])
+    if isfield(handles_out.handles,'p_threshold')
+        title(['Decoding accuracy for p threshold ' num2str(handles_out.handles.p_thresholds(ii_thr))])
+    else
+        title(['Decoding accuracy for p threshold from ' num2str(handles_out.handles.p_thr_more_than(ii_thr))...
+            ' to ' num2str(handles_out.handles.p_thr_less_than(ii_thr)) ])
+    end
+    
     p=[];
     
-    for ii_MLalgo=1:5
+    for ii_MLalgo=MLalgos
         
         this_per_trial_accuracy=zeros(1,length(per_trial_trialNo));
         for jj_trial=1:length(per_trial_trialNo)
@@ -362,10 +456,17 @@ for ii_thr=1:length(handles_out.handles.p_thresholds)
     end
     
     
-    ylim([0.1 0.9])
+    ylim([0.1 1.1])
     xlim([0 per_trial_trialNo(end)+1])
     
-    title(['Decoding accuracy for p threshold ' num2str(handles_out.handles.p_thresholds(ii_thr))])
+    
+    
+    if isfield(handles_out.handles,'p_threshold')
+        title(['Decoding accuracy for p threshold ' num2str(handles_out.handles.p_thresholds(ii_thr))])
+    else
+        title(['Decoding accuracy for p threshold from ' num2str(handles_out.handles.p_thr_more_than(ii_thr))...
+            ' to ' num2str(handles_out.handles.p_thr_less_than(ii_thr)) ])
+    end
     
     plot([0 per_trial_trialNo(end)],[0.5 0.5],'-k','LineWidth',2)
     
@@ -381,8 +482,9 @@ for ii_thr=1:length(handles_out.handles.p_thresholds)
 end
 
 
+
 %Plot bar graphs for accuracy per group
-for ii_thr=1:length(handles_out.handles.p_thresholds)
+for ii_thr=1:no_thr
     figNo=figNo+1;
     try
         close(figNo)
@@ -399,10 +501,16 @@ for ii_thr=1:length(handles_out.handles.p_thresholds)
     
     bar_offset=0;
     
-    fprintf(1,['t test wta p values for p<' num2str(handles_out.handles.p_thresholds(ii_thr)) '\n'])
+       if isfield(handles_out.handles,'p_threshold')
+        fprintf(1,['t test wta p values for p<' num2str(handles_out.handles.p_thresholds(ii_thr)) '\n'])
+    else
+        fprintf(1,['t test wta p values for p from ' num2str(handles_out.handles.p_thr_more_than(ii_thr))...
+            ' to ' num2str(handles_out.handles.p_thr_less_than(ii_thr)) ])
+    end
+  
     p=[];
     
-    for ii_MLalgo=1:5
+    for ii_MLalgo=MLalgos
         
         ii_stats=0;
         accuracy_stats=[];
@@ -449,7 +557,15 @@ for ii_thr=1:length(handles_out.handles.p_thresholds)
             end
             
             if (ii_MLalgo==1)
-                fprintf(1,['Number of experiments for ' group_names{groupNo} ' for p<' num2str(handles_out.handles.p_thresholds(ii_thr)) ' is ' num2str(length(this_group_accs)) '\n\n'])
+                if isfield(handles_out.handles,'p_threshold')
+                    fprintf(1,['Number of experiments for ' group_names{groupNo} ' for p<' num2str(handles_out.handles.p_thresholds(ii_thr)) ' is ' num2str(length(this_group_accs)) '\n\n'])
+                else
+                    fprintf(1,['Number of experiments for ' group_names{groupNo} ' for p from ' num2str(handles_out.handles.p_thr_more_than(ii_thr))...
+                        ' to ' num2str(handles_out.handles.p_thr_less_than(ii_thr))...
+                        ' is ' num2str(length(this_group_accs)) '\n\n'])
+                end
+                
+                
             end
         end
         %         [h p(ii_MLalgo)]=ttest2(these_accs_sh,these_accs);
@@ -458,7 +574,13 @@ for ii_thr=1:length(handles_out.handles.p_thresholds)
         bar_offset=bar_offset+2;
         
         %Do ranksum/t test
-        fprintf(1, ['\n\nRanksum or t-test p values for accuracy for ' classifier_names{ii_MLalgo} ' for p<' num2str(handles_out.handles.p_thresholds(ii_thr)) '\n'])
+        if isfield(handles_out.handles,'p_threshold')
+            fprintf(1, ['\n\nRanksum or t-test p values for accuracy for ' classifier_names{ii_MLalgo} ' for p<' num2str(handles_out.handles.p_thresholds(ii_thr)) '\n'])
+        else
+            fprintf(1, ['\n\nRanksum or t-test p values for accuracy for ' classifier_names{ii_MLalgo} ' for  p from ' num2str(handles_out.handles.p_thr_more_than(ii_thr))...
+                ' to ' num2str(handles_out.handles.p_thr_less_than(ii_thr)) '\n'])
+        end
+         
         [output_data] = drgMutiRanksumorTtest(accuracy_stats);
         fprintf(1, '\n\n')
         
@@ -468,7 +590,13 @@ for ii_thr=1:length(handles_out.handles.p_thresholds)
     
     ylim([0 1.1])
     
-    title(['Decoding accuracy wta for p threshold ' num2str(handles_out.handles.p_thresholds(ii_thr))])
+    if isfield(handles_out.handles,'p_threshold')
+        title(['Decoding accuracy wta for p threshold ' num2str(handles_out.handles.p_thresholds(ii_thr))])
+    else
+        title(['Decoding accuracy wta for p threshold from ' num2str(handles_out.handles.p_thr_more_than(ii_thr))...
+            ' to ' num2str(handles_out.handles.p_thr_less_than(ii_thr)) ])
+    end
+    
     
     plot([-1 41],[0.5 0.5],'-k','LineWidth',2)
     xlim([-1 41])
@@ -499,7 +627,7 @@ bar_offset=0;
 
 
     
-for ii_thr=1:length(handles_out.handles.p_thresholds)
+for ii_thr=1:no_thr
   
     ii_MLalgo=1;
     

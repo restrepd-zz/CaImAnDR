@@ -1,6 +1,6 @@
-%% drgCaImAn_batch_dropc_fsdz.m
+%% drgCaImAn_batch_dropc_sim_fsdz.m
 %
-% Needs as an input the cvs file from Fabio
+% Generates simulations
 %
 close all
 clear all
@@ -35,6 +35,14 @@ ROIs=[];
 
 dropc_program=3;
 
+%Simulations
+which_sim=1;
+
+%Variables for which_sim=1
+%dFF has background normal distribution noise of 0.2 and increases by on_level(component) at time zero for S+
+back_noise=0.2;
+on_level=rand(1,2000);
+
 % Read choices file
 
 [choiceFileName,choiceBatchPathName] = uigetfile({'drgCaImAn_dropc_choices*.m'},'Select the .m file with all the choices for analysis');
@@ -57,113 +65,7 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     fprintf(1, ['\nProcessing  ' num2str(fileNo) '\n']);
     
     dt=handles_choice.dt(fileNo);
-    
-    %
-    %
-    %     Yr=[];
-    %     A_or=[];
-    %     C_or=[];
-    %     b2=[];
-    %     f2=[];
-    %     Cn=[];
-    %     options=[];
-    %     if do_warp==1
-    %         [Yr,A_or,C_or,b2,f2,Cn,options] = drgCaImAn_get_warped_components(handles_choice.CaImAn_scriptFileName{fileNo},handles_choice.CaImAn_referenceFileName);
-    %     else
-    %         load(handles_choice.CaImAn_scriptFileName{fileNo})
-    %     end
-    %
-    %     fnameca=handles_choice.CaImAn_scriptFileName{fileNo};
-    %
-    %     close all
-    %
-    %     %Calculate the center of mass (coms) for each component
-    %     %and draw the components and  their locations
-    %     thr = 0.95;
-    %     d1 = options.d1;
-    %     d2 = options.d2;
-    %     dt=1/options.fr;
-    %
-    %     %Draw the components for the first image
-    %     figNo=figNo+1;
-    %     try
-    %         close(figNo)
-    %     catch
-    %     end
-    %
-    %     hFig = figure(figNo);
-    %
-    %
-    %     cla
-    %     imagesc(2*Cn); axis equal; axis tight; axis off; hold on;
-    %     Cn1x2=2*Cn;
-    %
-    %
-    %     %Find the number of components
-    %     szA_or=size(A_or);
-    %     coms=[];
-    %     num_coms=0;
-    %     num_diameters=0;
-    %     diameter=[];
-    %
-    %     for i=1:szA_or(2)
-    %         A_temp = full(reshape(A_or(:,i),d1,d2));
-    %         A_temp = medfilt2(A_temp,[3,3]);
-    %         A_temp = A_temp(:);
-    %         [temp,ind] = sort(A_temp(:).^2,'ascend');
-    %         temp =  cumsum(temp);
-    %         ff = find(temp > (1-thr)*temp(end),1,'first');
-    %         if ~isempty(ff)
-    %             [contour_properties,ww] = contour(reshape(A_temp,d1,d2),[0,0]+A_temp(ind(ff)),'LineColor','k');
-    %             ww.LineWidth = 2;
-    %             num_coms=num_coms+1;
-    %             coms(1,num_coms)=mean(contour_properties(1,2:end));
-    %             coms(2,num_coms)=mean(contour_properties(2,2:end));
-    %             plot(coms(1,num_coms),coms(2,num_coms),'.r')
-    %             %Note: we need to calculate the area within the contour
-    %             szctr=size(contour_properties);
-    %             lngth=0;
-    %             for jj=2:szctr(2)-1
-    %                 lngth=lngth+sqrt((contour_properties(1,jj+1)-contour_properties(1,jj))^2 +(contour_properties(2,jj+1)-contour_properties(2,jj))^2);
-    %             end
-    %             area=polyarea(contour_properties(1,2:end),contour_properties(2,2:end))-0.5*lngth;
-    %
-    %             if imag(um_per_pixel*sqrt(4*area/pi)) == 0
-    %                 %This is here because some contours have a point WAY off
-    %                 num_diameters=num_diameters+1;
-    %                 diameter(num_diameters)=um_per_pixel*sqrt(4*area/pi);
-    %             end
-    %         end
-    %     end
-    %
-    %
-    %     figNo=figNo+1;
-    %     try
-    %         close(figNo)
-    %     catch
-    %     end
-    %
-    %     hFig = figure(figNo);
-    %
-    %
-    %     edges=[0:25];
-    %     histogram(diameter,edges)
-    %
-    %     xlabel('Diameter (um)')
-    %     ylabel('Counts')
-    %
-    %     ROIs.median(fileNo)=median(diameter);
-    %     ROIs.mean(fileNo)=mean(diameter);
-    %     ROIs.std(fileNo)=std(diameter);
-    %     ROIs.file(fileNo).diameter=diameter;
-    %     ROIs.num_coms(fileNo)=num_coms;
-    %
-    %
-    %     fprintf(1, ['\nMedian diameter (um) is %d\n\n'],median(diameter));
-    %     fprintf(1, ['\nMean diameter (um) is %d\n\n'],mean(diameter));
-    %     fprintf(1, ['\nStndard deviation (um) is %d\n\n'],std(diameter));
-    %
-    %
+   
     
     this_filename=handles_choice.csvFileName{fileNo};
     
@@ -181,24 +83,8 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     
     traces=traces';
     fnameca=handles_choice.csvFileName{fileNo};
-    %     raw=[];
-    %     inferred=[];
-    %     try
-    %         [raw,inferred]=drgGetCAtraces(Yr,A_or,C_or,b2,f2,Cn,options);
-    %     catch
-    %         pffft=1
-    %     end
+    pathname=handles_choice.PathName{fileNo};
     
-    %     % Should we use raw or inferred?
-    %     if isfield(handles_choice,'plot_raw')
-    %         plot_raw=handles_choice.plot_raw;
-    %     end
-    %
-    %     if plot_raw==1
-    %         traces=raw;
-    %     else
-    %         traces=inferred;
-    %     end
        
     sz_traces=size(traces);
     no_traces=sz_traces(1);
@@ -209,7 +95,7 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     %Read the dropc file
     handles=[];
     load([handles_choice.PathName{fileNo} handles_choice.spmFileName{fileNo}])
-     
+    
     %Read the rhd file
     adc_in=[];
     digital_in=[];
@@ -367,20 +253,27 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
         plot(time,traces(trNo,:)+y_shift*trNo,'-k','LineWidth',1)
     end
     
-      
+    
     ylim([-y_shift*0.2 (no_traces+2)*y_shift])
      
     
     xlabel('time (s)')
     ylabel('deltaF/F')
     title(fnameca(1:end-4), 'Interpreter', 'none')
-    
+
+    %Important. If you get:
+    % Unable to save file
+    % 'C:\GitHub\Wave_clus\Grin1_fsds_home_otherPcdh2_XY1623961175_Z0_T00000_C0_ncorr_ext_dropc_batch_Fig1.fig'.
+    % The file could not be closed, and might now be corrupt.
+    %Go to preferences->General->mat files and set the default to Matlab
+    %version 7.3 or later (save -v7.3)
+
     if do_warp==1
-        savefig([fnameca(1:end-4) '_dropc_warp_Fig1.fig'])
+        savefig([pathname fnameca(1:end-4) '_dropc_warp_Fig1.fig'])
     else
-        savefig([fnameca(1:end-4) '_dropc_batch_Fig1.fig'])
+        savefig([pathname fnameca(1:end-4) '_dropc_batch_Fig1.fig'])
     end
-    
+     
     dt_before=10;
     dt_after=20;
     
@@ -394,7 +287,7 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     %     xlim([odor_on_times(trialNo_start)-dt_before odor_on_times(trialNo_end)+dt_after])
     %     ylim([y_shift*(first_trace-1) y_shift*last_trace])
     %     title(['deltaF/f for traces ' num2str(first_trace) ' to ' num2str(last_trace) ])
-    set(hFig, 'units','normalized','position',[.05 .05 .3 .85])
+    %set(hFig, 'units','normalized','position',[.05 .05 .3 .85])
     
     
     
@@ -647,6 +540,15 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
                                     this_trace=traces(trNo,snip_mask);
                                     %if sum(this_trace(floor(dt_before/dt)+1:end)>mean(this_trace(1:floor(dt_before/dt)))+timesSD*std(this_trace(1:floor(dt_before/dt))))>=response_points
                                     spii=spii+1;
+                                    switch which_sim
+                                        case 1
+                                            this_trace=zeros(1,length(traces(trNo,snip_mask)-mean(traces(trNo, ref_mask))));
+                                            this_trace(1,:)=back_noise*randn(1,length(traces(trNo,snip_mask)-mean(traces(trNo, ref_mask))));
+                                            [mindt min_ii]=min(abs(time<=handles.dropcData.epochTime(epoch)));
+                                            zero_ii=min_ii-find(snip_mask==1,1,'first');
+                                            this_trace(1,zero_ii:end)=this_trace(1,zero_ii:end)+on_level(trNo);
+                                            traces(trNo,snip_mask)=this_trace;
+                                    end
                                     splus_traces(spii,1:sum(snip_mask))=traces(trNo,snip_mask)-mean(traces(trNo, ref_mask));
                                     handles_out.componentNo(trace_num).trialNo(spii_lick+1).splus_traces=splus_traces(spii,1:sum(snip_mask));
                                     od_ii=od_ii+1;
@@ -690,6 +592,13 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
                                     this_trace=traces(trNo,snip_mask);
                                     %if sum(this_trace(floor(dt_before/dt)+1:end)>mean(this_trace(1:floor(dt_before/dt)))+timesSD*std(this_trace(1:floor(dt_before/dt))))>=response_points
                                     smii=smii+1;
+                                    switch which_sim
+                                        case 1
+                                            this_trace=zeros(1,length(traces(trNo,snip_mask)-mean(traces(trNo, ref_mask))));
+                                            this_trace(1,:)=back_noise*randn(1,length(traces(trNo,snip_mask)-mean(traces(trNo, ref_mask))));
+                                            [mindt min_ii]=min(abs(time<=handles.dropcData.epochTime(epoch)));
+                                            traces(trNo,snip_mask)=this_trace;
+                                    end
                                     sminus_traces(smii,1:sum(snip_mask))=traces(trNo,snip_mask)-mean(traces(trNo, ref_mask));
                                     handles_out.componentNo(trace_num).trialNo(smii_lick+1).splus_traces=sminus_traces(smii,1:sum(snip_mask));
                                     od_ii=od_ii+1;
@@ -1030,6 +939,79 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     time_licks=([1:length(Hitlick_freq)]*dt_lick)-dt_before+dt_lick/2;
     
     
+    figNo=figNo+1;
+    try
+        close(figNo)
+    catch
+    end
+    
+    hFig = figure(figNo);
+    
+    set(hFig, 'units','normalized','position',[.05 .1 .85 .8])
+    
+    
+    hold on
+    
+    % Determine the y spacing of the traces
+    y_shift=1.2*(prctile(traces(:),95)-prctile(traces(:),5));
+    
+  
+    switch dropc_program
+        case 1
+            for event=2:handles.dropcData.eventIndex
+                plot([handles.dropcData.eventTime(event) handles.dropcData.eventTime(event)], [0 (no_traces+2)*y_shift],...
+                    these_lines{handles.dropcData.odorNo(event)},'LineWidth',1)
+            end
+        case 2
+            for event=1:handles.dropcData.allTrialIndex
+                plot([handles.dropcData.allTrialTime(event)-2.5 handles.dropcData.allTrialTime(event)-2.5], [0 (no_traces+2)*y_shift],...
+                    these_lines{handles.dropcData.odorType(event)},'LineWidth',1)
+            end
+        case 3
+            %For S+ and S- plot odor on and reinforcement
+            for epoch=1:handles.dropcData.epochIndex
+                %Epoch 2 is odor on, 3 is odor off
+                plot_epoch=(handles.dropcData.epochEvent(epoch)==2)||(handles.dropcData.epochEvent(epoch)==3);
+                if plot_epoch
+                    if handles.dropcData.epochTypeOfOdor(epoch)==handles.dropcProg.splusOdor
+                        plot([handles.dropcData.epochTime(epoch) handles.dropcData.epochTime(epoch)], [0 (no_traces+2)*y_shift],...
+                            '-r','LineWidth',1)
+                    else
+                        plot([handles.dropcData.epochTime(epoch) handles.dropcData.epochTime(epoch)], [0 (no_traces+2)*y_shift],...
+                            '-b','LineWidth',1)
+                    end
+                 
+                end
+                
+                
+            end
+    end
+    
+    
+    plot(time_rhd(time_rhd>0),adc_in(time_rhd>0)*norm_fact)
+    
+    %Plot the traces
+    time=[1:no_images]*dt;
+    for trNo=1:no_traces
+        % for trNo=1:20
+        plot(time,traces(trNo,:)+y_shift*trNo,'-k','LineWidth',1)
+    end
+    
+    
+    ylim([-y_shift*0.2 (no_traces+2)*y_shift])
+     
+    
+    xlabel('time (s)')
+    ylabel('deltaF/F')
+    title([fnameca(1:end-4) ' simulated'], 'Interpreter', 'none')
+    
+    if do_warp==1
+        savefig([fnameca(1:end-4) '_dropc_warp_sim_Fig1.fig'])
+    else
+        savefig([fnameca(1:end-4) '_dropc_batch_sim_Fig1.fig'])
+    end
+     
+    
     %FV
     figNo=figNo+1;
     try
@@ -1054,9 +1036,9 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     title('Ca changes aligned to final valve diversion')
     
     if do_warp==1
-        savefig([fnameca(1:end-4) '_dropc_warp_Fig2.fig'])
+        savefig([pathname fnameca(1:end-4) '_dropc_warp_Fig2.fig'])
     else
-        savefig([fnameca(1:end-4) '_dropc_batch_Fig2.fig'])
+        savefig([pathname fnameca(1:end-4) '_dropc_batch_Fig2.fig'])
     end
     
     
@@ -1141,9 +1123,9 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     xlim([-10 19.8])
     
     if do_warp==1
-        savefig([fnameca(1:end-4) '_dropc_warp_Fig3.fig'])
+        savefig([pathname fnameca(1:end-4) '_dropc_warp_Fig3.fig'])
     else
-        savefig([fnameca(1:end-4) '_dropc_batch_Fig3.fig'])
+        savefig([pathname fnameca(1:end-4) '_dropc_batch_Fig3.fig'])
     end
     
     %Hit, CR, et al
@@ -1250,9 +1232,9 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     end
     %Save the calculated data
     if do_warp==1
-        save_name=[handles_choice.PathNamecsv{fileNo} fnameca(1:end-4) '_warp_pre_per.mat'];
+        save_name=[handles_choice.PathNamecsv{fileNo} fnameca(1:end-4) '_sim' num2str(which_sim) '_warp_pre_per.mat'];
     else
-        save_name=[handles_choice.PathNamecsv{fileNo} fnameca(1:end-4) '_batch_pre_per.mat']
+        save_name=[handles_choice.PathNamecsv{fileNo} fnameca(1:end-4) '_sim' num2str(which_sim) '_pre_per.mat']
     end
     
     %splus_traces(handles_out.no_sp_trials*no_traces,no_timepoints), order is  for trial 1: ROI1, ROI2, etc.. ROIend, trial 2:
@@ -1336,9 +1318,9 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     xlim([-10 19.8])
     
     if do_warp==1
-        savefig([fnameca(1:end-4) '_dropc_warp_Fig4.fig'])
+        savefig([pathname fnameca(1:end-4) '_dropc_warp_Fig4.fig'])
     else
-        savefig([fnameca(1:end-4) '_dropc_batch_Fig4.fig'])
+        savefig([pathname fnameca(1:end-4) '_dropc_batch_Fig4.fig'])
     end
     
     %Plot the licks
@@ -1408,9 +1390,9 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     plot([mean(delta_odor_on_reinf_on)+mean(delta_reinf) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[0 y_shift],'-r')
     
     if do_warp==1
-        savefig([fnameca(1:end-4) '_dropc_warp_Fig5.fig'])
+        savefig([pathname fnameca(1:end-4) '_dropc_warp_Fig5.fig'])
     else
-        savefig([fnameca(1:end-4) '_dropc_batch_Fig5.fig'])
+        savefig([pathname fnameca(1:end-4) '_dropc_batch_Fig5.fig'])
     end
     
     %Plot lick frequency
@@ -1434,9 +1416,9 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
     ylabel('Lick frequency (Hz)')
     
     if do_warp==1
-        savefig([fnameca(1:end-4) '_dropc_warp_Fig6.fig'])
+        savefig([pathname fnameca(1:end-4) '_dropc_warp_Fig6.fig'])
     else
-        savefig([fnameca(1:end-4) '_dropc_batch_Fig6.fig'])
+        savefig([pathname fnameca(1:end-4) '_dropc_batch_Fig6.fig'])
     end
     
     
@@ -1498,9 +1480,9 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
         xlabel('Time (sec)')
         ylabel('log10(p value)')
         if do_warp==1
-            savefig([fnameca(1:end-4) '_dropc_warp_Fig7.fig'])
+            savefig([pathname fnameca(1:end-4) '_dropc_warp_Fig7.fig'])
         else
-            savefig([fnameca(1:end-4) '_dropc_batch_Fig7.fig'])
+            savefig([pathname fnameca(1:end-4) '_dropc_batch_Fig7.fig'])
         end
     catch
     end
