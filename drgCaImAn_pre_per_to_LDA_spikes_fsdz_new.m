@@ -1,5 +1,5 @@
 function handles_out2=drgCaImAn_pre_per_to_LDA_spikes_fsdz_new(pre_perBatchPathName, pre_perFileName, p_thr_less_than,p_thr_more_than, MLalgo, show_figures...
-    ,no_sp_sm_trials_to_use,first_sp_sm_trial_no,figNo,fileNo,this_cost)
+    ,no_sp_sm_trials_to_use,first_sp_sm_trial_no,figNo,fileNo,this_cost, spike_threshold)
 %
 % reads the pre_per file and saves .mat files to process with
 % Kording's lab
@@ -9,7 +9,7 @@ function handles_out2=drgCaImAn_pre_per_to_LDA_spikes_fsdz_new(pre_perBatchPathN
 
 
 close all
-clearvars -except pre_perBatchPathName pre_perFileName p_thr_less_than p_thr_more_than MLalgo show_figures no_sp_sm_trials_to_use first_sp_sm_trial_no this_cost figNo this_cost
+clearvars -except pre_perBatchPathName pre_perFileName p_thr_less_than p_thr_more_than MLalgo show_figures no_sp_sm_trials_to_use first_sp_sm_trial_no this_cost spike_threshold
 warning('off')
 
 %Set the cost
@@ -148,15 +148,35 @@ if (handles_out.no_sp_trials>=min_no_trials)&(handles_out.no_sm_trials>=min_no_t
     if (no_sp_sm_trials_to_use>handles_out.no_sp_trials)||(no_sp_sm_trials_to_use>handles_out.no_sm_trials)
         no_sp_sm_trials_to_use=min([handles_out.no_sp_trials handles_out.no_sm_trials]);
     end
+    handles_out2.no_sp_sm_trials_to_use=no_sp_sm_trials_to_use;
+    
     %First and last sp trial numbers
+    %     if (first_sp_sm_trial_no<handles_out.no_sp_trials)&(first_sp_sm_trial_no+no_sp_sm_trials_to_use-1<=handles_out.no_sp_trials)
     first_sp_trial=first_sp_sm_trial_no;
     last_sp_trial=first_sp_sm_trial_no+no_sp_sm_trials_to_use-1;
-   
+    %     else
+    %         if first_sp_sm_trial_no+no_sp_sm_trials_to_use-1>handles_out.no_sp_trials
+    %             first_sp_trial=handles_out.no_sp_trials-no_sp_sm_trials_to_use+1;
+    %             if first_sp_trial<1
+    %                 first_sp_trial=1;
+    %             end
+    %             last_sp_trial=handles_out.no_sp_trials;
+    %         end
+    %     end
 
     %First and last sm trial numbers
+    %     if (first_sp_sm_trial_no<handles_out.no_sm_trials)&(first_sp_sm_trial_no+no_sp_sm_trials_to_use-1<handles_out.no_sm_trials)
     first_sm_trial=first_sp_sm_trial_no;
     last_sm_trial=first_sp_sm_trial_no+no_sp_sm_trials_to_use-1;
-
+    %     else
+    %         if first_sp_sm_trial_no+no_sp_sm_trials_to_use-1>handles_out.no_sm_trials
+    %             first_sm_trial=handles_out.no_sm_trials-no_sp_sm_trials_to_use+1;
+    %              if first_sm_trial<1
+    %                 first_sm_trial=1;
+    %             end
+    %             last_sm_trial=handles_out.no_sm_trials;
+    %         end
+    %     end
 
     %Note: Training is done with no_sp_sm_trials_to_use and outcome is
     %calculated for all trials
@@ -244,9 +264,9 @@ end
 
 if handles_out2.decoding_processed==1
 
-    %Threshold out the spikes
+     %Threshold out the spikes
     std_traces=std(training_neural_recordings(:));
-    thr=5*std_traces;
+    thr=spike_threshold*std_traces;
     
     %These is the placeholders for the spike counts     
     training_neural_spikes=zeros(2*no_sp_sm_trials_to_use,handles_out.no_components,time_bins);
@@ -272,12 +292,30 @@ if handles_out2.decoding_processed==1
     accuracy=zeros(1,no_timepoints);
     sh_accuracy=zeros(1,no_timepoints);
 
-    
 
     %Calculate z from dFF
     mean_per_neuron=zeros(1,sum((p<=p_thr_less_than)&(p>=p_thr_more_than)));
     STD_per_neuron=zeros(1,sum((p<=p_thr_less_than)&(p>=p_thr_more_than)));
-    
+    z_training_neural_recordings=zeros(Nall,sum((p<=p_thr_less_than)&(p>=p_thr_more_than)),no_timepoints);
+    jj_neurons=0;
+    for ii_neurons=1:no_neurons
+        if (p(ii_neurons)<=p_thr_less_than)&(p(ii_neurons)>=p_thr_more_than)
+            jj_neurons=jj_neurons+1;
+            all_pre=[];
+            for ii_trials=1:tr_no_trials
+                these_pre=zeros(1,sum((time_to_eventLDA<0)&(time_to_eventLDA>=-5)));
+                these_pre(1,:)=training_neural_recordings(ii_trials,ii_neurons,(time_to_eventLDA<0)&(time_to_eventLDA>=-5));
+                all_pre=[all_pre these_pre];
+            end
+            STD_per_neuron(jj_neurons)=std(all_pre);
+            for ii_trials=1:tr_no_trials
+                these_dFFs=[];
+                these_dFFs=training_neural_recordings(ii_trials,ii_neurons,(time_to_eventLDA<0)&(time_to_eventLDA>=-5));
+                z_training_neural_recordings(ii_trials,jj_neurons,:)=(training_neural_recordings(ii_trials,ii_neurons,:)-mean(these_dFFs))/STD_per_neuron(jj_neurons);
+            end
+        end
+    end
+
     z_training_neural_spikes=zeros(Nall,sum((p<=p_thr_less_than)&(p>=p_thr_more_than)),no_timepoints);
     jj_neurons=0;
     all_pre=[];
@@ -313,6 +351,7 @@ if handles_out2.decoding_processed==1
         handles_out2.correct_predict_shuffled=zeros(no_timepoints,all_trials);
         training_output_labels=zeros(no_timepoints,Nall);
         handles_out2.this_cost=this_cost;
+        handles_out2.spike_threshold=spike_threshold;
 
         %         What is clear meaning of 1 and 2 in example ([0,1;2,0])?
         %
@@ -493,6 +532,7 @@ if handles_out2.decoding_processed==1
     else
         handles_out2.decoding_processed=0;
     end
+    
     
     if show_figures==1
         figNo=figNo+1;

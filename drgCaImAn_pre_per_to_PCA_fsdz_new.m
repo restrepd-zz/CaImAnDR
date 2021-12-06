@@ -485,7 +485,7 @@ if handles_out2.decoding_processed==1
         
     end
     
-    
+    pffft=1;
     
 else
     handles_out2.decoding_processed=0;

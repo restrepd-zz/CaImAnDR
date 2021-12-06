@@ -58,6 +58,9 @@ if all_files_present==1
         for ii_p_thr=1:length(handles.p_thr_less_than)
             for MLalgo=handles.MLalgo
                 ii_out=ii_out+1;
+                if ii_out==96
+                    pffft=1;
+                end
                 handles_out.ii_out(ii_out).p_thr_less_than=handles.p_thr_less_than(ii_p_thr);
                 handles_out.ii_out(ii_out).p_thr_more_than=handles.p_thr_more_than(ii_p_thr);
                 handles_out.ii_out(ii_out).MLalgo=MLalgo;
@@ -77,7 +80,7 @@ if all_files_present==1
     save([handles.PathName_out handles.FileName_out],'handles_out','-v7.3')
     
     fprintf(1, 'Total processing time %d hours\n',toc/(60*60));
-    
+     
 end
 
 

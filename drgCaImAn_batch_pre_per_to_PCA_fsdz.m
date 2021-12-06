@@ -5,7 +5,7 @@ function drgCaImAn_batch_pre_per_to_PCA_fsdz(choiceBatchPathName,choiceFileName)
 first_file=1;
 
 if nargin==0
-    [choiceFileName,choiceBatchPathName] = uigetfile({'drgCaImAn_LDAfsdz_choices*.m'},'Select the .m file with all the choices for analysis');
+    [choiceFileName,choiceBatchPathName] = uigetfile({'drgCaImAn_PCAfsdz_choices*.m'},'Select the .m file with all the choices for analysis');
 end
 
 fprintf(1, ['\ndrgCaImAn_batch_pre_per_to_LDA_fsdz run for ' choiceFileName '\n\n']);

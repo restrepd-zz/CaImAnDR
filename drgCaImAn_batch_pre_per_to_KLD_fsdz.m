@@ -1,6 +1,8 @@
 function drgCaImAn_batch_pre_per_to_KLD_fsdz(choiceBatchPathName,choiceFileName)
 %Note: fitcnet will not work in Matlab versions earlier than 2021a
 
+close all
+clear all
 
 first_file=1;
 

@@ -148,6 +148,8 @@ if (handles_out.no_sp_trials>=min_no_trials)&(handles_out.no_sm_trials>=min_no_t
     if (no_sp_sm_trials_to_use>handles_out.no_sp_trials)||(no_sp_sm_trials_to_use>handles_out.no_sm_trials)
         no_sp_sm_trials_to_use=min([handles_out.no_sp_trials handles_out.no_sm_trials]);
     end
+    handles_out2.no_sp_sm_trials_to_use=no_sp_sm_trials_to_use;
+    
     %First and last sp trial numbers
     %     if (first_sp_sm_trial_no<handles_out.no_sp_trials)&(first_sp_sm_trial_no+no_sp_sm_trials_to_use-1<=handles_out.no_sp_trials)
     first_sp_trial=first_sp_sm_trial_no;

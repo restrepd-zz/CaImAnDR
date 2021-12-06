@@ -1,4 +1,4 @@
-function drgCaImAnBatchPerSessionPerTrialLDA(choiceBatchPathName,choiceFileName)
+function drgCaImAnBatchPerSessionPerTrialDAnew(choiceBatchPathName,choiceFileName)
 
 % This code does a linear discriminant analysis for spm data for Figure 3 of
 % Ma et al 2020
@@ -9,10 +9,24 @@ warning('off')
 close all
 clear all
  
+%Note: not all classifiers are enabled
+classifier_names{1}='LDA';
+classifier_names{2}='SVM';
+classifier_names{3}='Bayes';
+classifier_names{4}='NN';
+classifier_names{5}='Tree';
+
+
 min_trials=20;
 % min_trials=19;
  
 ii_for_sig=0;
+ii_for_sig_spike=0;
+
+%Note that I am not using lick threshold here. I am setting it to 100
+lick_threshold=100; %This is the threshold to exclude the runs where Ming was adding water manually
+t_odor_on=0;
+t_odor_off=4;
 
 tic
    
@@ -33,6 +47,10 @@ caimanhandles=handles;
 if isfield(caimanhandles.caimandr_choices,'min_trials')
     min_trials=caimanhandles.caimandr_choices.min_trials;
 end
+
+this_cost=caimanhandles.caimandr_choices.this_cost;
+MLalgo=caimanhandles.caimandr_choices.MLalgo;
+p_thr=caimanhandles.caimandr_choices.p_thr
 
 gcp
 
@@ -413,76 +431,76 @@ if ~isfield(caimanhandles.caimandr_choices,'start_reversal')
 end
 
 %For reversals plot violin plot of percent
-if caimanhandles.caimandr_choices.start_reversal<caimanhandles.caimandr_choices.no_files
-    %Keep track of the percent correct
-    %Plot percent correct vs trial
-    figNo=figNo+1;
-    try
-        close(figNo)
-    catch
-    end
-    
-    hFig1 = figure(figNo);
-    set(hFig1, 'units','normalized','position',[.25 .65 .5 .25])
-    hold on
-    
-    %Parameters for violin plot
-    edges=0:5:100;
-    rand_offset=0.8;
-    
-    %Trials before reversal
-    x_val=1;
-    handles_out2.pctPerWin(1).pct=perCorr(1:first_num_odor_trials(caimanhandles.caimandr_choices.start_reversal)-1);
-    bar(x_val,mean(handles_out2.pctPerWin(1).pct),'FaceColor',[0.7 0.7 0.7])
-    [handles_out2.pctPerWin(1).pct_mean, handles_out2.pctPerWin(1).pct_CI]=drgViolinPoint(handles_out2.pctPerWin(1).pct,edges,x_val,rand_offset,'k',2);
-    
-    %Trials after reversal
-    x_val=2;
-    handles_out2.pctPerWin(2).pct=perCorr(first_num_odor_trials(caimanhandles.caimandr_choices.start_reversal)+15:first_num_odor_trials(caimanhandles.caimandr_choices.start_reversal)+65);
-    bar(x_val,mean(handles_out2.pctPerWin(2).pct),'FaceColor',[0.7 0.7 0.7])
-    [handles_out2.pctPerWin(2).pct_mean, handles_out2.pctPerWin(2).pct_CI]=drgViolinPoint(handles_out2.pctPerWin(2).pct,edges,x_val,rand_offset,'k',2);
-    
-    %Trials at end
-    x_val=3;
-    handles_out2.pctPerWin(3).pct=perCorr(end-100:end);
-    bar(x_val,mean(handles_out2.pctPerWin(3).pct),'FaceColor',[0.7 0.7 0.7])
-    [handles_out2.pctPerWin(3).pct_mean, handles_out2.pctPerWin(3).pct_CI]=drgViolinPoint(handles_out2.pctPerWin(3).pct,edges,x_val,rand_offset,'k',2);
-    
-    %Draw lines between points
-    plot([1 2 3],[mean(handles_out2.pctPerWin(1).pct) mean(handles_out2.pctPerWin(2).pct) mean(handles_out2.pctPerWin(3).pct)],'-k')
-    
-    ylim([0 120])
-    xlim([0.3 3.7])
-    ylabel('Percent correct')
-    xticks([1 2 3 5 6 7])
-    xticklabels({'Before','After','End'})
-    
-    
-    
-    window_labels{1}='Before';
-    window_labels{2}='After';
-    window_labels{3}='End';
-    
-    fprintf(1, ['\n\nranksum p values for percent correct windows\n\n']);
-    
-    no_pvals=0;
-    for ii=1:3
-        for jj=ii+1:3
-            no_pvals=no_pvals+1;
-            if (adtest(handles_out2.pctPerWin(ii).pct)==1)||(adtest(handles_out2.pctPerWin(ii).pct)==1)
-                p_vals_corr(no_pvals)=ranksum(handles_out2.pctPerWin(ii).pct,handles_out2.pctPerWin(jj).pct);
-                fprintf(1, ['p values ranksum for ' window_labels{ii} ' vs. ' window_labels{jj} ' =%d\n'],p_vals_corr(no_pvals));
-            else
-                [h p_vals_corr(no_pvals)]=ttest2(handles_out2.pctPerWin(ii).pct,handles_out2.pctPerWin(jj).pct);
-                fprintf(1, ['p values t test for ' window_labels{ii} ' vs. ' window_labels{jj} ' =%d\n'],p_vals_corr(no_pvals));
-            end
-            
-        end
-    end
-    
-    pFDRcorr=drsFDRpval(p_vals_corr);
-    fprintf(1, ['pFDR for significant difference percent correct  = %d\n\n'],pFDRcorr);
-end
+% if caimanhandles.caimandr_choices.start_reversal<caimanhandles.caimandr_choices.no_files
+%     %Keep track of the percent correct
+%     %Plot percent correct vs trial
+%     figNo=figNo+1;
+%     try
+%         close(figNo)
+%     catch
+%     end
+%     
+%     hFig1 = figure(figNo);
+%     set(hFig1, 'units','normalized','position',[.25 .65 .5 .25])
+%     hold on
+%     
+%     %Parameters for violin plot
+%     edges=0:5:100;
+%     rand_offset=0.8;
+%     
+%     %Trials before reversal
+%     x_val=1;
+%     handles_out2.pctPerWin(1).pct=perCorr(1:first_num_odor_trials(caimanhandles.caimandr_choices.start_reversal)-1);
+%     bar(x_val,mean(handles_out2.pctPerWin(1).pct),'FaceColor',[0.7 0.7 0.7])
+%     [handles_out2.pctPerWin(1).pct_mean, handles_out2.pctPerWin(1).pct_CI]=drgViolinPoint(handles_out2.pctPerWin(1).pct,edges,x_val,rand_offset,'k',2);
+%     
+%     %Trials after reversal
+%     x_val=2;
+%     handles_out2.pctPerWin(2).pct=perCorr(first_num_odor_trials(caimanhandles.caimandr_choices.start_reversal)+15:first_num_odor_trials(caimanhandles.caimandr_choices.start_reversal)+65);
+%     bar(x_val,mean(handles_out2.pctPerWin(2).pct),'FaceColor',[0.7 0.7 0.7])
+%     [handles_out2.pctPerWin(2).pct_mean, handles_out2.pctPerWin(2).pct_CI]=drgViolinPoint(handles_out2.pctPerWin(2).pct,edges,x_val,rand_offset,'k',2);
+%     
+%     %Trials at end
+%     x_val=3;
+%     handles_out2.pctPerWin(3).pct=perCorr(end-100:end);
+%     bar(x_val,mean(handles_out2.pctPerWin(3).pct),'FaceColor',[0.7 0.7 0.7])
+%     [handles_out2.pctPerWin(3).pct_mean, handles_out2.pctPerWin(3).pct_CI]=drgViolinPoint(handles_out2.pctPerWin(3).pct,edges,x_val,rand_offset,'k',2);
+%     
+%     %Draw lines between points
+%     plot([1 2 3],[mean(handles_out2.pctPerWin(1).pct) mean(handles_out2.pctPerWin(2).pct) mean(handles_out2.pctPerWin(3).pct)],'-k')
+%     
+%     ylim([0 120])
+%     xlim([0.3 3.7])
+%     ylabel('Percent correct')
+%     xticks([1 2 3 5 6 7])
+%     xticklabels({'Before','After','End'})
+%     
+%     
+%     
+%     window_labels{1}='Before';
+%     window_labels{2}='After';
+%     window_labels{3}='End';
+%     
+%     fprintf(1, ['\n\nranksum p values for percent correct windows\n\n']);
+%     
+%     no_pvals=0;
+%     for ii=1:3
+%         for jj=ii+1:3
+%             no_pvals=no_pvals+1;
+%             if (adtest(handles_out2.pctPerWin(ii).pct)==1)||(adtest(handles_out2.pctPerWin(ii).pct)==1)
+%                 p_vals_corr(no_pvals)=ranksum(handles_out2.pctPerWin(ii).pct,handles_out2.pctPerWin(jj).pct);
+%                 fprintf(1, ['p values ranksum for ' window_labels{ii} ' vs. ' window_labels{jj} ' =%d\n'],p_vals_corr(no_pvals));
+%             else
+%                 [h p_vals_corr(no_pvals)]=ttest2(handles_out2.pctPerWin(ii).pct,handles_out2.pctPerWin(jj).pct);
+%                 fprintf(1, ['p values t test for ' window_labels{ii} ' vs. ' window_labels{jj} ' =%d\n'],p_vals_corr(no_pvals));
+%             end
+%             
+%         end
+%     end
+%     
+%     pFDRcorr=drsFDRpval(p_vals_corr);
+%     fprintf(1, ['pFDR for significant difference percent correct  = %d\n\n'],pFDRcorr);
+% end
 
 %plot number of ROIs
 figNo=figNo+1;
@@ -699,9 +717,9 @@ end
 if caimanhandles.caimandr_choices.start_reversal>length(first_num_odor_trials)
     %This is a forward run
     total_trial_windows=3;
-    supertitle_description{1}='dF/F LDA analysis for trials with percent correct <65';
-    supertitle_description{2}='dF/F LDA analysis for trials with percent correct >=65&<80';
-    supertitle_description{3}='dF/F LDA analysis for trials with percent correct >=80';
+    supertitle_description{1}='dF/F decoding analysis for trials with percent correct <65';
+    supertitle_description{2}='dF/F decoding analysis for trials with percent correct >=65&<80';
+    supertitle_description{3}='dF/F decoding analysis for trials with percent correct >=80';
 else
     %Forward and reverse
     total_trial_windows=2;
@@ -709,15 +727,38 @@ else
     supertitle_description{2}='dF/F LDA analysis for trials after reversal at end of the session';
 end
 
-lick_threshold=20; %This is the threshold to exclude the runs where Ming was adding water manually
-t_odor_on=0;
-t_odor_off=4;
+%Now calculate spikes
+all_lda_spike_input_timecourse=zeros(size(all_lda_input_timecourse,1),size(all_lda_input_timecourse,2),size(all_lda_input_timecourse,3));
+for ii_file=1:max(all_lda_fileNo)
+    first_trNo=find(all_lda_fileNo==ii_file,1,'first');
+    this_file_all_lda_input_timecourse=zeros(length(time_to_eventLDA),all_lda_no_comp(first_trNo),sum(all_lda_fileNo==ii_file));  
+    this_file_all_lda_input_timecourse(:,:,:)=all_lda_input_timecourse(:,1:all_lda_no_comp(first_trNo),all_lda_fileNo==ii_file);
+    
+    %Threshold out the spikes
+    std_traces=std(this_file_all_lda_input_timecourse(:));
+    thr=5*std_traces;
+    
+    this_file_all_lda_spike_input_timecourse=zeros(length(time_to_eventLDA),all_lda_no_comp(first_trNo),sum(all_lda_fileNo==ii_file));
+    for ii_comp=1:all_lda_no_comp(first_trNo)
+        these_dFF_traces=zeros(length(time_to_eventLDA),sum(all_lda_fileNo==ii_file));
+        these_dFF_spikes=zeros(length(time_to_eventLDA),sum(all_lda_fileNo==ii_file));
+        these_dFF_traces(:,:)=this_file_all_lda_input_timecourse(:,ii_comp,:);
+        baseline_dF=prctile(these_dFF_traces(:),5);
+        these_dFF_spikes=these_dFF_traces>baseline_dF+thr;
+        this_file_all_lda_spike_input_timecourse(:,ii_comp,:)=these_dFF_spikes;
+    end
+    
+    all_lda_spike_input_timecourse(:,1:all_lda_no_comp(first_trNo),all_lda_fileNo==ii_file)=this_file_all_lda_spike_input_timecourse;
+end
+    
+
 
 for no_trial_windows=1:total_trial_windows
     handles_par(no_trial_windows).time_to_eventLDA=time_to_eventLDA;
     dFF_trial_mask=[];
     lick_excluded_trials=[];
     jj=0;
+    events=[];
     
     if caimanhandles.caimandr_choices.start_reversal>length(first_num_odor_trials)
         
@@ -1059,23 +1100,228 @@ for no_trial_windows=1:total_trial_windows
             handles_par(no_trial_windows).lda(time_point).trials_processed_mask=[];
         end
         
-        
         no_timepoints=length(time_to_eventLDA);
         
-      
+        %Masks for S+ and S-
+        which_file=[];
+        which_file=all_lda_fileNo(logical(dFF_trial_mask));
+        
+        these_files=[min(which_file):max(which_file)];
+        Sp_mask=zeros(max(which_file),Nall);
+        Sm_mask=zeros(max(which_file),Nall);
+        allTr_mask=zeros(max(which_file),Nall);
 
-          
-        for time_point=1:no_timepoints
+        for ww=1:length(events)
+            if strcmp(events{ww},'S+')
+                Sp_mask(which_file(ww),ww)=1;
+            else
+                Sm_mask(which_file(ww),ww)=1;
+            end
+            allTr_mask(which_file(ww),ww)=1;
+        end
+        
+        no_comps=[];
+        no_comps=all_lda_no_comp(logical(dFF_trial_mask));
+        
+       
+        
+        %Make en exclussion mask based on differences between S+ and S-
+        comps_included=zeros(max(which_file),max(all_lda_no_comp(logical(dFF_trial_mask))));
+        for ii_file=these_files
+            all_t_this_all_lda_input_timecourse=zeros(no_timepoints,max(all_lda_no_comp(logical(dFF_trial_mask))),Nall);
+            all_t_this_all_lda_input_timecourse(:,:,:)=all_lda_input_timecourse(:,1:max(all_lda_no_comp(logical(dFF_trial_mask))),logical(dFF_trial_mask));
+            for ii_comp=1:size(all_t_this_all_lda_input_timecourse,2)
+                
+                sp_dFF=zeros(sum(time_to_eventLDA>10),sum(Sp_mask(ii_file,:)));
+                this_Sp_mask=zeros(1,Nall);
+                this_Sp_mask(1,:)=Sp_mask(ii_file,:);
+                sp_dFF(:,:)=all_t_this_all_lda_input_timecourse(time_to_eventLDA>10,ii_comp,logical(this_Sp_mask));
+                
+                sm_dFF=zeros(sum(time_to_eventLDA>10),sum(Sm_mask(ii_file,:)));
+                this_Sm_mask=zeros(1,Nall);
+                this_Sm_mask(1,:)=Sm_mask(ii_file,:);
+                sm_dFF(:,:)=all_t_this_all_lda_input_timecourse(time_to_eventLDA>10,ii_comp,logical(this_Sm_mask));
+                if (sum(this_Sp_mask>0))&(sum(this_Sm_mask>0))
+                    [h,p]=ttest2(sm_dFF(:),sp_dFF(:));
+                    
+                    if p<p_thr
+                        comps_included(ii_file,ii_comp)=1;
+                    end
+                end
+            end
+
+            ii=find(this_Sp_mask==1,1,'first');
+            fprintf(1,'For file No %d the number of comps included was %d out of %d\n', ii_file,sum(comps_included(ii_file,:)),no_comps(ii))
+        end
+        
+        
+        for ii_file=these_files
+            %Get the splus and sminus traces for each file
+            %Note that we do not align the components across sessions
+            %Also, calculate the baseline for each component and the threshold per file
             
-            %dFF per trial per component
-            measurements=zeros(Nall,max(all_lda_no_comp(logical(dFF_trial_mask))));
-            this_all_lda_input_timecourse=zeros(Nall,max(all_lda_no_comp(logical(dFF_trial_mask))))';
-            this_all_lda_input_timecourse(:,:)=all_lda_input_timecourse(time_point,1:max(all_lda_no_comp(logical(dFF_trial_mask))),logical(dFF_trial_mask));
-            measurements(:,:)=this_all_lda_input_timecourse';
-            which_file=[];
-            which_file=all_lda_fileNo(logical(dFF_trial_mask));
-            no_comps=[];
-            no_comps=all_lda_no_comp(logical(dFF_trial_mask));
+            this_Sp_mask=zeros(1,Nall);
+            this_Sp_mask(1,:)=Sp_mask(ii_file,:);
+            
+            this_Sm_mask=zeros(1,Nall);
+            this_Sm_mask(1,:)=Sm_mask(ii_file,:);
+            
+            these_comps_included=zeros(1,size(comps_included,2));
+            these_comps_included(1,:)=comps_included(ii_file,:);
+            
+            szSp=size(splus_traces);
+            szSm=size(sminus_traces);
+            %time_to_event=([1:szSm(2)]*dt-dt_before);
+            time_to_eventSm=([1:szSm(2)]*dt-dt_before);
+            time_to_eventSp=([1:szSp(2)]*dt-dt_before);
+            
+            if ((sum(this_Sp_mask==1)>4)&(sum(this_Sm_mask==1)>4)&(sum(these_comps_included==1)>2))
+                
+                these_sminus_traces=zeros(sum(these_comps_included==1)*sum(this_Sm_mask==1),length(time_to_eventSm));
+                these_splus_traces=zeros(sum(these_comps_included==1)*sum(this_Sp_mask==1),length(time_to_eventSp));
+                
+                
+                tic
+                for time_point=1:no_timepoints
+                    measurements=zeros(Nall,max(all_lda_no_comp(logical(dFF_trial_mask))));
+                    this_all_lda_input_timecourse=zeros(Nall,max(all_lda_no_comp(logical(dFF_trial_mask))))';
+                    this_all_lda_input_timecourse(:,:)=all_lda_input_timecourse(time_point,1:max(all_lda_no_comp(logical(dFF_trial_mask))),logical(dFF_trial_mask));
+                    measurements(:,:)=this_all_lda_input_timecourse';
+                    
+                    %Enter S+
+                    ii_sp=0;
+                    for jj=1:length(this_Sp_mask)
+                        if this_Sp_mask(jj)==1
+                            these_splus_traces(ii_sp+1:ii_sp+sum(these_comps_included==1),time_point)=measurements(jj,logical(these_comps_included));
+                            ii_sp=ii_sp+sum(these_comps_included==1);
+                        end
+                    end
+                    
+                    %Enter S-
+                    ii_sm=0;
+                    for jj=1:length(this_Sm_mask)
+                        if this_Sm_mask(jj)==1
+                            these_sminus_traces(ii_sm+1:ii_sm+sum(these_comps_included==1),time_point)=measurements(jj,logical(these_comps_included));
+                            ii_sm=ii_sm+sum(these_comps_included==1);
+                        end
+                    end
+                end
+                toc
+                
+                tic
+                %Show the average calcium dynamics for the cells chosen
+                %S+, S-, all snips
+                CIsm = bootci(1000, @mean, these_sminus_traces);
+                meansm=mean(these_sminus_traces,1);
+                CIsm(1,:)=meansm-CIsm(1,:);
+                CIsm(2,:)=CIsm(2,:)-meansm;
+                
+                CIsp = bootci(1000, @mean, these_splus_traces);
+                meansp=mean(these_splus_traces,1);
+                CIsp(1,:)=meansp-CIsp(1,:);
+                CIsp(2,:)=CIsp(2,:)-meansp;
+                
+                
+                %First plot the average Splus and Sminus
+                figNo=figNo+1;
+                try
+                    close(figNo)
+                catch
+                end
+                
+                hFig = figure(figNo);
+                
+                hold on
+                
+                
+                
+                pct1=prctile([mean(these_sminus_traces,1)'; mean(these_splus_traces(:,1:szSp(2)),1)'],1);
+                pct99=prctile([mean(these_sminus_traces,1)'; mean(these_splus_traces(:,1:szSp(2)),1)'],99);
+                
+                
+                
+                [hlsm, hpsm] = boundedline(time_to_eventSm',mean(these_sminus_traces,1)', CIsm', 'b');
+                [hlsp, hpsp] = boundedline(time_to_eventSp',mean(these_splus_traces,1)', CIsp', 'r');
+                
+                %Odor on markers
+                plot([0 0],[pct1-0.1*(pct99-pct1) pct99+0.1*(pct99-pct1)],'-k')
+                odorhl=plot([0 mean(delta_odor)],[pct1-0.1*(pct99-pct1) pct1-0.1*(pct99-pct1)],'-k','LineWidth',5);
+                plot([mean(delta_odor) mean(delta_odor)],[pct1-0.1*(pct99-pct1) pct99+0.1*(pct99-pct1)],'-k')
+                
+                %Reinforcement markers
+                plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)],[pct1-0.1*(pct99-pct1) pct99+0.1*(pct99-pct1)],'-r')
+                reinfhl=plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[pct1-0.1*(pct99-pct1) pct1-0.1*(pct99-pct1)],'-r','LineWidth',5);
+                plot([mean(delta_odor_on_reinf_on)+mean(delta_reinf) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[pct1-0.1*(pct99-pct1) pct99+0.1*(pct99-pct1)],'-r')
+                
+                switch no_trial_windows
+                    case 1
+                        title(['Ca changes for percent <65%% and file ' num2str(ii_file)])
+                    case 2
+                        title(['Ca changes for percent >65%% and <80%% and file ' num2str(ii_file)])
+                    case 3
+                        title(['Ca changes for percent >80%% and file ' num2str(ii_file)])
+                end
+                
+                legend([hlsp hlsm odorhl reinfhl],'S+','S-','Odor','Reinforcement')
+                xlabel('Time (sec)')
+                ylabel('dF/F')
+                ylim([pct1-0.2*(pct99-pct1) pct99+0.2*(pct99-pct1)])
+                xlim([-10 19.8])
+                toc
+                
+                %Calculate p values
+                p_dFF=[];
+                for ii=1:min([length(time_to_eventSm) length(time_to_eventSp)])
+                    [h p_dFF(ii)]=ttest2(these_sminus_traces(:,ii),these_splus_traces(:,ii));
+                end
+                
+                if length(time_to_eventSm)<length(time_to_eventSp)
+                    time_p=time_to_eventSm;
+                else
+                    time_p=time_to_eventSp; 
+                end
+                logpmin=-20;
+                
+                figNo=figNo+1;
+                try
+                    close(figNo)
+                catch
+                end
+                
+                figure(figNo)
+                plot(time_p,log10(p_dFF),'-k','LineWidth',2)
+                hold on
+                plot([time_p(1) time_p(end)],[log10(0.05) log10(0.05)],'-r','LineWidth',1)
+                
+                %Odor on markers
+                plot([0 0],[logpmin 0.5],'-k')
+                odorhl=plot([0 mean(delta_odor)],[logpmin+0.5 logpmin+0.5],'-k','LineWidth',5);
+                plot([mean(delta_odor) mean(delta_odor)],[logpmin 0.5],'-k')
+                
+                %Reinforcement markers
+                plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)],[logpmin 0.5],'-r')
+                reinfhl=plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[logpmin+0.5 logpmin+0.5],'-r','LineWidth',5);
+                plot([mean(delta_odor_on_reinf_on)+mean(delta_reinf) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[logpmin 0.5],'-r')
+                
+                
+                switch no_trial_windows
+                    case 1
+                        title(['log(p value) for dFF Sp vs Sm for percent <65, file ' num2str(ii_file)]);
+                    case 2
+                        title(['log(p value) for dFF Sp vs Sm for percent  >=65&<80, file ' num2str(ii_file)]);
+                    case 3
+                        title(['log(p value) for dFF Sp vs Sm for percent  >80, file ' num2str(ii_file)]);
+                end
+                
+                xlabel('Time (sec)')
+                ylabel('log10(p value)')
+                ylim([logpmin 0.5])
+                xlim([-10 20])
+            end
+        end
+        
+        %Now do discriminant analysis
+        for time_point=1:no_timepoints
             
             scores=[];
             trials_processed=[];
@@ -1104,16 +1350,20 @@ for no_trial_windows=1:total_trial_windows
                 
               
             end
-             
-             
-
+            
+            measurements=zeros(Nall,max(all_lda_no_comp(logical(dFF_trial_mask))));
+            this_all_lda_input_timecourse=zeros(Nall,max(all_lda_no_comp(logical(dFF_trial_mask))))';
+            this_all_lda_input_timecourse(:,:)=all_lda_input_timecourse(time_point,1:max(all_lda_no_comp(logical(dFF_trial_mask))),logical(dFF_trial_mask));
+            measurements(:,:)=this_all_lda_input_timecourse';
+            
             parfor ii=1:Nall
                 
                 %If there are enough trials process the LDA
                 N=sum(which_file(ii)==which_file);
+                these_comps_included=zeros(1,size(comps_included,2));
+                these_comps_included(1,:)=comps_included(which_file(ii),:);
                 
-                
-                if N>=min_trials
+                if (N>=min_trials)&(sum(these_comps_included)>2)
                     trials_processed(ii)=1;
                     %Partition the data into training and test sets.
                     
@@ -1129,7 +1379,8 @@ for no_trial_windows=1:total_trial_windows
                     
                     %Store the training data in a table.
                     tblTrn=[];
-                    tblTrn = array2table(measurements(logical(idxTrn),1:no_comps(ii)));
+%                     tblTrn = array2table(measurements(logical(idxTrn),1:no_comps(ii)));
+                    tblTrn = array2table(measurements(logical(idxTrn),logical(these_comps_included)));
                     these_events=[];
                     noEvs=0;
                     all_these_events=[];
@@ -1148,14 +1399,28 @@ for no_trial_windows=1:total_trial_windows
                         end
                     end
                     tblTrn.Y = these_events';
-                    
+                     
                     %Train a discriminant analysis model using the training set and default options.
                     %By default this is a regularized linear discriminant analysis (LDA)
-                    Mdl = fitcdiscr(tblTrn,'Y');
+%                     Mdl = fitcdiscr(tblTrn,'Y');
+                    
+                    switch MLalgo
+                        case 1
+                            Mdl = fitcdiscr(tblTrn,'Y','Cost',this_cost);
+                        case 2
+                            Mdl = fitcsvm(tblTrn,'Y','Cost',this_cost);
+                        case 3
+                            Mdl = fitcnb(tblTrn,'Y','Cost',this_cost);
+                        case 4
+                            Mdl = fitcnet(tblTrn,'Y');
+                        case 5
+                            Mdl = fitctree(tblTrn,'Y','Cost',this_cost);
+                    end
                     
                     
                     %Predict labels for the test set. You trained Mdl using a table of data, but you can predict labels using a matrix.
-                    [label,score] = predict(Mdl,measurements(logical(idxTest),1:no_comps(ii)));
+                    %                     [label,score] = predict(Mdl,measurements(logical(idxTest),1:no_comps(ii)));
+                    [label,score] = predict(Mdl,measurements(logical(idxTest),logical(these_comps_included)));
                     
                     %label is the predicted label, and score is the predicted class
                     %posterior probability
@@ -1307,8 +1572,429 @@ for no_trial_windows=1:total_trial_windows
             
             
         end
-    end
-end
+        
+        %Now do spikes
+        %all_lda_spike_input_timecourse
+        for ii_file=these_files
+            %Get the splus and sminus traces for each file
+            %Note that we do not align the components across sessions
+            %Also, calculate the baseline for each component and the threshold per file
+            
+            this_Sp_mask=zeros(1,Nall);
+            this_Sp_mask(1,:)=Sp_mask(ii_file,:);
+            
+            this_Sm_mask=zeros(1,Nall);
+            this_Sm_mask(1,:)=Sm_mask(ii_file,:);
+            
+            these_comps_included=zeros(1,size(comps_included,2));
+            these_comps_included(1,:)=comps_included(ii_file,:);
+            
+            szSp=size(splus_traces);
+            szSm=size(sminus_traces);
+            %time_to_event=([1:szSm(2)]*dt-dt_before);
+            time_to_eventSm=([1:szSm(2)]*dt-dt_before);
+            time_to_eventSp=([1:szSp(2)]*dt-dt_before);
+            
+            if ((sum(this_Sp_mask==1)>4)&(sum(this_Sm_mask==1)>4)&(sum(these_comps_included==1)>2))
+                
+                these_sminus_traces=zeros(sum(these_comps_included==1)*sum(this_Sm_mask==1),length(time_to_eventSm));
+                these_splus_traces=zeros(sum(these_comps_included==1)*sum(this_Sp_mask==1),length(time_to_eventSp));
+                
+                
+                tic
+                for time_point=1:no_timepoints
+                    measurements=zeros(Nall,max(all_lda_no_comp(logical(dFF_trial_mask))));
+                    this_all_lda_spike_input_timecourse=zeros(Nall,max(all_lda_no_comp(logical(dFF_trial_mask))))';
+                    this_all_lda_spike_input_timecourse(:,:)=all_lda_spike_input_timecourse(time_point,1:max(all_lda_no_comp(logical(dFF_trial_mask))),logical(dFF_trial_mask));
+                    measurements(:,:)=this_all_lda_spike_input_timecourse';
+                    
+                    %Enter S+
+                    ii_sp=0;
+                    for jj=1:length(this_Sp_mask)
+                        if this_Sp_mask(jj)==1
+                            these_splus_traces(ii_sp+1:ii_sp+sum(these_comps_included==1),time_point)=measurements(jj,logical(these_comps_included));
+                            ii_sp=ii_sp+sum(these_comps_included==1);
+                        end
+                    end
+                    
+                    %Enter S-
+                    ii_sm=0;
+                    for jj=1:length(this_Sm_mask)
+                        if this_Sm_mask(jj)==1
+                            these_sminus_traces(ii_sm+1:ii_sm+sum(these_comps_included==1),time_point)=measurements(jj,logical(these_comps_included));
+                            ii_sm=ii_sm+sum(these_comps_included==1);
+                        end
+                    end
+                end
+                toc
+                
+                tic
+                %Show the average calcium dynamics for the cells chosen
+                %S+, S-, all snips
+                CIsm = bootci(1000, @mean, these_sminus_traces);
+                meansm=mean(these_sminus_traces,1);
+                CIsm(1,:)=meansm-CIsm(1,:);
+                CIsm(2,:)=CIsm(2,:)-meansm;
+                
+                CIsp = bootci(1000, @mean, these_splus_traces);
+                meansp=mean(these_splus_traces,1);
+                CIsp(1,:)=meansp-CIsp(1,:);
+                CIsp(2,:)=CIsp(2,:)-meansp;
+                
+                
+                %First plot the average Splus and Sminus
+                figNo=figNo+1;
+                try
+                    close(figNo)
+                catch
+                end
+                
+                hFig = figure(figNo);
+                
+                hold on
+                
+                
+                
+                pct1=prctile([mean(these_sminus_traces,1)'; mean(these_splus_traces(:,1:szSp(2)),1)'],1);
+                pct99=prctile([mean(these_sminus_traces,1)'; mean(these_splus_traces(:,1:szSp(2)),1)'],99);
+                
+                
+                
+                [hlsm, hpsm] = boundedline(time_to_eventSm',mean(these_sminus_traces,1)', CIsm', 'b');
+                [hlsp, hpsp] = boundedline(time_to_eventSp',mean(these_splus_traces,1)', CIsp', 'r');
+                
+                %Odor on markers
+                plot([0 0],[pct1-0.1*(pct99-pct1) pct99+0.1*(pct99-pct1)],'-k')
+                odorhl=plot([0 mean(delta_odor)],[pct1-0.1*(pct99-pct1) pct1-0.1*(pct99-pct1)],'-k','LineWidth',5);
+                plot([mean(delta_odor) mean(delta_odor)],[pct1-0.1*(pct99-pct1) pct99+0.1*(pct99-pct1)],'-k')
+                
+                %Reinforcement markers
+                plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)],[pct1-0.1*(pct99-pct1) pct99+0.1*(pct99-pct1)],'-r')
+                reinfhl=plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[pct1-0.1*(pct99-pct1) pct1-0.1*(pct99-pct1)],'-r','LineWidth',5);
+                plot([mean(delta_odor_on_reinf_on)+mean(delta_reinf) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[pct1-0.1*(pct99-pct1) pct99+0.1*(pct99-pct1)],'-r')
+                
+                switch no_trial_windows
+                    case 1
+                        title(['Ca spikes for percent <65%% and file ' num2str(ii_file)])
+                    case 2
+                        title(['Ca spikes for percent >65%% and <80%% and file ' num2str(ii_file)])
+                    case 3
+                        title(['Ca spikes for percent >80%% and file ' num2str(ii_file)])
+                end
+                
+                legend([hlsp hlsm odorhl reinfhl],'S+','S-','Odor','Reinforcement')
+                xlabel('Time (sec)')
+                ylabel('dF/F')
+                ylim([pct1-0.2*(pct99-pct1) pct99+0.2*(pct99-pct1)])
+                xlim([-10 19.8])
+                toc
+                
+                %Calculate p values
+                p_dFF=[];
+                for ii=1:min([length(time_to_eventSm) length(time_to_eventSp)])
+                    [h p_dFF(ii)]=ttest2(these_sminus_traces(:,ii),these_splus_traces(:,ii));
+                end
+                
+                if length(time_to_eventSm)<length(time_to_eventSp)
+                    time_p=time_to_eventSm;
+                else
+                    time_p=time_to_eventSp; 
+                end
+                logpmin=-20;
+                
+                figNo=figNo+1;
+                try
+                    close(figNo)
+                catch
+                end
+                
+                figure(figNo)
+                plot(time_p,log10(p_dFF),'-k','LineWidth',2)
+                hold on
+                plot([time_p(1) time_p(end)],[log10(0.05) log10(0.05)],'-r','LineWidth',1)
+                
+                %Odor on markers
+                plot([0 0],[logpmin 0.5],'-k')
+                odorhl=plot([0 mean(delta_odor)],[logpmin+0.5 logpmin+0.5],'-k','LineWidth',5);
+                plot([mean(delta_odor) mean(delta_odor)],[logpmin 0.5],'-k')
+                
+                %Reinforcement markers
+                plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)],[logpmin 0.5],'-r')
+                reinfhl=plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[logpmin+0.5 logpmin+0.5],'-r','LineWidth',5);
+                plot([mean(delta_odor_on_reinf_on)+mean(delta_reinf) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[logpmin 0.5],'-r')
+                
+                
+                switch no_trial_windows
+                    case 1
+                        title(['log(p value) for dFF spikes Sp vs Sm for percent <65, file ' num2str(ii_file)]);
+                    case 2
+                        title(['log(p value) for dFF spikes Sp vs Sm for percent  >=65&<80, file ' num2str(ii_file)]);
+                    case 3
+                        title(['log(p value) for dFF spikes Sp vs Sm for percent  >80, file ' num2str(ii_file)]);
+                end
+                
+                xlabel('Time (sec)')
+                ylabel('log10(p value)')
+                ylim([logpmin 0.5])
+                xlim([-10 20])
+            end
+        end
+        
+        %Now do discriminant analysis
+        for time_point=1:no_timepoints
+            
+            scores=[];
+            trials_processed=[];
+            correct_predict=[];
+            correct_predict_shuffled=[];
+            lda_no_trials=[];
+            
+            
+            if time_point==1
+                maxN=0;
+                for ii=1:Nall
+                    if sum(which_file(ii)==which_file)>maxN
+                        maxN=sum(which_file(ii)==which_file);
+                    end
+                end
+                
+                
+                switch no_trial_windows
+                    case 1
+                        fprintf(1,'\n\nFor percent <65%% max number of trials per file= %d\n\n',maxN)
+                    case 2
+                        fprintf(1,'\n\nFor percent >65%% and <80%% max number of trials per file= %d\n\n',maxN)
+                    case 3
+                        fprintf(1,'\n\nFor percent >80%% max number of trials per file= %d\n\n',maxN)
+                end
+                
+              
+            end
+            
+            measurements=zeros(Nall,max(all_lda_no_comp(logical(dFF_trial_mask))));
+            this_all_lda_spike_input_timecourse=zeros(Nall,max(all_lda_no_comp(logical(dFF_trial_mask))))';
+            this_all_lda_spike_input_timecourse(:,:)=all_lda_spike_input_timecourse(time_point,1:max(all_lda_no_comp(logical(dFF_trial_mask))),logical(dFF_trial_mask));
+            measurements(:,:)=this_all_lda_spike_input_timecourse';
+            
+            parfor ii=1:Nall
+                
+                %If there are enough trials process the LDA
+                N=sum(which_file(ii)==which_file);
+                these_comps_included=zeros(1,size(comps_included,2));
+                these_comps_included(1,:)=comps_included(which_file(ii),:);
+                
+                if (N>=min_trials)&(sum(these_comps_included)>2)
+                    trials_processed(ii)=1;
+                    %Partition the data into training and test sets.
+                    
+                    %Create input and target vectors leaving one trial out
+                    %For per_input each column has the dF/F for one trial
+                    %each row is a single time point for dF/F for one of the cells
+                    %For per_target the top row is 1 if the odor is S+ and 0 if it is
+                    %S-, and row 2 has 1 for S-
+                    idxTrn=ones(Nall,1)&(which_file==which_file(ii))';
+                    idxTrn(ii)=0;
+                    idxTest=zeros(Nall,1);
+                    idxTest(ii)=1;
+                    
+                    %Store the training data in a table.
+                    tblTrn=[];
+%                     tblTrn = array2table(measurements(logical(idxTrn),1:no_comps(ii)));
+                    tblTrn = array2table(measurements(logical(idxTrn),logical(these_comps_included)));
+                    these_events=[];
+                    noEvs=0;
+                    all_these_events=[];
+                    noallEvs=0;
+                    for jj=1:Nall
+                        if (which_file(jj)==which_file(ii))&(jj~=ii)
+                            noEvs=noEvs+1;
+                            these_events{noEvs}=events{jj};
+                        end
+                        if (which_file(jj)==which_file(ii))
+                            noallEvs=noallEvs+1;
+                            all_these_events{noallEvs}=events{jj};
+                            if jj==ii
+                                ii_event=noallEvs;
+                            end
+                        end
+                    end
+                    tblTrn.Y = these_events';
+                     
+                    %Train a discriminant analysis model using the training set and default options.
+                    %By default this is a regularized linear discriminant analysis (LDA)
+%                     Mdl = fitcdiscr(tblTrn,'Y');
+                    
+                    switch MLalgo
+                        case 1
+                            Mdl = fitcdiscr(tblTrn,'Y','Cost',this_cost);
+                        case 2
+                            Mdl = fitcsvm(tblTrn,'Y','Cost',this_cost);
+                        case 3
+                            Mdl = fitcnb(tblTrn,'Y','Cost',this_cost);
+                        case 4
+                            Mdl = fitcnet(tblTrn,'Y');
+                        case 5
+                            Mdl = fitctree(tblTrn,'Y','Cost',this_cost);
+                    end
+                    
+                    
+                    %Predict labels for the test set. You trained Mdl using a table of data, but you can predict labels using a matrix.
+                    %                     [label,score] = predict(Mdl,measurements(logical(idxTest),1:no_comps(ii)));
+                    [label,score] = predict(Mdl,measurements(logical(idxTest),logical(these_comps_included)));
+                    
+                    %label is the predicted label, and score is the predicted class
+                    %posterior probability
+                    scores(ii)=score(1);
+                    lda_no_trials(ii)=N;
+                    correct_predict(ii)=strcmp(events{ii},label);
+                    
+                    ii_shuffled=randperm(N);
+                    correct_predict_shuffled(ii)=strcmp(all_these_events{ii_shuffled(ii_event)},label);
+                    
+                else
+                    trials_processed(ii)=0;
+                end
+            end
+            
+            if sum(trials_processed)>=1
+                handles_par(no_trial_windows).lda(time_point).trials_processed_mask=logical(trials_processed);
+                
+                events_processed=[];
+                jj=0;
+                for ii=1:Nall
+                    if trials_processed(ii)==1
+                        jj=jj+1;
+                        events_processed{jj}=events{ii};
+                    end
+                end
+                
+                trials_processed=logical(trials_processed);
+                scores_processed=[];
+                scores_processed=scores(trials_processed);
+                
+                %Calculate auROC
+                [X,Y,T,AUC] = perfcurve(events_processed,scores_processed','S+');
+                
+                handles_par(no_trial_windows).lda(time_point).auROC=AUC-0.5;
+                handles_par(no_trial_windows).lda(time_point).discriminant_correct=100*sum(correct_predict(trials_processed))/sum(trials_processed);
+                handles_par(no_trial_windows).lda(time_point).discriminant_correct_shuffled=100*sum(correct_predict_shuffled(trials_processed))/sum(trials_processed);
+                handles_par(no_trial_windows).lda(time_point).N=lda_no_trials(trials_processed);
+                fprintf(1, 'Decoding accuracy for dFF spikes %d (for timepoint %d out of %d)\n',100*sum(correct_predict(trials_processed))/sum(trials_processed),time_point,no_timepoints);
+                
+            else
+                fprintf(1, 'Decoding accuracy for dFF spikes not calculated because there were not enough trials in this file for timepoint %d out of %d\n',time_point,no_timepoints);
+            end
+        end
+        
+        %Plot the timecourse
+        if sum(trials_processed)>=1
+            
+            
+            discriminant_correct=zeros(1,no_timepoints);
+            discriminant_correct_shuffled=zeros(1,no_timepoints);
+            auROC=zeros(1,no_timepoints);
+            
+            for time_point=1:no_timepoints
+                discriminant_correct(time_point)= handles_par(no_trial_windows).lda(time_point).discriminant_correct;
+                discriminant_correct_shuffled(time_point)= handles_par(no_trial_windows).lda(time_point).discriminant_correct_shuffled;
+                auROC(time_point)=handles_par(no_trial_windows).lda(time_point).auROC;
+            end
+            
+            figNo=figNo+1;
+            try
+                close(figNo)
+            catch
+            end
+            
+            figure(figNo)
+            
+            %         subplot(1,2,1)
+            hold on
+            
+            
+            per95=prctile(discriminant_correct_shuffled(1,:),95);
+            per5=prctile(discriminant_correct_shuffled(1,:),5);
+            CIsh=[mean(discriminant_correct_shuffled(1,:))-per5 per95-mean(discriminant_correct_shuffled(1,:))]';
+            [hlCR, hpCR] = boundedline([time_to_eventLDA(1) time_to_eventLDA(end)],[mean(discriminant_correct_shuffled(1,:)) mean(discriminant_correct_shuffled(1,:))], CIsh', 'r');
+            
+            plot(time_to_eventLDA',discriminant_correct(1,:),'-k')
+            
+            %Odor on markers
+            plot([0 0],[0 110],'-k')
+            odorhl=plot([0 mean(delta_odor)],[32 32],'-k','LineWidth',5);
+            plot([mean(delta_odor) mean(delta_odor)],[0 110],'-k')
+            
+            %Reinforcement markers
+            plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)],[0 110],'-r')
+            reinfhl=plot([mean(delta_odor_on_reinf_on) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[32 32],'-r','LineWidth',5);
+            plot([mean(delta_odor_on_reinf_on)+mean(delta_reinf) mean(delta_odor_on_reinf_on)+mean(delta_reinf)],[0 110],'-r')
+            
+            
+            ylim([00 110])
+            
+            xlabel('Time (sec)')
+            ylabel('Percent correct')
+            title(['Spike' supertitle_description{no_trial_windows}])
+            
+            
+            %Save data for the tests of significance for the LDA
+            for winNo=1:szwins(1)
+                
+                %discriminant correct within windows
+                ii_for_sig_spike=ii_for_sig_spike+1;
+                
+                win=(time_to_eventLDA>=caimanhandles.caimandr_choices.wins(winNo,1))&(time_to_eventLDA<=caimanhandles.caimandr_choices.wins(winNo,2));
+                handles_sig_spike.win(ii_for_sig_spike).discriminant_correct=discriminant_correct(win);
+                if caimanhandles.caimandr_choices.start_reversal>length(first_num_odor_trials)
+                    switch no_trial_windows
+                        case 1
+                            handles_sig_spike.win(ii_for_sig_spike).description=['<65 from ' num2str(caimanhandles.caimandr_choices.wins(winNo,1)) ' to ' num2str(caimanhandles.caimandr_choices.wins(winNo,2)) ' sec'];
+                        case 2
+                            handles_sig_spike.win(ii_for_sig_spike).description=['>=65&<80 from ' num2str(caimanhandles.caimandr_choices.wins(winNo,1)) ' to ' num2str(caimanhandles.caimandr_choices.wins(winNo,2)) ' sec'];
+                        case 3
+                            handles_sig_spike.win(ii_for_sig_spike).description=['>=80 from ' num2str(caimanhandles.caimandr_choices.wins(winNo,1)) ' to ' num2str(caimanhandles.caimandr_choices.wins(winNo,2)) ' sec'];
+                    end
+                else
+                    if no_trial_windows==1
+                        handles_sig_spike.win(ii_for_sig_spike).description=['before reversal from ' num2str(caimanhandles.caimandr_choices.wins(winNo,1)) ' to ' num2str(caimanhandles.caimandr_choices.wins(winNo,2)) ' sec'];
+                    else
+                        handles_sig_spike.win(ii_for_sig_spike).description=['after reversal from ' num2str(caimanhandles.caimandr_choices.wins(winNo,1)) ' to ' num2str(caimanhandles.caimandr_choices.wins(winNo,2)) ' sec'];
+                    end
+                end
+            end
+            
+            %Save the shuffled data
+            %Note that we use all the time points for the shuffled data on
+            %purpose!
+            ii_for_sig_spike=ii_for_sig_spike+1;
+            handles_sig_spike.win(ii_for_sig_spike).discriminant_correct=discriminant_correct_shuffled;
+            handles_sig_spike.win(ii_for_sig_spike).win=winNo;
+            handles_sig_spike.win(ii_for_sig_spike).pct=no_trial_windows;
+            if caimanhandles.caimandr_choices.start_reversal>length(first_num_odor_trials)
+                switch no_trial_windows
+                    case 1
+                        handles_sig_spike.win(ii_for_sig_spike).description=['<65 shuffled'];
+                    case 2
+                        handles_sig_spike.win(ii_for_sig_spike).description=['>=65&<80 shuffled'];
+                    case 3
+                        handles_sig_spike.win(ii_for_sig_spike).description=['>=80 shuffled'];
+                end
+            else
+                if no_trial_windows==1
+                    handles_sig_spike.win(ii_for_sig_spike).description=['before reversal (shuffled)'];
+                else
+                    handles_sig_spike.win(ii_for_sig_spike).description=['after reversal (shuffled)'];
+                end
+            end
+            
+            
+            handles_sig_spike.ii_for_sig_spike=ii_for_sig_spike;
+            
+            
+        end
+        
+    end %end for if sum(dFF_trial_mask)>0
+end %end for for no_trial_windows =
 
 %Do test of significance for the LDA
 
@@ -1343,6 +2029,6 @@ end
 pFDRLDA=drsFDRpval(p_vals_LDA);
 fprintf(1, ['\npFDR for significant difference percent correct  = %d\n\n'],pFDRLDA);
 
-save([caimanhandles.caimandr_choices.outPathName caimanhandles.caimandr_choices.outFileName(1:end-4) '_lda.mat'],'handles_par','handles_sig')
+save([caimanhandles.caimandr_choices.outPathName caimanhandles.caimandr_choices.outFileName(1:end-4) '_lda.mat'],'handles_par','handles_sig','handles_sig_spike')
   
 pffft=1
