@@ -736,7 +736,9 @@ for ii_file=1:max(all_lda_fileNo)
     
     %Threshold out the spikes
     std_traces=std(this_file_all_lda_input_timecourse(:));
-    thr=5*std_traces;
+%     thr=5*std_traces;
+    thr=caimanhandles.caimandr_choices.SD_mult_factor*std_traces;
+
     
     this_file_all_lda_spike_input_timecourse=zeros(length(time_to_eventLDA),all_lda_no_comp(first_trNo),sum(all_lda_fileNo==ii_file));
     for ii_comp=1:all_lda_no_comp(first_trNo)
@@ -957,7 +959,7 @@ for no_trial_windows=1:total_trial_windows
                     end
                 end
                 
-                
+                 
                 no_pvals=no_pvals+1;
                 
                 if (~isempty(this_Sm))&(~isempty(this_Sp))
@@ -1127,20 +1129,22 @@ for no_trial_windows=1:total_trial_windows
         
         %Make en exclussion mask based on differences between S+ and S-
         comps_included=zeros(max(which_file),max(all_lda_no_comp(logical(dFF_trial_mask))));
+        t_from=caimanhandles.caimandr_choices.t_from_p_thr;
+        t_to=caimanhandles.caimandr_choices.t_to_p_thr;
         for ii_file=these_files
             all_t_this_all_lda_input_timecourse=zeros(no_timepoints,max(all_lda_no_comp(logical(dFF_trial_mask))),Nall);
             all_t_this_all_lda_input_timecourse(:,:,:)=all_lda_input_timecourse(:,1:max(all_lda_no_comp(logical(dFF_trial_mask))),logical(dFF_trial_mask));
             for ii_comp=1:size(all_t_this_all_lda_input_timecourse,2)
                 
-                sp_dFF=zeros(sum(time_to_eventLDA>10),sum(Sp_mask(ii_file,:)));
+                sp_dFF=zeros(sum((time_to_eventLDA>t_from)&(time_to_eventLDA<t_to)),sum(Sp_mask(ii_file,:)));
                 this_Sp_mask=zeros(1,Nall);
                 this_Sp_mask(1,:)=Sp_mask(ii_file,:);
-                sp_dFF(:,:)=all_t_this_all_lda_input_timecourse(time_to_eventLDA>10,ii_comp,logical(this_Sp_mask));
+                sp_dFF(:,:)=all_t_this_all_lda_input_timecourse((time_to_eventLDA>t_from)&(time_to_eventLDA<t_to),ii_comp,logical(this_Sp_mask));
                 
-                sm_dFF=zeros(sum(time_to_eventLDA>10),sum(Sm_mask(ii_file,:)));
+                sm_dFF=zeros(sum((time_to_eventLDA>t_from)&(time_to_eventLDA<t_to)),sum(Sm_mask(ii_file,:)));
                 this_Sm_mask=zeros(1,Nall);
                 this_Sm_mask(1,:)=Sm_mask(ii_file,:);
-                sm_dFF(:,:)=all_t_this_all_lda_input_timecourse(time_to_eventLDA>10,ii_comp,logical(this_Sm_mask));
+                sm_dFF(:,:)=all_t_this_all_lda_input_timecourse((time_to_eventLDA>t_from)&(time_to_eventLDA<t_to),ii_comp,logical(this_Sm_mask));
                 if (sum(this_Sp_mask>0))&(sum(this_Sm_mask>0))
                     [h,p]=ttest2(sm_dFF(:),sp_dFF(:));
                     
@@ -1151,11 +1155,13 @@ for no_trial_windows=1:total_trial_windows
             end
 
             ii=find(this_Sp_mask==1,1,'first');
-            fprintf(1,'For file No %d the number of comps included was %d out of %d\n', ii_file,sum(comps_included(ii_file,:)),no_comps(ii))
+            fprintf(1,'For file No %d the number of comps included for dFF analysis was %d out of %d\n', ii_file,sum(comps_included(ii_file,:)),no_comps(ii))
         end
         
         
         for ii_file=these_files
+           
+            
             %Get the splus and sminus traces for each file
             %Note that we do not align the components across sessions
             %Also, calculate the baseline for each component and the threshold per file
@@ -1177,10 +1183,124 @@ for no_trial_windows=1:total_trial_windows
             
             if ((sum(this_Sp_mask==1)>4)&(sum(this_Sm_mask==1)>4)&(sum(these_comps_included==1)>2))
                 
+                if no_trial_windows==total_trial_windows
+                    %Plot the pseudocolor per trial
+                    %Do a pseudocolor plot
+                    
+                   
+                    
+                    this_comp_ii=0;
+                    at_end=0;
+                    
+                    set_ii=0;
+                    ii_odor_on=find(time_to_eventSm>=0,1,'first');
+                    ii_odor_off=find(time_to_eventSm>=4,1,'first');
+                    
+                    while at_end==0
+                        
+                        figNo=figNo+1;
+                        try
+                            close(figNo)
+                        catch
+                        end
+                        
+                        hFig = figure(figNo);
+                        set(hFig, 'units','normalized','position',[.05 .05 .5 .8])
+                        
+                        hold on
+                        
+                        min_c=-0.1;
+                        max_c=1;
+                        
+                        this_pseudo=-10*ones(4*size(all_lda_input_timecourse,1)+5*10,10*(sum(this_Sm_mask==1)+sum(this_Sp_mask==1))+10*15+10);
+                        this_pseudo_mask=ones(4*size(all_lda_input_timecourse,1)+5*10,10*(sum(this_Sm_mask==1)+sum(this_Sp_mask==1))+10*15+10);
+                        
+                        
+                        ii_plotted_this_pseudo=0;
+                        ii_x=0;
+                        ii_y=0;
+                        
+                        ii_x_marker=[];
+                        ii_y_marker=[];
+                        ii_m=0;
+                        
+                        while (ii_plotted_this_pseudo<40)&(at_end==0)
+                             
+                            delta_comp_ii=find(these_comps_included(this_comp_ii+1:end)==1,1,'first');
+                            if isempty(delta_comp_ii)
+                                at_end=1;
+                            else
+                                this_comp_ii=this_comp_ii+delta_comp_ii;
+                                
+                                all_these_traces=zeros(size(all_lda_input_timecourse,1),sum(dFF_trial_mask));
+                                all_these_traces(:,:)=all_lda_input_timecourse(:,this_comp_ii,logical(dFF_trial_mask));
+                                
+                                 %Enter S- trials
+                                these_Sm_traces=zeros(size(all_lda_input_timecourse,1),sum(this_Sm_mask));
+                                these_Sm_traces(:,:)=all_these_traces(:,logical(this_Sm_mask));
+                                this_pseudo(ii_x+11:ii_x+size(all_lda_input_timecourse,1)+10,ii_y+11:ii_y+sum(this_Sm_mask)+10)=these_Sm_traces;
+                                this_pseudo_mask(ii_x+11:ii_x+size(all_lda_input_timecourse,1)+10,ii_y+11:ii_y+sum(this_Sm_mask)+10)=0;
+                                ii_y=ii_y+sum(this_Sp_mask)+5;
+                                
+                                ii_m=ii_m+1;
+                                ii_x_marker(ii_m)=ii_x+11;
+                                ii_y_marker(ii_m)=ii_y+10;
+                                
+                                %Enter the S+ trials
+                                these_Sp_traces=zeros(size(all_lda_input_timecourse,1),sum(this_Sp_mask));
+                                these_Sp_traces(:,:)=all_these_traces(:,logical(this_Sp_mask));
+                                this_pseudo(ii_x+11:ii_x+size(all_lda_input_timecourse,1)+10,ii_y+11:ii_y+sum(this_Sp_mask)+10)=these_Sp_traces;
+                                this_pseudo_mask(ii_x+11:ii_x+size(all_lda_input_timecourse,1)+10,ii_y+11:ii_y+sum(this_Sp_mask)+10)=0;
+                                ii_y=ii_y+sum(this_Sp_mask)+10;
+                                
+                                ii_plotted_this_pseudo=ii_plotted_this_pseudo+1;
+                                
+                                if rem(ii_plotted_this_pseudo,10)==0
+                                    ii_x=ii_x+size(all_lda_input_timecourse,1)+10;
+                                    ii_y=0;
+                                end
+                                
+                            end
+                            
+                        end
+                        
+                        time=repmat([1:size(this_pseudo,1)],size(this_pseudo,2),1);
+                        trials=repmat([1:size(this_pseudo,2)]',1, size(this_pseudo,1));
+                        
+                        drg_pcolor(time',trials',this_pseudo)
+                        
+                        
+                        colormap fire
+                        shading flat
+                        
+                      
+                        clrmp=colormap(fire);
+                        clrmp(1,1)=0.7;
+                        clrmp(1,2)=0.7;
+                        clrmp(1,3)=0.7;
+                        caxis([min_c max_c]);
+                        colormap(clrmp)
+                        set_ii=set_ii+1;
+                        xlim([0 size(this_pseudo,1)])
+                        ylim([0 size(this_pseudo,2)])
+                        title(['dFF per trial per ROI for file ' num2str(ii_file) ' set no ' num2str(set_ii)])
+                        
+                        %Add odor markers
+                        hold on
+           
+                        for ii=1:ii_m
+                            plot([ii_x_marker(ii)+ii_odor_on ii_x_marker(ii)+ii_odor_off],[ii_y_marker(ii) ii_y_marker(ii)],'-r','LineWidth', 2)
+                        end
+                        
+                    end
+                    
+                end
+                
+                %Plot the mean dFF traces
                 these_sminus_traces=zeros(sum(these_comps_included==1)*sum(this_Sm_mask==1),length(time_to_eventSm));
                 these_splus_traces=zeros(sum(these_comps_included==1)*sum(this_Sp_mask==1),length(time_to_eventSp));
                 
-                
+               
                 tic
                 for time_point=1:no_timepoints
                     measurements=zeros(Nall,max(all_lda_no_comp(logical(dFF_trial_mask))));
@@ -1261,7 +1381,7 @@ for no_trial_windows=1:total_trial_windows
                     case 3
                         title(['Ca changes for percent >80%% and file ' num2str(ii_file)])
                 end
-                
+                 
                 legend([hlsp hlsm odorhl reinfhl],'S+','S-','Odor','Reinforcement')
                 xlabel('Time (sec)')
                 ylabel('dF/F')
@@ -1740,6 +1860,37 @@ for no_trial_windows=1:total_trial_windows
             end
         end
         
+        %Make en exclussion mask based on differences between spikes for S+ and S-
+        comps_included=zeros(max(which_file),max(all_lda_no_comp(logical(dFF_trial_mask))));
+        t_from=caimanhandles.caimandr_choices.t_from_p_thr;
+        t_to=caimanhandles.caimandr_choices.t_to_p_thr;
+        for ii_file=these_files
+            all_t_this_all_lda_spike_input_timecourse=zeros(no_timepoints,max(all_lda_no_comp(logical(dFF_trial_mask))),Nall);
+            all_t_this_all_lda_spike_input_timecourse(:,:,:)=all_lda_spike_input_timecourse(:,1:max(all_lda_no_comp(logical(dFF_trial_mask))),logical(dFF_trial_mask));
+            for ii_comp=1:size(all_t_this_all_lda_spike_input_timecourse,2)
+                
+                sp_dFF=zeros(sum((time_to_eventLDA>t_from)&(time_to_eventLDA<t_to)),sum(Sp_mask(ii_file,:)));
+                this_Sp_mask=zeros(1,Nall);
+                this_Sp_mask(1,:)=Sp_mask(ii_file,:);
+                sp_dFF(:,:)=all_t_this_all_lda_spike_input_timecourse((time_to_eventLDA>t_from)&(time_to_eventLDA<t_to),ii_comp,logical(this_Sp_mask));
+                
+                sm_dFF=zeros(sum((time_to_eventLDA>t_from)&(time_to_eventLDA<t_to)),sum(Sm_mask(ii_file,:)));
+                this_Sm_mask=zeros(1,Nall);
+                this_Sm_mask(1,:)=Sm_mask(ii_file,:);
+                sm_dFF(:,:)=all_t_this_all_lda_spike_input_timecourse((time_to_eventLDA>t_from)&(time_to_eventLDA<t_to),ii_comp,logical(this_Sm_mask));
+                if (sum(this_Sp_mask>0))&(sum(this_Sm_mask>0))
+                    [h,p]=ttest2(sm_dFF(:),sp_dFF(:));
+                    
+                    if p<p_thr
+                        comps_included(ii_file,ii_comp)=1;
+                    end
+                end
+            end
+
+            ii=find(this_Sp_mask==1,1,'first');
+            fprintf(1,'For file No %d the number of comps included for spike dFF analysis was %d out of %d\n', ii_file,sum(comps_included(ii_file,:)),no_comps(ii))
+        end
+        
         %Now do discriminant analysis
         for time_point=1:no_timepoints
             
@@ -1992,6 +2143,9 @@ for no_trial_windows=1:total_trial_windows
             
             
         end
+        
+        %Now estimate dFF excluding spikes
+        
         
     end %end for if sum(dFF_trial_mask)>0
 end %end for for no_trial_windows =

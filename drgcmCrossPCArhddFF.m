@@ -135,6 +135,30 @@ for fileNo=1:handles_per_file.no_files
             end
         end
         
+         %Fit LFP with dFFtraces
+        order=3;
+        framelen=31;
+        mask_dFF=~isnan(decimated_LFP_logPtraces(1,:));
+        for elect_no=1:handles_per_file.file(fileNo).no_electrodes
+            this_decimated_LFP_logPtraces=zeros(sum(mask_dFF),1);
+            this_decimated_LFP_logPtraces(:,1)=decimated_LFP_logPtraces(elect_no,mask_dFF)';
+            sgf_this_decimated_LFP_logPtraces = sgolayfilt(this_decimated_LFP_logPtraces,order,framelen);
+            mdl=fitglm(dFFtraces',sgf_this_decimated_LFP_logPtraces,'linear');
+            LFPlog_pred = predict(mdl,dFFtraces');
+            figNo=figNo+1;
+            try
+                close(figNo)
+            catch
+            end
+            hFig=figure(figNo);
+            hold on
+            set(hFig, 'units','normalized','position',[.3 .3 .6 .3])
+            plot(dFFtime,sgf_this_decimated_LFP_logPtraces,'-k','LineWidth',3)
+            plot(dFFtime+3,LFPlog_pred,'-r')
+            title(['glm fit of logLFP of electrode No ' num2str(elect_no) ' for ' handles.bw_names{bwii}])
+            fprintf(1, ['\nProcessed glm for ' handles.bw_names{bwii} ' electrode No ' num2str(elect_no) '\n']);
+        end
+        
 %         %Calculate PCs per timepoint
 %         for ii_time=1:no_timepoints_dFF
 %             these_logPs=zeros(1,handles_per_file.file(fileNo).no_electrodes);
@@ -303,7 +327,7 @@ for bwii=1:4
     title('Shuffled')
     xlabel('Rho')
     
-    suptitle(['Rho for dFF x LFP log P for ' handles.bw_names{bwii} ])
+    sgtitle(['Rho for dFF x LFP log P for ' handles.bw_names{bwii} ])
 end
 
 

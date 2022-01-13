@@ -19,7 +19,11 @@ handles.choiceBatchPathName=choiceBatchPathName;
 
 new_no_files=handles.no_files;
 
-
+if isfield(handles,'processing_algo')
+    processing_algo=handles.processing_algo;
+else
+    processing_algo=1;
+end
 
 %Parallel batch processing for each file
 all_files_present=1;
@@ -41,43 +45,68 @@ for filNum=first_file:handles.no_files
     
 end
 
-handles_out=[];
-ii_out=0;
+
+if exist([handles.PathName_out handles.FileName_out])==0
+    handles_out=[];
+    ii_out=0;
+    first_file=1;
+else
+    load([handles.PathName_out handles.FileName_out])
+    ii_out=length(handles_out.ii_out);
+    first_file=1+(length(handles_out.ii_out)/(length(handles.p_thr_less_than)*length(handles.MLalgo)));
+end
+
 figNo=0;
+show_figures=1;
 
 if all_files_present==1
-    tic
+    
     
     %Process each file separately
-    for fileNo=1:length(handles.FileName_pre_per)
+    for fileNo=first_file:length(handles.FileName_pre_per)
+        tic
+        first_toc=toc;
         
         pre_per_PathName=handles.PathName_pre_per{fileNo};
         pre_per_FileName=handles.FileName_pre_per{fileNo};
          
+        figNo=0;
         
         for ii_p_thr=1:length(handles.p_thr_less_than)
             for MLalgo=handles.MLalgo
+                
                 ii_out=ii_out+1;
-                if ii_out==96
-                    pffft=1;
-                end
+
                 handles_out.ii_out(ii_out).p_thr_less_than=handles.p_thr_less_than(ii_p_thr);
                 handles_out.ii_out(ii_out).p_thr_more_than=handles.p_thr_more_than(ii_p_thr);
                 handles_out.ii_out(ii_out).MLalgo=MLalgo;
                 handles_out.ii_out(ii_out).grNo=handles.group(fileNo);
                 handles_out.ii_out(ii_out).pre_per_PathName=pre_per_PathName;
                 handles_out.ii_out(ii_out).pre_per_FileName=pre_per_FileName;
-                handles_out.ii_out(ii_out).handles=drgCaImAn_pre_per_to_LDA_fsdz_new(pre_per_PathName, pre_per_FileName,handles.p_thr_less_than(ii_p_thr),handles.p_thr_more_than(ii_p_thr)...
-                    ,MLalgo,handles.show_figures,handles.no_sp_sm_trials_to_use, handles.first_sp_sm_trial_no,figNo,fileNo,handles.this_cost);
+                start_toc=toc;
+                switch processing_algo
+                    case 1
+                        handles_out.ii_out(ii_out).handles=drgCaImAn_pre_per_to_LDA_fsdz_new(pre_per_PathName, pre_per_FileName,handles.p_thr_less_than(ii_p_thr),handles.p_thr_more_than(ii_p_thr)...
+                            ,MLalgo,show_figures,handles.no_sp_sm_trials_to_use, handles.first_sp_sm_trial_no,figNo,fileNo,handles.this_cost);
+                    case 2
+                        handles_out.ii_out(ii_out).handles=drgCaImAn_pre_per_to_LDA_fsdz_new_pre_trained_w_post(pre_per_PathName, pre_per_FileName,handles.p_thr_less_than(ii_p_thr),handles.p_thr_more_than(ii_p_thr)...
+                            ,MLalgo,show_figures,handles.no_sp_sm_trials_to_use, handles.first_sp_sm_trial_no,figNo,fileNo,handles.this_cost);
+                end
                 figNo=figNo+3;
                 fprintf(1, ['Data processed for file number %d, p_threshold from %d to %d and MLalgo %d\n'],fileNo,handles.p_thr_more_than(ii_p_thr),handles.p_thr_less_than(ii_p_thr),MLalgo);
+                
+                fprintf(1,'Processing time for drgCaImAn_pre_per_to_LDA_fsdz_new %d hours\n',(toc-start_toc)/(60*60));
             end
         end
+        
+        fprintf(1,'\n\nProcessing time for file No %d is %d hours\n',fileNo,(toc-first_toc)/(60*60));
+        
+        %Save output file
+        handles_out.handles=handles;
+        save([handles.PathName_out handles.FileName_out],'handles_out','-v7.3')
     end
     
-    %Save output file
-    handles_out.handles=handles;
-    save([handles.PathName_out handles.FileName_out],'handles_out','-v7.3')
+   
     
     fprintf(1, 'Total processing time %d hours\n',toc/(60*60));
      

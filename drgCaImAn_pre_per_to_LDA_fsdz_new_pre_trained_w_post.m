@@ -1,4 +1,4 @@
-function handles_out2=drgCaImAn_pre_per_to_LDA_fsdz_new(pre_perBatchPathName, pre_perFileName, p_thr_less_than,p_thr_more_than, MLalgo, show_figures...
+function handles_out2=drgCaImAn_pre_per_to_LDA_fsdz_new_pre_trained_w_post(pre_perBatchPathName, pre_perFileName, p_thr_less_than,p_thr_more_than, MLalgo, show_figures...
     ,no_sp_sm_trials_to_use,first_sp_sm_trial_no,figNo,fileNo,this_cost)
 %
 % reads the pre_per file and saves .mat files to process with
@@ -574,7 +574,7 @@ if handles_out2.decoding_processed==1
         %application
         
         
-        %Now decode all trials before t=0 for training
+        %Pre points
         ii_zero=find(time>=0,1,'first');
         no_points_pre=length(time(1:ii_zero-1));
         measurements_pre=zeros(Nall*no_points_pre,sum((p<=p_thr_less_than)&(p>=p_thr_more_than)));
@@ -587,6 +587,19 @@ if handles_out2.decoding_processed==1
             ii=ii+Nall;
         end
         
+        %Post points
+        no_points_post=length(time(ii_zero:end));
+        measurements_post=zeros(Nall*no_points_post,sum((p<=p_thr_less_than)&(p>=p_thr_more_than)));
+        training_decisions_post=zeros(1,Nall*no_points_post);
+        
+        ii=0;
+        for time_point=ii_zero:length(time)
+            measurements_post(ii+1:ii+Nall,:)=z_training_neural_recordings(:,:,time_point);
+            training_decisions_post(ii+1:ii+Nall)=training_decisions;
+            ii=ii+Nall;
+        end
+        
+        %Now decode all trials before t=0 for training
         labels=[];
         timepoint_processed=[];
         correct_predict=[];
@@ -594,6 +607,7 @@ if handles_out2.decoding_processed==1
         
         
         Nall_pre=Nall*no_points_pre;
+        Nall_post=Nall*no_points_post;
         
         if show_figures==1
             fprintf(1, ['Running pre with %d ROIs...\n'],sum((p<=p_thr_less_than)&(p>=p_thr_more_than)));
@@ -610,17 +624,17 @@ if handles_out2.decoding_processed==1
             %each row is a single time point for dF/F for one of the cells
             %For per_target the top row is 1 if the odor is S+ and 0 if it is
             %S-, and row 2 has 1 for S-
-            idxTrn=ones(Nall_pre,1);
+            idxTrn=ones(Nall_post,1);
             idxTrn(ii)=0;
             idxTest=zeros(Nall_pre,1);
             idxTest(ii)=1;
             
             %Store the training data in a table.
             tblTrn=[];
-            tblTrn = array2table(measurements_pre(logical(idxTrn),:));
+            tblTrn = array2table(measurements_post(logical(idxTrn),:));
             
             %Store the decisions in Y
-            Y=training_decisions_pre(logical(idxTrn));
+            Y=training_decisions_post(logical(idxTrn));
             
             %Train a discriminant analysis model using the training set and default options.
             %By default this is a regularized linear discriminant analysis (LDA)
@@ -705,7 +719,7 @@ if handles_out2.decoding_processed==1
         correct_predict_shuffled=[];
         
         
-        Nall_post=Nall*no_points_post;
+        
         
          if show_figures==1
             fprintf(1, ['Running post...\n']);

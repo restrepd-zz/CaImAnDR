@@ -23,7 +23,7 @@ https://github.com/flatironinstitute/CaImAn-MATLAB
 
 And some functions from GitHub/restrepd/drgMaster
 
-All the data will be deposited in GigaDB once the manuscript is accepted (doing the data transfer now�).
+All the data was deposited in GigaDB.
 
 ## Running the code to generate the figures in Ma et al. 2020
 
@@ -106,6 +106,8 @@ yields 20180702_05_mmG7f09-Cerebellum_lda_sum_lda
 
 drgCaImAnChoices_20181017_19mmPVG05_CerebellumLDA.m generated
 20181017_19mmPVG05_Cerebellum_out_lda_sum_lda.mat
+
+drgCaImAnBatchPerSessionReversalPerTrialLDA.m performs a linear decoding analysis
 
 Then run summary_lda_recalc.m to generate Fig. 3d
 
@@ -237,9 +239,23 @@ If you would like to get information on how to generate the Supplementary Figure
 
 ## For processing Fabio's CA1 data
 
-drgCaImAn_batch_dropc_fsdz loads dF/F from csv files generated through ImageJ
+drgCaImAn_batch_dropc_fsdz loads dF/F from csv files generated through ImageJ. It needs as input a drgCaImAn_dropc_choicesfile such as drgCaImAn_dropc_choices_Grin3_fsds1_2_20210302.m
+If the imaging file is .csv it assumes that it is ROIs processed by Fabio in ImageJ, if it is .mat it assumes it is the output from EXTRACT.
+
 drgCaImAn_pre_per_to_pydec reads the pre_per file and saves data for Kording's lab python neural_decoding
-drgCaImAnBatchPerSessionReversalPerTrialLDA_fsdz reads the pre_per file  and does an LDA analysis
+
+drgCaImAnBatchPerSessionReversalPerTrialLDA_fsdz reads the pre_per file and does an LDA analysis for the go-no go spm
+
+drgCaImAn_pre_per_to_LDA_fsdz does a decoding analysis for Splus vs. Sminus
+
+drgCaImAn_batch_pre_per_to_LDA_fsdz performs a batch decoding analysis for Splus vs. Sminus. It needs as an input a choices file such as drgCaImAn_LDAfsdz_choices_05242021.m
+Discriminant is calculated per group.
+
+drgCaImAn_batch_analysis_pre_per_to_LDA_fsdz dispays the results of drgCaImAn_batch_pre_per_to_LDA_fsdz
+
+drgCaImAn_batch_pre_per_to_KLD_fsdz with input from a file such as drgCaImAn_KLDfsdz_choicesMing_12042021 shows pseucolor plots of thersholded dF/F, timecourse of the overall thresholded dF/F and KL divergence.
+
+## To processing Ming's go-no go CA1 data
 
 ## Authors
 

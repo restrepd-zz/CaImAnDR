@@ -367,7 +367,9 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
         plot(time,traces(trNo,:)+y_shift*trNo,'-k','LineWidth',1)
     end
     
-      
+    %This vector will save the epochs (Hit, CR, etc)
+    epochs=zeros(1,length(time));
+    
     ylim([-y_shift*0.2 (no_traces+2)*y_shift])
      
     
@@ -573,10 +575,17 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
                     %Final valve epoch
                     if (handles.dropcData.epochEvent(epoch)==1)
                         
+                        if handles.dropcData.epochEvent(epoch+1)==2
+                            fv_mask=(time>=handles.dropcData.epochTime(epoch))...
+                                &(time<=handles.dropcData.epochTime(epoch+1));
+                            epochs(fv_mask)=1;
+                        end
+                        
                         snip_mask=(time>=handles.dropcData.epochTime(epoch)-dt_before)...
                             &(time<=handles.dropcData.epochTime(epoch)+dt_after);
                         ref_mask=(time>=handles.dropcData.epochTime(epoch)+ref_win(1))...
                             &(time<=handles.dropcData.epochTime(epoch)+ref_win(2));
+                        
                         %FV on
                         %Exclude the first snip if it is too close to the start
                         handles_out.no_components=no_traces;
@@ -605,6 +614,8 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
                     %Now do S+ and S-
                     if (handles.dropcData.epochEvent(epoch)==2)
                         %Odor on
+                        odor_mask=(time>=handles.dropcData.epochTime(epoch))...
+                            &(time<=handles.dropcData.epochTime(epoch+1));
                         snip_mask=(time>=handles.dropcData.epochTime(epoch)-dt_before+dt_odor_onset)...
                             &(time<=handles.dropcData.epochTime(epoch)+dt_after+dt_odor_onset);
                         ref_mask=(time>=handles.dropcData.epochTime(epoch)+ref_win(1))...
@@ -734,6 +745,7 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
                         
                         snip_mask=(time>=handles.dropcData.epochTime(epoch)-dt_before+dt_odor_onset)...
                             &(time<=handles.dropcData.epochTime(epoch)+dt_after+dt_odor_onset);
+                        epochs(odor_mask)=6;
                         ref_mask=(time>=handles.dropcData.epochTime(epoch)+ref_win(1))...
                             &(time<=handles.dropcData.epochTime(epoch)+ref_win(2));
                         %Each trace is from a different neuron
@@ -787,6 +799,7 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
                         
                         snip_mask=(time>=handles.dropcData.epochTime(epoch)-dt_before+dt_odor_onset)...
                             &(time<=handles.dropcData.epochTime(epoch)+dt_after+dt_odor_onset);
+                        epochs(odor_mask)=7;
                         ref_mask=(time>=handles.dropcData.epochTime(epoch)+ref_win(1))...
                             &(time<=handles.dropcData.epochTime(epoch)+ref_win(2));
                         trace_num=0;
@@ -834,6 +847,7 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
                         
                         snip_mask=(time>=handles.dropcData.epochTime(epoch)-dt_before+dt_odor_onset)...
                             &(time<=handles.dropcData.epochTime(epoch)+dt_after+dt_odor_onset);
+                        epochs(odor_mask)=8;
                         ref_mask=(time>=handles.dropcData.epochTime(epoch)+ref_win(1))...
                             &(time<=handles.dropcData.epochTime(epoch)+ref_win(2));
                         trace_num=0;
@@ -881,6 +895,7 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
                         
                         snip_mask=(time>=handles.dropcData.epochTime(epoch)-dt_before+dt_odor_onset)...
                             &(time<=handles.dropcData.epochTime(epoch)+dt_after+dt_odor_onset);
+                        epochs(odor_mask)=9;
                         ref_mask=(time>=handles.dropcData.epochTime(epoch)+ref_win(1))...
                             &(time<=handles.dropcData.epochTime(epoch)+ref_win(2));
                         trace_num=0;
@@ -917,43 +932,13 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
                         
                     end
                     
-                    %                 else
-                    %                     %Hit
-                    %                     if (handles.dropcData.epochEvent(epoch)==6)
-                    %
-                    %                         no_odor_trials=no_odor_trials+1;
-                    %                         epoch_per_trial(no_odor_trials)=6;
-                    %                         epoch_time(no_odor_trials)=handles.dropcData.epochTime(epoch);
-                    %                         valid_trace(no_odor_trials)=0;
-                    %                     end
-                    %
-                    %                     %Miss
-                    %                     if (handles.dropcData.epochEvent(epoch)==7)
-                    %
-                    %                         no_odor_trials=no_odor_trials+1;
-                    %                         epoch_per_trial(no_odor_trials)=7;
-                    %                         epoch_time(no_odor_trials)=handles.dropcData.epochTime(epoch);
-                    %                         valid_trace(no_odor_trials)=0;
-                    %                     end
-                    %
-                    %                     %FA
-                    %                     if (handles.dropcData.epochEvent(epoch)==8)
-                    %
-                    %                         no_odor_trials=no_odor_trials+1;
-                    %                         epoch_per_trial(no_odor_trials)=8;
-                    %                         epoch_time(no_odor_trials)=handles.dropcData.epochTime(epoch);
-                    %                         valid_trace(no_odor_trials)=0;
-                    %                     end
-                    %
-                    %                     %CR
-                    %                     if (handles.dropcData.epochEvent(epoch)==9)
-                    %
-                    %                         no_odor_trials=no_odor_trials+1;
-                    %                         epoch_per_trial(no_odor_trials)=9;
-                    %                         epoch_time(no_odor_trials)=handles.dropcData.epochTime(epoch);
-                    %                         valid_trace(no_odor_trials)=0;
-                    %                     end
-                    pffft=1;
+                    %reinforcement
+                    if (handles.dropcData.epochEvent(epoch)==4)
+                        reinforcement_mask=(time>=handles.dropcData.epochTime(epoch))...
+                            &(time<=handles.dropcData.epochTime(epoch+1));
+                        epochs(reinforcement_mask)=4;
+                    end
+                    
                     
                 end
             end
@@ -1274,7 +1259,7 @@ for fileNo=handles_choice.first_file:handles_choice.no_files
         'handles','odor_traces','dt','all_lick_traces','acq_rate',...
         'y_shift','traces','time_rhd','adc_in','no_images','handles_out',...
         'lda_input_timecourse','lda_event','time_to_eventLDA','dHit_lick_traces'...
-        ,'dCR_lick_traces','dMiss_lick_traces','dFA_lick_traces')
+        ,'dCR_lick_traces','dMiss_lick_traces','dFA_lick_traces','time','epochs','digital_in')
     
     
     
