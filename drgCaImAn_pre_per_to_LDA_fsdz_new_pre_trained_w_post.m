@@ -437,9 +437,7 @@ if handles_out2.decoding_processed==1
                     labels(ii)=-1;
                 end
             end
-            if (p_thr_less_than==1.1)&(p_thr_more_than==0.5)
-                pffft=1;
-            end
+            
             accuracy(time_point)=mean(correct_predict(correct_predict~=-1));
             sh_accuracy(time_point)=mean(correct_predict_shuffled(correct_predict_shuffled~=-1));
             training_output_labels(time_point,:)=labels;
@@ -826,6 +824,7 @@ if handles_out2.decoding_processed==1
         handles_out2.sh_accuracy_pp=sh_accuracy;
         handles_out2.mean_accuracy_pp=mean(accuracy(time>=0));
         handles_out2.mean_sh_accuracy_pp=mean(sh_accuracy(time>=0));
+        handles_out2.output_labels=training_output_labels;
         
         
         %Now use Bishop's (2006) majority rule, winner takes all
